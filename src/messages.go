@@ -14,11 +14,12 @@ type TunnelMessage struct {
 }
 
 type RequestMessage struct {
-	ID     uuid.UUID           `json:"id"`
-	Method string              `json:"method"`
-	URL    string              `json:"url"`
-	Body   []byte              `json:"body"`
-	Header map[string][]string `json:"header"`
+	ID           uuid.UUID            `json:"id"`
+	Method       string               `json:"method"`
+	URL          string               `json:"url"`
+	Body         []byte               `json:"body"`
+	Header       map[string][]string  `json:"header"`
+	ResponseChan chan ResponseMessage `json:"-"`
 }
 
 type ResponseMessage struct {
@@ -43,6 +44,8 @@ func FromHttpRequest(httpRequest *http.Request) RequestMessage {
 	for name, values := range httpRequest.Header {
 		requestMessage.Header[name] = values
 	}
+
+	requestMessage.ResponseChan = make(chan ResponseMessage)
 
 	return requestMessage
 }

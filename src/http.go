@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 )
 
@@ -14,6 +13,9 @@ func HttpHandler(writer http.ResponseWriter, request *http.Request) {
 		writer.Write([]byte(err.Error()))
 	}
 
-	fmt.Println(tunnel)
-	// write response
+	requestMessage := FromHttpRequest(request)
+	tunnel.requestChan <- requestMessage
+
+	responseMessage := <-requestMessage.ResponseChan
+	responseMessage.WriteToHttpResponse(writer)
 }
