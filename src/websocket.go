@@ -29,6 +29,7 @@ func WebsocketHandler(w http.ResponseWriter, r *http.Request) {
 	ports := query["port"]
 
 	if len(usernames) != 1 || len(ports) != 1 {
+		log.Error("Websocket Connection: Bad Request: ", query)
 		return
 	}
 

@@ -2,7 +2,9 @@ package main
 
 import (
 	"bytes"
+	"encoding/base64"
 	"github.com/gofrs/uuid"
+	"github.com/labstack/gommon/log"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -25,7 +27,7 @@ type RequestMessage struct {
 type ResponseMessage struct {
 	RequestId uuid.UUID           `json:"request_id"`
 	Token     string              `json:"token"`
-	Body      []byte              `json:"body"`
+	Body      string              `json:"body"`
 	Status    int                 `json:"status"`
 	Header    map[string][]string `json:"header"`
 }
@@ -56,5 +58,9 @@ func (responseMessage ResponseMessage) WriteToHttpResponse(writer http.ResponseW
 		writer.Header()[name] = values
 	}
 
-	io.Copy(writer, bytes.NewBuffer(responseMessage.Body))
+	decoded, err := base64.StdEncoding.DecodeString(responseMessage.Body)
+	if err != nil {
+		log.Error("Error Decoding Response Body: ", err)
+	}
+	io.Copy(writer, bytes.NewBuffer(decoded))
 }

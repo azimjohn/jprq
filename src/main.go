@@ -1,16 +1,22 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/labstack/gommon/log"
 	"net/http"
 )
 
+var baseHost string
+
 func main() {
-	config.Load()
+	flag.StringVar(&baseHost, "host", "jprq.live", "Base Host")
+	flag.Parse()
+
 	tunnels = make(map[string]Tunnel)
 
+	fmt.Println(baseHost)
 	r := mux.NewRouter()
 	r.HandleFunc("/_ws/", WebsocketHandler)
 	r.PathPrefix("/").HandlerFunc(HttpHandler)

@@ -35,7 +35,7 @@ func AddTunnel(username string, port int, conn *websocket.Conn) Tunnel {
 	adj := GetRandomAdj()
 	username = slug.Make(username)
 
-	host := fmt.Sprintf("%s-%s.%s", adj, username, config.BaseHostName)
+	host := fmt.Sprintf("%s-%s.%s", adj, username, baseHost)
 	token := GenerateToken()
 	requests := make(map[uuid.UUID]RequestMessage)
 	requestChan, responseChan := make(chan RequestMessage), make(chan ResponseMessage)
