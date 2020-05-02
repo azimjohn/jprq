@@ -53,7 +53,12 @@ func WebsocketHandler(w http.ResponseWriter, r *http.Request) {
 		response := ResponseMessage{}
 		err = json.Unmarshal(message, &response)
 		if err != nil {
-			log.Error("Failed to Unmarshal Websocket Message:", string(message), err)
+			log.Error("Failed to Unmarshal Websocket Message: ", string(message), err)
+			continue
+		}
+
+		if response.Token != tunnel.token {
+			log.Error("Authentication Failed: ", tunnel.host)
 			continue
 		}
 

@@ -21,8 +21,8 @@ type Message struct {
 }
 
 func (m Message) Bytes() []byte {
-	bytes, _ := json.Marshal(m)
-	return bytes
+	b, _ := json.Marshal(m)
+	return b
 }
 
 type TunnelMessage struct {
@@ -40,6 +40,7 @@ type RequestMessage struct {
 
 type ResponseMessage struct {
 	RequestId uuid.UUID           `json:"request_id"`
+	Token     string              `json:"token"`
 	Body      []byte              `json:"body"`
 	Status    int                 `json:"status"`
 	Header    map[string][]string `json:"header"`
