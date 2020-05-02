@@ -5,6 +5,7 @@ import (
 	"github.com/go-errors/errors"
 	"github.com/gorilla/websocket"
 	"github.com/gosimple/slug"
+	"github.com/labstack/gommon/log"
 )
 
 var tunnels map[string]Tunnel
@@ -33,10 +34,12 @@ func AddTunnel(username string, port int, conn *websocket.Conn) Tunnel {
 	token, _ := GetJWToken(host)
 	tunnel := Tunnel{host, port, conn, token}
 
+	log.Info("New Tunnel: ", host)
 	tunnels[host] = tunnel
 	return tunnel
 }
 
 func DeleteTunnel(host string) {
+	log.Info("Deleted Tunnel: ", host)
 	delete(tunnels, host)
 }
