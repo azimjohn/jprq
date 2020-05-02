@@ -1,14 +1,16 @@
 package main
 
 import (
-	"github.com/dgrijalva/jwt-go"
+	cryptorand "crypto/rand"
+	"fmt"
 	"math/rand"
 	"time"
 )
 
-func GetJWToken(host string) (string, error) {
-	token := jwt.New(jwt.SigningMethodHS256)
-	return token.SignedString([]byte(config.JwtSigningKey))
+func GenerateToken() string {
+	b := make([]byte, 32)
+	cryptorand.Read(b)
+	return fmt.Sprintf("%x", b)
 }
 
 func GetRandomAdj() string {
