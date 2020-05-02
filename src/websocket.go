@@ -1,8 +1,9 @@
 package main
 
 import (
-	"fmt"
+	"encoding/json"
 	"github.com/gorilla/websocket"
+	"github.com/labstack/gommon/log"
 	"net/http"
 	"strconv"
 	"time"
@@ -37,10 +38,10 @@ func WebsocketHandler(w http.ResponseWriter, r *http.Request) {
 	tunnel := AddTunnel(username, port, ws)
 	defer DeleteTunnel(tunnel.host)
 	message := Message{
-		tunnelCreated, TunnelCreatedMessage{tunnel.host, tunnel.token},
+		tunnelCreated, TunnelMessage{tunnel.host, tunnel.token},
 	}
 
-	time.Sleep(time.Second * 5)
+	time.Sleep(time.Second)
 	ws.WriteMessage(websocket.TextMessage, message.Bytes())
 
 	for {
@@ -48,7 +49,14 @@ func WebsocketHandler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			break
 		}
-		// todo: receive request and return http response to client
-		fmt.Println(string(message))
+
+		response := ResponseMessage{}
+		err = json.Unmarshal(message, &response)
+		if err != nil {
+			log.Error("Failed to Unmarshal Websocket Message:", string(message), err)
+			continue
+		}
+
+		// tunnel.ProcessResponse(response)
 	}
 }

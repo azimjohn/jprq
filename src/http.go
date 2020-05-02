@@ -1,17 +1,19 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 )
 
 func HttpHandler(writer http.ResponseWriter, request *http.Request) {
 	host := request.Host
-	tunnel, error := GetTunnelByHost(host)
+	tunnel, err := GetTunnelByHost(host)
 
-	if error != nil {
+	if err != nil {
 		writer.WriteHeader(http.StatusNotFound)
-		writer.Write([]byte(error.Error()))
+		writer.Write([]byte(err.Error()))
 	}
 
-	// todo: receive response from websocket and write response
+	fmt.Println(tunnel)
+	// write response
 }

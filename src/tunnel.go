@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/go-errors/errors"
-	ws "github.com/gorilla/websocket"
+	"github.com/gorilla/websocket"
 	"github.com/gosimple/slug"
 )
 
@@ -12,7 +12,7 @@ var tunnels map[string]Tunnel
 type Tunnel struct {
 	host  string
 	port  int
-	conn  *ws.Conn
+	conn  *websocket.Conn
 	token string
 }
 
@@ -25,7 +25,7 @@ func GetTunnelByHost(host string) (Tunnel, error) {
 	return t, nil
 }
 
-func AddTunnel(username string, port int, conn *ws.Conn) Tunnel {
+func AddTunnel(username string, port int, conn *websocket.Conn) Tunnel {
 	adj := GetRandomAdj()
 	username = slug.Make(username)
 
