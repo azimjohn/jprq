@@ -16,7 +16,6 @@ func main() {
 
 	tunnels = make(map[string]Tunnel)
 
-	fmt.Println(baseHost)
 	r := mux.NewRouter()
 	r.HandleFunc("/_ws/", WebsocketHandler)
 	r.PathPrefix("/").HandlerFunc(HttpHandler)
