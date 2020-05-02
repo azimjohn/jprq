@@ -19,17 +19,17 @@ type RequestMessage struct {
 	ID           uuid.UUID            `json:"id"`
 	Method       string               `json:"method"`
 	URL          string               `json:"url"`
-	Body         []byte               `json:"body"`
-	Header       map[string][]string  `json:"header"`
+	Body         string               `json:"body"`
+	Header       map[string]string    `json:"header"`
 	ResponseChan chan ResponseMessage `json:"-"`
 }
 
 type ResponseMessage struct {
-	RequestId uuid.UUID           `json:"request_id"`
-	Token     string              `json:"token"`
-	Body      string              `json:"body"`
-	Status    int                 `json:"status"`
-	Header    map[string][]string `json:"header"`
+	RequestId uuid.UUID         `json:"request_id"`
+	Token     string            `json:"token"`
+	Body      string            `json:"body"`
+	Status    int               `json:"status"`
+	Header    map[string]string `json:"header"`
 }
 
 func FromHttpRequest(httpRequest *http.Request) RequestMessage {
@@ -39,12 +39,13 @@ func FromHttpRequest(httpRequest *http.Request) RequestMessage {
 	requestMessage.URL = httpRequest.URL.RequestURI()
 
 	if httpRequest.Body != nil {
-		requestMessage.Body, _ = ioutil.ReadAll(httpRequest.Body)
+		body, _ := ioutil.ReadAll(httpRequest.Body)
+		requestMessage.Body = base64.StdEncoding.EncodeToString(body)
 	}
 
-	requestMessage.Header = make(map[string][]string)
+	requestMessage.Header = make(map[string]string)
 	for name, values := range httpRequest.Header {
-		requestMessage.Header[name] = values
+		requestMessage.Header[name] = values[0]
 	}
 
 	requestMessage.ResponseChan = make(chan ResponseMessage)
@@ -54,8 +55,8 @@ func FromHttpRequest(httpRequest *http.Request) RequestMessage {
 
 func (responseMessage ResponseMessage) WriteToHttpResponse(writer http.ResponseWriter) {
 	writer.WriteHeader(responseMessage.Status)
-	for name, values := range responseMessage.Header {
-		writer.Header()[name] = values
+	for name, value := range responseMessage.Header {
+		writer.Header()[name] = []string{value}
 	}
 
 	decoded, err := base64.StdEncoding.DecodeString(responseMessage.Body)
