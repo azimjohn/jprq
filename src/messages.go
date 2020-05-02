@@ -2,28 +2,11 @@ package main
 
 import (
 	"bytes"
-	"encoding/json"
 	"github.com/gofrs/uuid"
 	"io"
 	"io/ioutil"
 	"net/http"
 )
-
-const (
-	tunnelCreated = "tunnel"
-	request       = "request"
-	response      = "response"
-)
-
-type Message struct {
-	Type string      `json:"type"`
-	Data interface{} `json:"data"`
-}
-
-func (m Message) Bytes() []byte {
-	b, _ := json.Marshal(m)
-	return b
-}
 
 type TunnelMessage struct {
 	Host  string `json:"host"`

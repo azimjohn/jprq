@@ -37,12 +37,11 @@ func WebsocketHandler(w http.ResponseWriter, r *http.Request) {
 
 	tunnel := AddTunnel(username, port, ws)
 	defer DeleteTunnel(tunnel.host)
-	message := Message{
-		tunnelCreated, TunnelMessage{tunnel.host, tunnel.token},
-	}
-
+	message := TunnelMessage{tunnel.host, tunnel.token}
+	messageContent, err := json.Marshal(message)
 	time.Sleep(time.Second)
-	ws.WriteMessage(websocket.TextMessage, message.Bytes())
+
+	ws.WriteMessage(websocket.TextMessage, messageContent)
 
 	for {
 		_, message, err := ws.ReadMessage()
