@@ -11,6 +11,7 @@ func HttpHandler(writer http.ResponseWriter, request *http.Request) {
 	if err != nil {
 		writer.WriteHeader(http.StatusNotFound)
 		writer.Write([]byte(err.Error()))
+		return
 	}
 
 	requestMessage := FromHttpRequest(request)
