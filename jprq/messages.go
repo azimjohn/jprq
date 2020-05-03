@@ -54,10 +54,10 @@ func FromHttpRequest(httpRequest *http.Request) RequestMessage {
 }
 
 func (responseMessage ResponseMessage) WriteToHttpResponse(writer http.ResponseWriter) {
-	writer.WriteHeader(responseMessage.Status)
 	for name, value := range responseMessage.Header {
 		writer.Header().Set(name, value)
 	}
+	writer.WriteHeader(responseMessage.Status)
 
 	decoded, err := base64.StdEncoding.DecodeString(responseMessage.Body)
 	if err != nil {
