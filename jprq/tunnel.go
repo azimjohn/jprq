@@ -68,7 +68,10 @@ func DeleteTunnel(host string) {
 func (tunnel Tunnel) DispatchRequests() {
 	for {
 		select {
-		case requestMessage := <-tunnel.requestChan:
+		case requestMessage, more := <-tunnel.requestChan:
+			if !more {
+				return
+			}
 			messageContent, _ := json.Marshal(requestMessage)
 			tunnel.requests[requestMessage.ID] = requestMessage
 			tunnel.conn.WriteMessage(websocket.TextMessage, messageContent)
@@ -79,7 +82,10 @@ func (tunnel Tunnel) DispatchRequests() {
 func (tunnel Tunnel) DispatchResponses() {
 	for {
 		select {
-		case responseMessage := <-tunnel.responseChan:
+		case responseMessage, more := <-tunnel.responseChan:
+			if !more {
+				return
+			}
 			requestMessage, ok := tunnel.requests[responseMessage.RequestId]
 			if !ok {
 				log.Error("Request Not Found", responseMessage.RequestId)
