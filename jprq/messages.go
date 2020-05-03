@@ -56,7 +56,7 @@ func FromHttpRequest(httpRequest *http.Request) RequestMessage {
 func (responseMessage ResponseMessage) WriteToHttpResponse(writer http.ResponseWriter) {
 	writer.WriteHeader(responseMessage.Status)
 	for name, value := range responseMessage.Header {
-		writer.Header()[name] = []string{value}
+		writer.Header().Set(name, value)
 	}
 
 	decoded, err := base64.StdEncoding.DecodeString(responseMessage.Body)
