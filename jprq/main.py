@@ -12,12 +12,16 @@ def main():
     args = parser.parse_args()
     username = getuser()
 
-    asyncio.get_event_loop().run_until_complete(
-        open_tunnel(
-            ws_uri=f'wss://open.jprq.live/_ws/?username={username}&port={args.port}',
-            http_uri=f'http://127.0.0.1:{args.port}',
+    loop = asyncio.get_event_loop()
+    try:
+        loop.run_until_complete(
+            open_tunnel(
+                ws_uri=f'wss://open.jprq.live/_ws/?username={username}&port={args.port}',
+                http_uri=f'http://127.0.0.1:{args.port}',
+            )
         )
-    )
+    except KeyboardInterrupt:
+        print("jprq tunnel closed")
 
 
 if __name__ == '__main__':
