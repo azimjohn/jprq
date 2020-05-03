@@ -16,7 +16,7 @@ async def open_tunnel(ws_uri: str, http_uri):
     async with websockets.connect(ws_uri, ssl=ssl_context) as websocket:
         message = json.loads(await websocket.recv())
         host, token = message["host"], message["token"]
-        sys.stdout.write(f"Online at https://{host}/")
+        print(f"Online at https://{host}/")
 
         client = Client(http_uri, token)
         while True:

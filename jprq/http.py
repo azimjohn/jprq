@@ -21,7 +21,7 @@ class Client:
                     data=base64.b64decode(message['body']),
                 )
             except:
-                sys.stderr.write(f"Error Processing Request At: {message['url']}")
+                print(f"Error Processing Request At: {message['url']}")
                 return {
                     'request_id': message['id'],
                     'token': self.token,
@@ -30,7 +30,7 @@ class Client:
                     'body': base64.b64encode(b'request failed').decode('utf-8'),
                 }
 
-            sys.stdout.write(message["method"], message["url"], response.status)
+            print(message["method"], message["url"], response.status)
             body = await response.read()
             response_message = {
                 'request_id': message['id'],
