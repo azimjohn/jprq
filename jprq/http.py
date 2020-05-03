@@ -1,6 +1,5 @@
 import base64
 import json
-import sys
 from urllib.parse import urljoin
 
 import aiohttp
