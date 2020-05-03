@@ -1,4 +1,6 @@
+import asyncio
 import json
+import sys
 
 import websockets
 import ssl
@@ -14,11 +16,9 @@ async def open_tunnel(ws_uri: str, http_uri):
     async with websockets.connect(ws_uri, ssl=ssl_context) as websocket:
         message = json.loads(await websocket.recv())
         host, token = message["host"], message["token"]
-        print(f"Online at https://{host}/")
+        sys.stdout.write(f"Online at https://{host}/")
 
         client = Client(http_uri, token)
         while True:
             message = json.loads(await websocket.recv())
-
-            response = await client.process(message)
-            await websocket.send(json.dumps(response))
+            asyncio.ensure_future(client.process(message, websocket))
