@@ -1,15 +1,25 @@
 import argparse
 import asyncio
 from getpass import getuser
-
 from .tunnel import open_tunnel
+from . import __version__
 
 
 def main():
     parser = argparse.ArgumentParser(description='Live And HTTPS Localhost')
-    parser.add_argument('port', type=int, help='Port Number of The Local Server')
+    parser.add_argument('-p', '--port', type=int, default=False, help='Port number of the local server')
+    parser.add_argument('-V', '--version', action='store_true' ,help='Version number of jprq')
 
     args = parser.parse_args()
+
+    if args.version:
+        print(__version__)
+        return
+    
+    if not args.port:
+        print("Please specify -p/--port argument and port.")
+        return
+
     username = getuser()
 
     loop = asyncio.get_event_loop()
@@ -21,8 +31,4 @@ def main():
             )
         )
     except KeyboardInterrupt:
-        print("jprq tunnel closed")
-
-
-if __name__ == '__main__':
-    main()
+        print("\njprq tunnel closed")
