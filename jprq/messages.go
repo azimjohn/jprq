@@ -57,6 +57,9 @@ func (responseMessage ResponseMessage) WriteToHttpResponse(writer http.ResponseW
 	for name, value := range responseMessage.Header {
 		writer.Header().Set(name, value)
 	}
+	if 100 > responseMessage.Status || responseMessage.Status > 600 {
+		responseMessage.Status = http.StatusInternalServerError
+	}
 	writer.WriteHeader(responseMessage.Status)
 
 	decoded, err := base64.StdEncoding.DecodeString(responseMessage.Body)
