@@ -11,13 +11,14 @@ import (
 )
 
 type Tunnel struct {
-	host         string
-	port         int
-	conn         *websocket.Conn
-	token        string
-	requests     map[uuid.UUID]RequestMessage
-	requestChan  chan RequestMessage
-	responseChan chan ResponseMessage
+	host           string
+	port           int
+	conn           *websocket.Conn
+	token          string
+	requests       map[uuid.UUID]RequestMessage
+	requestChan    chan RequestMessage
+	responseChan   chan ResponseMessage
+	numOfReqServed int
 }
 
 func (j Jprq) GetTunnelByHost(host string) (Tunnel, error) {
@@ -57,13 +58,13 @@ func (j *Jprq) DeleteTunnel(host string) {
 	if !ok {
 		return
 	}
-	log.Info("Deleted Tunnel: ", host)
+	log.Infof("Deleted Tunnel: %s, Number Of Requests Served: %d", host, tunnel.numOfReqServed)
 	close(tunnel.requestChan)
 	close(tunnel.responseChan)
 	delete(j.tunnels, host)
 }
 
-func (tunnel Tunnel) DispatchRequests() {
+func (tunnel *Tunnel) DispatchRequests() {
 	for {
 		select {
 		case requestMessage, more := <-tunnel.requestChan:
@@ -77,7 +78,7 @@ func (tunnel Tunnel) DispatchRequests() {
 	}
 }
 
-func (tunnel Tunnel) DispatchResponses() {
+func (tunnel *Tunnel) DispatchResponses() {
 	for {
 		select {
 		case responseMessage, more := <-tunnel.responseChan:
@@ -92,6 +93,7 @@ func (tunnel Tunnel) DispatchResponses() {
 
 			requestMessage.ResponseChan <- responseMessage
 			delete(tunnel.requests, requestMessage.ID)
+			tunnel.numOfReqServed++
 		}
 	}
 }
