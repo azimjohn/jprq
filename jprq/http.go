@@ -1,12 +1,12 @@
-package main
+package jprq
 
 import (
 	"net/http"
 )
 
-func HttpHandler(writer http.ResponseWriter, request *http.Request) {
+func (j Jprq) HttpHandler(writer http.ResponseWriter, request *http.Request) {
 	host := request.Host
-	tunnel, err := GetTunnelByHost(host)
+	tunnel, err := j.GetTunnelByHost(host)
 
 	if err != nil {
 		writer.WriteHeader(http.StatusNotFound)

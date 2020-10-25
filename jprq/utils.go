@@ -1,4 +1,4 @@
-package main
+package jprq
 
 import (
 	cryptorand "crypto/rand"
@@ -7,13 +7,13 @@ import (
 	"time"
 )
 
-func GenerateToken() string {
+func generateToken() string {
 	b := make([]byte, 32)
 	cryptorand.Read(b)
 	return fmt.Sprintf("%x", b)
 }
 
-func GetRandomAdj() string {
+func getRandomAdj() string {
 	adjs := []string{
 		"amazing", "ambitious", "amusing", "awesome",
 		"brave", "bright", "broad-minded",
