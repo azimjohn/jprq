@@ -1,4 +1,4 @@
-package main
+package jprq
 
 import (
 	"encoding/json"
@@ -10,8 +10,6 @@ import (
 	"github.com/labstack/gommon/log"
 )
 
-var tunnels map[string]Tunnel
-
 type Tunnel struct {
 	host         string
 	port         int
@@ -22,8 +20,8 @@ type Tunnel struct {
 	responseChan chan ResponseMessage
 }
 
-func GetTunnelByHost(host string) (Tunnel, error) {
-	t, ok := tunnels[host]
+func (j Jprq) GetTunnelByHost(host string) (Tunnel, error) {
+	t, ok := j.tunnels[host]
 	if !ok {
 		return t, errors.New("Tunnel doesn't exist")
 	}
@@ -31,12 +29,12 @@ func GetTunnelByHost(host string) (Tunnel, error) {
 	return t, nil
 }
 
-func AddTunnel(username string, port int, conn *websocket.Conn) Tunnel {
-	adj := GetRandomAdj()
+func (j *Jprq) AddTunnel(username string, port int, conn *websocket.Conn) Tunnel {
+	adj := getRandomAdj()
 	username = slug.Make(username)
 
-	host := fmt.Sprintf("%s-%s.%s", adj, username, baseHost)
-	token := GenerateToken()
+	host := fmt.Sprintf("%s-%s.%s", adj, username, j.baseHost)
+	token := generateToken()
 	requests := make(map[uuid.UUID]RequestMessage)
 	requestChan, responseChan := make(chan RequestMessage), make(chan ResponseMessage)
 	tunnel := Tunnel{
@@ -50,19 +48,19 @@ func AddTunnel(username string, port int, conn *websocket.Conn) Tunnel {
 	}
 
 	log.Info("New Tunnel: ", host)
-	tunnels[host] = tunnel
+	j.tunnels[host] = tunnel
 	return tunnel
 }
 
-func DeleteTunnel(host string) {
-	tunnel, ok := tunnels[host]
+func (j *Jprq) DeleteTunnel(host string) {
+	tunnel, ok := j.tunnels[host]
 	if !ok {
 		return
 	}
 	log.Info("Deleted Tunnel: ", host)
 	close(tunnel.requestChan)
 	close(tunnel.responseChan)
-	delete(tunnels, host)
+	delete(j.tunnels, host)
 }
 
 func (tunnel Tunnel) DispatchRequests() {

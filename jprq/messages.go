@@ -1,4 +1,4 @@
-package main
+package jprq
 
 import (
 	"bytes"

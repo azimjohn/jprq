@@ -1,4 +1,4 @@
-package main
+package jprq
 
 import (
 	"encoding/json"
@@ -17,7 +17,7 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-func WebsocketHandler(w http.ResponseWriter, r *http.Request) {
+func (j Jprq) WebsocketHandler(w http.ResponseWriter, r *http.Request) {
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		return
@@ -36,8 +36,8 @@ func WebsocketHandler(w http.ResponseWriter, r *http.Request) {
 	username := usernames[0]
 	port, _ := strconv.Atoi(ports[0])
 
-	tunnel := AddTunnel(username, port, ws)
-	defer DeleteTunnel(tunnel.host)
+	tunnel := j.AddTunnel(username, port, ws)
+	defer j.DeleteTunnel(tunnel.host)
 
 	message := TunnelMessage{tunnel.host, tunnel.token}
 	messageContent, err := json.Marshal(message)
