@@ -7,8 +7,9 @@ from . import __version__
 
 def main():
     parser = argparse.ArgumentParser(description='Live And HTTPS Localhost')
-    parser.add_argument('-p', '--port', type=int, default=False, help='Port number of the local server')
-    parser.add_argument('-V', '--version', action='store_true' ,help='Version number of jprq')
+    parser.add_argument('port', type=int, help='Port number of the local server')
+    parser.add_argument('-s', '--subdomain', type=str, help='Version number of jprq')
+    parser.add_argument('-v', '--version', help='Version number of jprq')
 
     args = parser.parse_args()
 
@@ -20,7 +21,7 @@ def main():
         print("Please specify -p/--port argument and port.")
         return
 
-    username = getuser()
+    username = args.subdomain or getuser()
 
     loop = asyncio.get_event_loop()
     try:
