@@ -30,6 +30,14 @@ $ jprq 8000
 
 Press Ctrl+C to stop it
 
+## [NEW] Custom Subdomain
+
+Replace `subdomain` with a subdomain you want
+
+```
+$ jprq 8000 -s=subdomain
+```
+
 ## How to uninstall
 
 ```bash
