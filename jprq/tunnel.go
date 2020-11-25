@@ -31,10 +31,15 @@ func (j Jprq) GetTunnelByHost(host string) (Tunnel, error) {
 }
 
 func (j *Jprq) AddTunnel(username string, port int, conn *websocket.Conn) Tunnel {
-	adj := getRandomAdj()
 	username = slug.Make(username)
 
-	host := fmt.Sprintf("%s-%s.%s", adj, username, j.baseHost)
+	_, err := j.GetTunnelByHost(username)
+	if err == nil {
+		adj := getRandomAdj()
+		username = fmt.Sprintf("%s-%s", adj, username)
+	}
+
+	host := fmt.Sprintf("%s.%s", username, j.baseHost)
 	token := generateToken()
 	requests := make(map[uuid.UUID]RequestMessage)
 	requestChan, responseChan := make(chan RequestMessage), make(chan ResponseMessage)
