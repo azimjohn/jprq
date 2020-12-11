@@ -21,7 +21,7 @@ type Tunnel struct {
 	numOfReqServed int
 }
 
-func (j Jprq) GetTunnelByHost(host string) (Tunnel, error) {
+func (j Jprq) GetTunnelByHost(host string) (*Tunnel, error) {
 	t, ok := j.tunnels[host]
 	if !ok {
 		return t, errors.New("Tunnel doesn't exist")
@@ -30,7 +30,7 @@ func (j Jprq) GetTunnelByHost(host string) (Tunnel, error) {
 	return t, nil
 }
 
-func (j *Jprq) AddTunnel(username string, port int, conn *websocket.Conn) Tunnel {
+func (j *Jprq) AddTunnel(username string, port int, conn *websocket.Conn) *Tunnel {
 	username = slug.Make(username)
 	host := fmt.Sprintf("%s.%s", username, j.baseHost)
 
@@ -54,8 +54,8 @@ func (j *Jprq) AddTunnel(username string, port int, conn *websocket.Conn) Tunnel
 	}
 
 	log.Info("New Tunnel: ", host)
-	j.tunnels[host] = tunnel
-	return tunnel
+	j.tunnels[host] = &tunnel
+	return &tunnel
 }
 
 func (j *Jprq) DeleteTunnel(host string) {
