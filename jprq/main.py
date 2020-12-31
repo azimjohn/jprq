@@ -8,6 +8,7 @@ from . import __version__
 def main():
     parser = argparse.ArgumentParser(description='Live And HTTPS Localhost')
     parser.add_argument('port', type=int, help='Port number of the local server')
+    parser.add_argument('--host', type=str, help='Host of the remote server', default='open.jprq.live')
     parser.add_argument('-s', '--subdomain', type=str, help='Sub-domain')
     parser.add_argument('-v', '--version', help='Version number of jprq')
 
@@ -27,7 +28,7 @@ def main():
     try:
         loop.run_until_complete(
             open_tunnel(
-                ws_uri=f'wss://open.jprq.live/_ws/?username={username}&port={args.port}',
+                ws_uri=f'wss://{args.host}/_ws/?username={username}&port={args.port}',
                 http_uri=f'http://127.0.0.1:{args.port}',
             )
         )
