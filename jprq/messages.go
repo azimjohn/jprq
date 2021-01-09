@@ -54,6 +54,7 @@ func FromHttpRequest(httpRequest *http.Request) RequestMessage {
 }
 
 func (responseMessage ResponseMessage) WriteToHttpResponse(writer http.ResponseWriter) {
+	writer.Header().Set("Access-Control-Allow-Origin", "*")
 	for name, value := range responseMessage.Header {
 		writer.Header().Set(name, value)
 	}
