@@ -54,7 +54,11 @@ func FromHttpRequest(httpRequest *http.Request) RequestMessage {
 }
 
 func (responseMessage ResponseMessage) WriteToHttpResponse(writer http.ResponseWriter) {
+	// Set CORS Headers
 	writer.Header().Set("Access-Control-Allow-Origin", "*")
+	writer.Header().Set("Access-Control-Allow-Headers", "*")
+	writer.Header().Set("Access-Control-Max-Age", "*")
+
 	for name, value := range responseMessage.Header {
 		writer.Header().Set(name, value)
 	}
