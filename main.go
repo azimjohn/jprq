@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/azimjohn/jprq.live/jprq"
+	"github.com/azimjohn/jprq.io/jprq"
 	"github.com/gorilla/mux"
 	"github.com/labstack/gommon/log"
 	"net/http"
@@ -12,7 +12,7 @@ import (
 var baseHost string
 
 func main() {
-	flag.StringVar(&baseHost, "host", "jprq.live", "Base Host")
+	flag.StringVar(&baseHost, "host", "jprq.io", "Base Host")
 	flag.Parse()
 
 	j := jprq.New(baseHost)
