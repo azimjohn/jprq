@@ -1,11 +1,11 @@
 package jprq
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/gorilla/websocket"
 	"github.com/gosimple/slug"
 	"github.com/labstack/gommon/log"
+	"gopkg.in/mgo.v2/bson"
 	"net/http"
 	"strconv"
 )
@@ -41,8 +41,8 @@ func (j Jprq) WebsocketHandler(w http.ResponseWriter, r *http.Request) {
 
 	if _, err := j.GetTunnelByHost(host); err == nil {
 		message := ErrorMessage{"Tunnel with the same subdomain already exists"}
-		messageContent, _ := json.Marshal(message)
-		ws.WriteMessage(websocket.TextMessage, messageContent)
+		messageContent, _ := bson.Marshal(message)
+		ws.WriteMessage(websocket.BinaryMessage, messageContent)
 		ws.Close()
 		return
 	}
@@ -51,9 +51,9 @@ func (j Jprq) WebsocketHandler(w http.ResponseWriter, r *http.Request) {
 	defer j.DeleteTunnel(tunnel.host)
 
 	message := TunnelMessage{tunnel.host, tunnel.token}
-	messageContent, err := json.Marshal(message)
+	messageContent, err := bson.Marshal(message)
 
-	ws.WriteMessage(websocket.TextMessage, messageContent)
+	ws.WriteMessage(websocket.BinaryMessage, messageContent)
 
 	go tunnel.DispatchRequests()
 	go tunnel.DispatchResponses()
@@ -65,7 +65,7 @@ func (j Jprq) WebsocketHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		response := ResponseMessage{}
-		err = json.Unmarshal(message, &response)
+		err = bson.Unmarshal(message, &response)
 		if err != nil {
 			log.Error("Failed to Unmarshal Websocket Message: ", string(message), err)
 			continue

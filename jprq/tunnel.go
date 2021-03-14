@@ -1,11 +1,11 @@
 package jprq
 
 import (
-	"encoding/json"
 	"github.com/go-errors/errors"
 	"github.com/gofrs/uuid"
 	"github.com/gorilla/websocket"
 	"github.com/labstack/gommon/log"
+	"gopkg.in/mgo.v2/bson"
 )
 
 type Tunnel struct {
@@ -65,9 +65,9 @@ func (tunnel *Tunnel) DispatchRequests() {
 			if !more {
 				return
 			}
-			messageContent, _ := json.Marshal(requestMessage)
+			messageContent, _ := bson.Marshal(requestMessage)
 			tunnel.requests[requestMessage.ID] = requestMessage
-			tunnel.conn.WriteMessage(websocket.TextMessage, messageContent)
+			tunnel.conn.WriteMessage(websocket.BinaryMessage, messageContent)
 		}
 	}
 }
