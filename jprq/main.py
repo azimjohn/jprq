@@ -29,7 +29,7 @@ def main():
     try:
         loop.run_until_complete(
             open_tunnel(
-                ws_uri=f'wss://{args.host}/_ws/?username={username}&port={args.port}',
+                ws_uri=f'wss://{args.host}/_ws/?username={username}&port={args.port}&version={__version__}',
                 http_uri=f'http://127.0.0.1:{args.port}',
             )
         )
