@@ -40,7 +40,8 @@ func (j Jprq) WebsocketHandler(w http.ResponseWriter, r *http.Request) {
 	host := fmt.Sprintf("%s.%s", username, j.baseHost)
 
 	if _, err := j.GetTunnelByHost(host); err == nil {
-		message := ErrorMessage{"Tunnel with the same subdomain already exists"}
+		errMessage := fmt.Sprintf("Tunnel %s is busy", host)
+		message := ErrorMessage{errMessage}
 		messageContent, _ := bson.Marshal(message)
 		ws.WriteMessage(websocket.BinaryMessage, messageContent)
 		ws.Close()
