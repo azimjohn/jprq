@@ -1,6 +1,7 @@
 import argparse
 import asyncio
 from getpass import getuser
+from .username import randomize
 from .tunnel import open_tunnel
 from . import __version__
 
@@ -22,7 +23,7 @@ def main():
         print("Please specify -p/--port argument and port.")
         return
 
-    username = args.subdomain or getuser()
+    username = args.subdomain or randomize(getuser())
 
     loop = asyncio.get_event_loop()
     try:
