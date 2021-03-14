@@ -1,8 +1,8 @@
-import base64
-import json
+import sys
 from urllib.parse import urljoin
 
 import aiohttp
+import bson
 
 
 class Client:
@@ -17,16 +17,16 @@ class Client:
                     method=message['method'],
                     url=urljoin(self.base_uri, message['url']),
                     headers=message['header'],
-                    data=base64.b64decode(message['body']),
+                    data=message['body'],
                 )
             except:
-                print(f"Error Processing Request At: {message['url']}")
+                print(f"Error Processing Request At: {message['url']}", file=sys.stderr)
                 return {
                     'request_id': message['id'],
                     'token': self.token,
                     'status': 500,
                     'header': {},
-                    'body': base64.b64encode(b'request failed').decode('utf-8'),
+                    'body': b'Error Performing Request',
                 }
 
             print(message["method"], message["url"], response.status)
@@ -36,6 +36,6 @@ class Client:
                 'token': self.token,
                 'status': response.status,
                 'header': dict(response.headers),
-                'body': base64.b64encode(body).decode('utf-8'),
+                'body': body,
             }
-            await websocket.send(json.dumps(response_message))
+            await websocket.send(bson.dumps(response_message))
