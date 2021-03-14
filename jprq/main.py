@@ -8,7 +8,7 @@ from . import __version__
 def main():
     parser = argparse.ArgumentParser(description='Live And HTTPS Localhost')
     parser.add_argument('port', type=int, help='Port number of the local server')
-    parser.add_argument('--host', type=str, help='Host of the remote server', default='open.jprq.live')
+    parser.add_argument('--host', type=str, help='Host of the remote server', default='open.jprq.io')
     parser.add_argument('-s', '--subdomain', type=str, help='Sub-domain')
     parser.add_argument('-v', '--version', help='Version number of jprq')
 
