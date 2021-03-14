@@ -1,4 +1,4 @@
-module github.com/azimjohn/jprq.live
+module github.com/azimjohn/jprq.io
 
 go 1.13
 

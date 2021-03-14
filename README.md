@@ -1,6 +1,6 @@
-# jprq.live
+# jprq.io
 
-`github.com/azimjohn/jprq.live/jprq`
+`github.com/azimjohn/jprq.io/jprq`
 
 - [Overview](#pkg-overview)
 - [Index](#pkg-index)
