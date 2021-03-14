@@ -2,34 +2,37 @@ package jprq
 
 import (
 	"bytes"
-	"encoding/base64"
 	"github.com/gofrs/uuid"
-	"github.com/labstack/gommon/log"
 	"io"
 	"io/ioutil"
 	"net/http"
 )
 
+type ErrorMessage struct {
+	Error  string `bson:"error"`
+}
+
+
 type TunnelMessage struct {
-	Host  string `json:"host"`
-	Token string `json:"token"`
+	Host  string `bson:"host"`
+	Token string `bson:"token"`
 }
 
 type RequestMessage struct {
-	ID           uuid.UUID            `json:"id"`
-	Method       string               `json:"method"`
-	URL          string               `json:"url"`
-	Body         string               `json:"body"`
-	Header       map[string]string    `json:"header"`
-	ResponseChan chan ResponseMessage `json:"-"`
+	ID           uuid.UUID            `bson:"id"`
+	Method       string               `bson:"method"`
+	URL          string               `bson:"url"`
+	Body         []byte               `bson:"body"`
+	Header       map[string]string    `bson:"header"`
+	ResponseChan chan ResponseMessage `bson:"-"`
 }
 
 type ResponseMessage struct {
-	RequestId uuid.UUID         `json:"request_id"`
-	Token     string            `json:"token"`
-	Body      string            `json:"body"`
-	Status    int               `json:"status"`
-	Header    map[string]string `json:"header"`
+	RequestId uuid.UUID         `bson:"request_id"`
+	Token     string            `bson:"token"`
+	Body      []byte            `bson:"body"`
+	Status    int               `bson:"status"`
+	Header    map[string]string `bson:"header"`
 }
 
 func FromHttpRequest(httpRequest *http.Request) RequestMessage {
@@ -40,7 +43,7 @@ func FromHttpRequest(httpRequest *http.Request) RequestMessage {
 
 	if httpRequest.Body != nil {
 		body, _ := ioutil.ReadAll(httpRequest.Body)
-		requestMessage.Body = base64.StdEncoding.EncodeToString(body)
+		requestMessage.Body = body
 	}
 
 	requestMessage.Header = make(map[string]string)
@@ -67,9 +70,6 @@ func (responseMessage ResponseMessage) WriteToHttpResponse(writer http.ResponseW
 	}
 	writer.WriteHeader(responseMessage.Status)
 
-	decoded, err := base64.StdEncoding.DecodeString(responseMessage.Body)
-	if err != nil {
-		log.Error("Error Decoding Response Body: ", err)
-	}
+	decoded := responseMessage.Body
 	io.Copy(writer, bytes.NewBuffer(decoded))
 }
