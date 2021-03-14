@@ -10,6 +10,11 @@ import (
 	"net/http"
 )
 
+type ErrorMessage struct {
+	Error  string `json:"error"`
+}
+
+
 type TunnelMessage struct {
 	Host  string `json:"host"`
 	Token string `json:"token"`

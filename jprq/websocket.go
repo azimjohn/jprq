@@ -2,11 +2,12 @@ package jprq
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/gorilla/websocket"
+	"github.com/gosimple/slug"
 	"github.com/labstack/gommon/log"
 	"net/http"
 	"strconv"
-	"time"
 )
 
 var upgrader = websocket.Upgrader{
@@ -34,14 +35,23 @@ func (j Jprq) WebsocketHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	username := usernames[0]
+	username = slug.Make(username)
 	port, _ := strconv.Atoi(ports[0])
+	host := fmt.Sprintf("%s.%s", username, j.baseHost)
 
-	tunnel := j.AddTunnel(username, port, ws)
+	if _, err := j.GetTunnelByHost(host); err == nil {
+		message := ErrorMessage{"Tunnel with the same subdomain already exists"}
+		messageContent, _ := json.Marshal(message)
+		ws.WriteMessage(websocket.TextMessage, messageContent)
+		ws.Close()
+		return
+	}
+
+	tunnel := j.AddTunnel(host, port, ws)
 	defer j.DeleteTunnel(tunnel.host)
 
 	message := TunnelMessage{tunnel.host, tunnel.token}
 	messageContent, err := json.Marshal(message)
-	time.Sleep(time.Second)
 
 	ws.WriteMessage(websocket.TextMessage, messageContent)
 

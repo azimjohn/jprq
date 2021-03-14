@@ -2,11 +2,9 @@ package jprq
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/go-errors/errors"
 	"github.com/gofrs/uuid"
 	"github.com/gorilla/websocket"
-	"github.com/gosimple/slug"
 	"github.com/labstack/gommon/log"
 )
 
@@ -30,16 +28,7 @@ func (j Jprq) GetTunnelByHost(host string) (*Tunnel, error) {
 	return t, nil
 }
 
-func (j *Jprq) AddTunnel(username string, port int, conn *websocket.Conn) *Tunnel {
-	username = slug.Make(username)
-	host := fmt.Sprintf("%s.%s", username, j.baseHost)
-
-	_, err := j.GetTunnelByHost(host)
-	if err == nil {
-		adj := getRandomAdj()
-		host = fmt.Sprintf("%s-%s", adj, host)
-	}
-
+func (j *Jprq) AddTunnel(host string, port int, conn *websocket.Conn) *Tunnel {
 	token := generateToken()
 	requests := make(map[uuid.UUID]RequestMessage)
 	requestChan, responseChan := make(chan RequestMessage), make(chan ResponseMessage)
