@@ -24,11 +24,13 @@ if sys.version_info[:3] < (3, 6, 1):
     raise Exception("jprq requires Python >= 3.6.1.")
 
 description = 'Get your localhost online and https - Ngrok Alternative'
+long_description = read_file('README.md')
+
 setup(
     name='jprq',
     version=jprq.__version__,
     description=description,
-    long_description=description,
+    long_description=long_description,
     long_description_content_type='text/markdown',
     classifiers=[
         'Development Status :: 5 - Production/Stable',
