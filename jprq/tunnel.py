@@ -24,7 +24,7 @@ async def open_tunnel(ws_uri: str, http_uri):
             return
 
         host, token = message["host"], message["token"]
-        print(f"Online at https://{host}/")
+        print(f"Online at https://{host}")
 
         client = Client(http_uri, token)
         while True:

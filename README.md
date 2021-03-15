@@ -2,9 +2,8 @@
 
 ## Get Your Localhost Online and HTTPS
 
-<div align="center">
-  <a href="https://www.youtube.com/watch?v=BXuB3cK8R0g"><img width="80%" src="https://img.youtube.com/vi/BXuB3cK8R0g/0.jpg" alt="Demo"></a>
-</div>
+
+[![jprq demo](https://yt-embed.herokuapp.com/embed?v=BXuB3cK8R0g)](https://www.youtube.com/watch?v=BXuB3cK8R0g "jprq demo")
 
 ## How JPRQ is different from Ngrok?
 
@@ -52,7 +51,7 @@ $ pip uninstall jprq
 
 ### JPRQ's Server-side implementation in Golang:
 
-<a href="https://github.com/azimjohn/jprq.live">https://github.com/azimjohn/jprq.live</a>
+<a href="https://github.com/azimjohn/jprq.io">https://github.com/azimjohn/jprq.io</a>
 
 ## Limitations
 
