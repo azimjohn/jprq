@@ -1,4 +1,6 @@
 # JPRQ - Ngrok Alternative
+# IMPORTANT: JPRQ is temporarily disabled due to usage for phishing.
+
 
 ## Get Your Localhost Online and HTTPS
 
