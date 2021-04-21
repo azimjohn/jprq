@@ -27,6 +27,11 @@ Replace 8000 with the port you want to expose
 $ jprq 8000
 ```
 
+For windows users:
+```
+ > python3 -m jprq 8000
+```
+
 Press Ctrl+C to stop it
 
 ## [NEW] Custom Subdomain
