@@ -3,7 +3,7 @@
 ## Get Your Localhost Online and HTTPS
 
 
-[![jprq demo](https://yt-embed.herokuapp.com/embed?v=BXuB3cK8R0g)](https://www.youtube.com/watch?v=BXuB3cK8R0g "jprq demo")
+[![jprq demo](https://i.imgur.com/SEKQv7N.png)](https://www.youtube.com/watch?v=BXuB3cK8R0g "jprq demo")
 
 ## How JPRQ is different from Ngrok?
 
