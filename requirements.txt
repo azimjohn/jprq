@@ -1,4 +1,4 @@
 certifi==2019.9.11
-websockets==8.1
+websockets==9.1
 aiohttp==3.7.4
 bson~=0.5.10
