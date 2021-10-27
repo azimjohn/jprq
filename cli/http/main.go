@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/azimjohn/jprq.io/jprq"
+	"github.com/azimjohn/jprq.io/jprq_http"
 	"github.com/gorilla/mux"
 	"github.com/labstack/gommon/log"
 	"net/http"
@@ -12,10 +12,10 @@ import (
 var baseHost string
 
 func main() {
-	flag.StringVar(&baseHost, "host", "jprq.io", "Base Host")
+	flag.StringVar(&baseHost, "host", "jprq_http.io", "Base Host")
 	flag.Parse()
 
-	j := jprq.New(baseHost)
+	j := jprq_http.New(baseHost)
 	r := mux.NewRouter()
 	r.HandleFunc("/_ws/", j.WebsocketHandler)
 	r.PathPrefix("/").HandlerFunc(j.HttpHandler)

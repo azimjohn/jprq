@@ -1,4 +1,4 @@
-package jprq
+package jprq_http
 
 import (
 	"bytes"

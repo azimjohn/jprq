@@ -1,4 +1,4 @@
-package jprq
+package jprq_http
 
 type Jprq struct {
 	baseHost string
