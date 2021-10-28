@@ -9,14 +9,14 @@ import (
 )
 
 type Tunnel struct {
-	host           string
 	port           int
-	conn           *websocket.Conn
+	numOfReqServed int
+	host           string
 	token          string
-	requests       map[uuid.UUID]RequestMessage
+	conn           *websocket.Conn
 	requestChan    chan RequestMessage
 	responseChan   chan ResponseMessage
-	numOfReqServed int
+	requests       map[uuid.UUID]RequestMessage
 }
 
 func (j Jprq) GetTunnelByHost(host string) (*Tunnel, error) {
@@ -24,11 +24,10 @@ func (j Jprq) GetTunnelByHost(host string) (*Tunnel, error) {
 	if !ok {
 		return t, errors.New("Tunnel doesn't exist")
 	}
-
 	return t, nil
 }
 
-func (j *Jprq) AddTunnel(host string, port int, conn *websocket.Conn) *Tunnel {
+func (j *Jprq) OpenTunnel(host string, port int, conn *websocket.Conn) *Tunnel {
 	token := generateToken()
 	requests := make(map[uuid.UUID]RequestMessage)
 	requestChan, responseChan := make(chan RequestMessage), make(chan ResponseMessage)
@@ -42,17 +41,17 @@ func (j *Jprq) AddTunnel(host string, port int, conn *websocket.Conn) *Tunnel {
 		responseChan: responseChan,
 	}
 
-	log.Info("New Tunnel: ", host)
+	log.Info("Opened Tunnel: ", host)
 	j.tunnels[host] = &tunnel
 	return &tunnel
 }
 
-func (j *Jprq) DeleteTunnel(host string) {
+func (j *Jprq) CloseTunnel(host string) {
 	tunnel, ok := j.tunnels[host]
 	if !ok {
 		return
 	}
-	log.Infof("Deleted Tunnel: %s, Number Of Requests Served: %d", host, tunnel.numOfReqServed)
+	log.Infof("Closed Tunnel: %s, Number Of Requests Served: %d", host, tunnel.numOfReqServed)
 	close(tunnel.requestChan)
 	close(tunnel.responseChan)
 	delete(j.tunnels, host)
@@ -60,34 +59,28 @@ func (j *Jprq) DeleteTunnel(host string) {
 
 func (tunnel *Tunnel) DispatchRequests() {
 	for {
-		select {
-		case requestMessage, more := <-tunnel.requestChan:
-			if !more {
-				return
-			}
-			messageContent, _ := bson.Marshal(requestMessage)
-			tunnel.requests[requestMessage.ID] = requestMessage
-			tunnel.conn.WriteMessage(websocket.BinaryMessage, messageContent)
+		requestMessage, more := <-tunnel.requestChan
+		if !more {
+			return
 		}
+		messageContent, _ := bson.Marshal(requestMessage)
+		tunnel.requests[requestMessage.ID] = requestMessage
+		tunnel.conn.WriteMessage(websocket.BinaryMessage, messageContent)
 	}
 }
 
 func (tunnel *Tunnel) DispatchResponses() {
 	for {
-		select {
-		case responseMessage, more := <-tunnel.responseChan:
-			if !more {
-				return
-			}
-			requestMessage, ok := tunnel.requests[responseMessage.RequestId]
-			if !ok {
-				log.Error("Request Not Found", responseMessage.RequestId)
-				continue
-			}
-
-			requestMessage.ResponseChan <- responseMessage
-			delete(tunnel.requests, requestMessage.ID)
-			tunnel.numOfReqServed++
+		responseMessage, more := <-tunnel.responseChan
+		if !more {
+			return
 		}
+		requestMessage, ok := tunnel.requests[responseMessage.RequestId]
+		if !ok {
+			continue
+		}
+		requestMessage.ResponseChan <- responseMessage
+		delete(tunnel.requests, requestMessage.ID)
+		tunnel.numOfReqServed++
 	}
 }

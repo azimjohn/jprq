@@ -48,8 +48,8 @@ func (j Jprq) WebsocketHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tunnel := j.AddTunnel(host, port, ws)
-	defer j.DeleteTunnel(tunnel.host)
+	tunnel := j.OpenTunnel(host, port, ws)
+	defer j.CloseTunnel(tunnel.host)
 
 	message := TunnelMessage{tunnel.host, tunnel.token}
 	messageContent, err := bson.Marshal(message)
@@ -64,19 +64,16 @@ func (j Jprq) WebsocketHandler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			break
 		}
-
 		response := ResponseMessage{}
 		err = bson.Unmarshal(message, &response)
 		if err != nil {
 			log.Error("Failed to Unmarshal Websocket Message: ", string(message), err)
 			continue
 		}
-
 		if response.Token != tunnel.token {
 			log.Error("Authentication Failed: ", tunnel.host)
 			continue
 		}
-
 		tunnel.responseChan <- response
 	}
 }
