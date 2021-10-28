@@ -17,6 +17,9 @@ func main() {
 	j := jprq_tcp.New(baseHost)
 	r := mux.NewRouter()
 	r.HandleFunc("/_ws/", j.WebsocketHandler)
+	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("ok"))
+	})
 
 	fmt.Println("Server is running on Port 4500")
 	log.Fatal(http.ListenAndServe(":4500", r))
