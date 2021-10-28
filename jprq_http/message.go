@@ -9,9 +9,8 @@ import (
 )
 
 type ErrorMessage struct {
-	Error  string `bson:"error"`
+	Error string `bson:"error"`
 }
-
 
 type TunnelMessage struct {
 	Host  string `bson:"host"`
