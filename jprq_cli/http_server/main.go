@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/azimjohn/jprq.io/jprq_http"
+	"github.com/azimjohn/jprq/jprq_http"
 	"github.com/gorilla/mux"
 	"github.com/labstack/gommon/log"
 	"net/http"
