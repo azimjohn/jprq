@@ -69,7 +69,7 @@ func (t *Tunnel) AcceptPrivateConnections() {
 			return
 		}
 
-		publicClientPort := int((buffer[1] << 4) + buffer[0])
+		publicClientPort := (int(buffer[0]) << 8) + int(buffer[1])
 		go t.PairConnections(publicClientPort, privateClientPort)
 	}
 }
