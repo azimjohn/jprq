@@ -10,7 +10,7 @@ func PumpReadToWrite(readClient *net.Conn, writeClient *net.Conn, wg *sync.WaitG
 	defer wg.Done()
 	defer (*writeClient).Close()
 
-	buffer := make([]byte, 1024)
+	buffer := make([]byte, 1024 * 256)
 	for {
 		length, err := (*readClient).Read(buffer)
 		if err == io.EOF {
