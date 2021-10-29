@@ -2,6 +2,7 @@ package jprq_tcp
 
 import (
 	"github.com/gorilla/websocket"
+	"github.com/labstack/gommon/log"
 	"net"
 )
 
@@ -16,6 +17,7 @@ func New(baseHost string) Jprq {
 }
 
 func (j *Jprq) OpenTunnel(conn *websocket.Conn) (*Tunnel, error) {
+	log.Infof("New Tunnel from IP %s", conn.RemoteAddr())
 	publicServer, err := net.Listen("tcp", ":0")
 	if err != nil {
 		return nil, err

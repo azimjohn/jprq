@@ -22,6 +22,7 @@ func (t *Tunnel) Close() {
 	(*t.privateServer).Close()
 	(*t.publicServer).Close()
 	close(t.publicConnectionChan)
+	log.Infof("Tunnel Closed from IP %s", t.conn.RemoteAddr())
 }
 
 func (t *Tunnel) SendTunnelStartedEvent() {
