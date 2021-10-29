@@ -2,7 +2,6 @@ package jprq_tcp
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/gorilla/websocket"
 	"github.com/labstack/gommon/log"
 	"net"
@@ -60,9 +59,18 @@ func (t *Tunnel) AcceptPrivateConnections() {
 		if err != nil {
 			break
 		}
-		port := c.RemoteAddr().(*net.TCPAddr).Port
-		fmt.Printf("private_client_port: %d\n", port) // todo: remove me later
-		t.privateConnections[port] = &c
+		privateClientPort := c.RemoteAddr().(*net.TCPAddr).Port
+		t.privateConnections[privateClientPort] = &c
+
+		buffer := make([]byte, 2) // 16 bits
+		_, err = c.Read(buffer)
+		if err != nil {
+			log.Errorf("error reading from private client: %s", err)
+			return
+		}
+
+		publicClientPort := int((buffer[1] << 4) + buffer[0])
+		go t.PairConnections(publicClientPort, privateClientPort)
 	}
 }
 
@@ -79,25 +87,11 @@ func (t *Tunnel) NotifyPublicConnections() {
 	}
 }
 
-func (t *Tunnel) ReceiveConnectionMessages() {
-	for {
-		_, message, err := t.conn.ReadMessage()
-		if err != nil {
-			break
-		}
-		e := ConnectionPairedEvent{}
-		err = json.Unmarshal(message, &e)
-		if err != nil {
-			log.Errorf("failed to unmarshal event: %s", e)
-			continue
-		}
-		go t.PairConnections(e.PublicClientPort, e.PrivateClientPort)
-	}
-}
-
 func (t *Tunnel) PairConnections(publicClientPort, privateClientPort int) {
 	t.publicPrivateMap[publicClientPort] = privateClientPort
 	defer delete(t.publicPrivateMap, publicClientPort)
+	defer delete(t.publicConnections, publicClientPort)
+	defer delete(t.privateConnections, privateClientPort)
 
 	publicClient, found1 := t.publicConnections[publicClientPort]
 	privateClient, found2 := t.privateConnections[privateClientPort]

@@ -40,7 +40,6 @@ func (j *Jprq) OpenTunnel(conn *websocket.Conn) (*Tunnel, error) {
 	go tunnel.AcceptPublicConnections()
 	go tunnel.AcceptPrivateConnections()
 	go tunnel.NotifyPublicConnections()
-	tunnel.ReceiveConnectionMessages()
 
 	return tunnel, nil
 }

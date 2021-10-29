@@ -8,8 +8,3 @@ type TunnelStartedEvent struct {
 type ConnectionReceivedEvent struct {
 	PublicClientPort int `json:"public_client_port"`
 }
-
-type ConnectionPairedEvent struct {
-	PublicClientPort  int `json:"public_client_port"`
-	PrivateClientPort int `json:"private_client_port"`
-}
