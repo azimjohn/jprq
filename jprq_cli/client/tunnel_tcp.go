@@ -47,7 +47,7 @@ func openTCPTunnel(port int, ctx context.Context) {
 	connRequests := make(chan int)
 	defer close(connRequests)
 
-	go receiveTCPConnectionRequests(ws, connRequests)
+	go handleTCPConnections(ws, connRequests)
 
 	out:
 	for {
@@ -62,7 +62,7 @@ func openTCPTunnel(port int, ctx context.Context) {
 	fmt.Println("\n\033[31mjprq tunnel closed\033[00m")
 }
 
-func receiveTCPConnectionRequests(ws *websocket.Conn, connRequests chan<- int) {
+func handleTCPConnections(ws *websocket.Conn, connRequests chan<- int) {
 	for {
 		var connReq ConnectionRequest
 		_, message, err := ws.ReadMessage()

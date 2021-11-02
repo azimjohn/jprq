@@ -14,7 +14,7 @@ import (
 
 var version = "1.0.0"
 var tcpBaseHost = "tcp.jprq.io"
-var httpBaseHost = "http.jprq.io"
+var httpBaseHost = "open.jprq.io"
 
 func main() {
 	subdomain := flag.String("subdomain", "", "Subdomain for HTTP Tunnel")
