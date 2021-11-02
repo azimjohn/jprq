@@ -1,7 +1,6 @@
 package jprq_tcp
 
 import (
-	"io"
 	"net"
 	"sync"
 )
@@ -13,7 +12,7 @@ func PumpReadToWrite(readClient *net.Conn, writeClient *net.Conn, wg *sync.WaitG
 	buffer := make([]byte, 1024 * 256)
 	for {
 		length, err := (*readClient).Read(buffer)
-		if err == io.EOF {
+		if err != nil {
 			break
 		}
 		_, err = (*writeClient).Write(buffer[:length])
