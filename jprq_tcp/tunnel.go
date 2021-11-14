@@ -81,8 +81,9 @@ func (t *Tunnel) NotifyPublicConnections() {
 		if !ok {
 			break
 		}
+		ip := (*conn).RemoteAddr().(*net.TCPAddr).IP.String()
 		port := (*conn).RemoteAddr().(*net.TCPAddr).Port
-		event := ConnectionReceivedEvent{port}
+		event := ConnectionReceivedEvent{ip, port}
 		message, _ := json.Marshal(event)
 		t.conn.WriteMessage(websocket.TextMessage, message)
 	}

@@ -6,5 +6,6 @@ type TunnelStartedEvent struct {
 }
 
 type ConnectionReceivedEvent struct {
-	PublicClientPort int `json:"public_client_port"`
+	PublicClientIP   string `json:"public_client_ip"`
+	PublicClientPort int    `json:"public_client_port"`
 }
