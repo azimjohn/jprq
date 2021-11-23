@@ -5,11 +5,11 @@ import (
 	"sync"
 )
 
-func PumpReadToWrite(readClient *net.Conn, writeClient *net.Conn, wg *sync.WaitGroup) {
+func PumpReadToWrite(readClient, writeClient *net.Conn, wg *sync.WaitGroup) {
 	defer wg.Done()
 	defer (*writeClient).Close()
 
-	buffer := make([]byte, 1024 * 256)
+	buffer := make([]byte, 1024*256)
 	for {
 		length, err := (*readClient).Read(buffer)
 		if err != nil {
