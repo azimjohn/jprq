@@ -22,11 +22,11 @@ type ConnectionRequest struct {
 	Flag int    `json:"public_client_port"`
 }
 
-func openTCPTunnel(port int, ctx context.Context) {
-	url := urlpkg.URL{Scheme: "wss", Host: tcpBaseHost, Path: "/_ws/"}
+func openTCPTunnel(port int, host string, ctx context.Context) {
+	url := urlpkg.URL{Scheme: "wss", Host: host, Path: "/_ws/"}
 	ws, _, err := websocket.DefaultDialer.Dial(url.String(), nil)
 	if err != nil {
-		log.Fatalf("Error Connecting to %s: %s\n", tcpBaseHost, err.Error())
+		log.Fatalf("Error Connecting to %s: %s\n", host, err.Error())
 	}
 	defer ws.Close()
 
@@ -43,20 +43,20 @@ func openTCPTunnel(port int, ctx context.Context) {
 
 	fmt.Println("\033[32mTunnel Status: \t\tOnline\033[00m")
 	fmt.Printf("Forwarded:\t\t%s:%d → 127.0.0.1:%d\n\n",
-		tcpBaseHost, tunnel.PublicServerPort, port)
+		host, tunnel.PublicServerPort, port)
 
 	connRequests := make(chan ConnectionRequest)
 	defer close(connRequests)
 
 	go handleTCPConnections(ws, connRequests)
 
-	out:
+out:
 	for {
 		select {
 		case <-ctx.Done():
 			break out
 		case connRequest := <-connRequests:
-			go handleTCPConnection(connRequest, port, tunnel.PrivateServerPort, ctx)
+			go handleTCPConnection(connRequest, host, port, tunnel.PrivateServerPort, ctx)
 		}
 	}
 
@@ -78,7 +78,7 @@ func handleTCPConnections(ws *websocket.Conn, connRequests chan<- ConnectionRequ
 	}
 }
 
-func handleTCPConnection(connRequest ConnectionRequest, localServerPort, remoteServerPort int, ctx context.Context) {
+func handleTCPConnection(connRequest ConnectionRequest, host string, localServerPort int, remoteServerPort int, ctx context.Context) {
 	fmt.Printf("> Opened Connection with %s\n", connRequest.IP)
 	defer fmt.Printf("> Closed Connection with %s\n", connRequest.IP)
 
@@ -89,7 +89,7 @@ func handleTCPConnection(connRequest ConnectionRequest, localServerPort, remoteS
 	}
 	defer localConn.Close()
 
-	remoteConn, err := net.Dial("tcp", fmt.Sprintf("%s:%d", tcpBaseHost, remoteServerPort))
+	remoteConn, err := net.Dial("tcp", fmt.Sprintf("%s:%d", host, remoteServerPort))
 	if err != nil {
 		fmt.Printf("Error Connecting to Remote Server: %s\n", err.Error())
 		return

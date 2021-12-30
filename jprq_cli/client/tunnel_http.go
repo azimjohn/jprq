@@ -21,7 +21,7 @@ type HTTPTunnel struct {
 	Error   string `bson:"error"`
 }
 
-func openHTTPTunnel(port int, subdomain string, ctx context.Context) {
+func openHTTPTunnel(port int, host string, subdomain string, ctx context.Context) {
 	if subdomain == "" {
 		u, err := user.Current()
 		if err != nil {
@@ -31,11 +31,11 @@ func openHTTPTunnel(port int, subdomain string, ctx context.Context) {
 	}
 
 	query := fmt.Sprintf("port=%d&username=%s&version=%s", port, subdomain, version)
-	url := urlpkg.URL{Scheme: "wss", Host: httpBaseHost, Path: "/_ws/", RawQuery: query}
+	url := urlpkg.URL{Scheme: "wss", Host: host, Path: "/_ws/", RawQuery: query}
 
 	ws, _, err := websocket.DefaultDialer.Dial(url.String(), nil)
 	if err != nil {
-		log.Fatalf("Error Connecting to %s: %s\n", httpBaseHost, err.Error())
+		log.Fatalf("Error Connecting to %s: %s\n", host, err.Error())
 	}
 	defer ws.Close()
 
@@ -66,7 +66,7 @@ func openHTTPTunnel(port int, subdomain string, ctx context.Context) {
 
 	go handleHTTPRequests(ws, requests)
 
-	out:
+out:
 	for {
 		select {
 		case <-ctx.Done():
@@ -78,7 +78,6 @@ func openHTTPTunnel(port int, subdomain string, ctx context.Context) {
 
 	fmt.Println("\n\033[31mjprq tunnel closed\033[00m")
 }
-
 
 func handleHTTPRequests(ws *websocket.Conn, requests chan<- jprq_http.RequestMessage) {
 	for {

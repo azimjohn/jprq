@@ -12,28 +12,30 @@ import (
 	"time"
 )
 
-var version = "1.0.0"
+var version = "1.1.0"
 var tcpBaseHost = "tcp.jprq.io"
 var httpBaseHost = "open.jprq.io"
 
 func main() {
 	subdomain := flag.String("subdomain", "", "Subdomain for HTTP Tunnel")
+	host := flag.String("host", "", "Host for Tunnel")
 	flag.Parse()
 	log.SetFlags(0)
+	args := flag.Args()
 
 	if len(os.Args) < 3 {
-		log.Fatalf("Usage: jprq <PROTOCOL> <PORT>\n" +
-			"  Supported Protocols: [tcp, http]\n" +
-			"  Optional Argument: -subdomain\n" +
+		log.Fatalf("Usage: jprq <PROTOCOL> <PORT>\n"+
+			"  Supported Protocols: [tcp, http]\n"+
+			"  Optional Argument: -subdomain (only for HTTP), -host\n"+
 			"  Client Version: %s\n", version)
 	}
 
-	protocol := os.Args[1]
+	protocol := args[0]
 	if protocol != "tcp" && protocol != "http" {
 		log.Fatalf("Invalid Protocol: %s\n", protocol)
 	}
 
-	port, err := strconv.Atoi(os.Args[2])
+	port, err := strconv.Atoi(args[1])
 	if err != nil || port < 0 || port > 65535 {
 		log.Fatalf("Invalid Port Number: %d\n", port)
 	}
@@ -48,10 +50,18 @@ func main() {
 	signalChan := make(chan os.Signal, 1)
 	signal.Notify(signalChan, os.Interrupt)
 
-	if os.Args[1] == "tcp" {
-		go openTCPTunnel(port, ctx)
-	} else if os.Args[1] == "http" {
-		go openHTTPTunnel(port, *subdomain, ctx)
+	if protocol == "tcp" {
+		if *host == "" {
+			// if no host has been supplied, fall back to default for tcp
+			*host = tcpBaseHost
+		}
+		go openTCPTunnel(port, *host, ctx)
+	} else if protocol == "http" {
+		if *host == "" {
+			// if no host has been supplied, fall back to default for http
+			*host = httpBaseHost
+		}
+		go openHTTPTunnel(port, *host, *subdomain, ctx)
 	}
 
 	<-signalChan
