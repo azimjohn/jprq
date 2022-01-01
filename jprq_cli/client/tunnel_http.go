@@ -4,14 +4,15 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/azimjohn/jprq/jprq_http"
-	"github.com/gorilla/websocket"
-	"gopkg.in/mgo.v2/bson"
 	"io/ioutil"
 	"log"
 	"net/http"
 	urlpkg "net/url"
 	"os/user"
+
+	"github.com/azimjohn/jprq/jprq_http"
+	"github.com/gorilla/websocket"
+	"gopkg.in/mgo.v2/bson"
 )
 
 type HTTPTunnel struct {
@@ -19,6 +20,20 @@ type HTTPTunnel struct {
 	Token   string `bson:"token"`
 	Warning string `bson:"warning"`
 	Error   string `bson:"error"`
+}
+
+var writeSocket chan []byte
+
+func socketMessageDispatch(ws *websocket.Conn) {
+	writeSocket = make(chan []byte)
+
+	for {
+		bytes := <-writeSocket
+		err := ws.WriteMessage(websocket.BinaryMessage, bytes)
+		if err != nil {
+			fmt.Printf("Error Sending Message to Server: %s", err)
+		}
+	}
 }
 
 func openHTTPTunnel(port int, host string, subdomain string, ctx context.Context) {
@@ -65,6 +80,7 @@ func openHTTPTunnel(port int, host string, subdomain string, ctx context.Context
 	defer close(requests)
 
 	go handleHTTPRequests(ws, requests)
+	go socketMessageDispatch(ws)
 
 out:
 	for {
@@ -72,7 +88,7 @@ out:
 		case <-ctx.Done():
 			break out
 		case request := <-requests:
-			go handleHTTPRequest(ws, tunnel.Token, port, request)
+			go handleHTTPRequest(tunnel.Token, port, request)
 		}
 	}
 
@@ -94,7 +110,7 @@ func handleHTTPRequests(ws *websocket.Conn, requests chan<- jprq_http.RequestMes
 	}
 }
 
-func handleHTTPRequest(ws *websocket.Conn, token string, port int, r jprq_http.RequestMessage) {
+func handleHTTPRequest(token string, port int, r jprq_http.RequestMessage) {
 	url := fmt.Sprintf("http://127.0.0.1:%d%s", port, r.URL)
 	request, err := http.NewRequest(r.Method, url, bytes.NewReader(r.Body))
 	if err != nil {
@@ -136,11 +152,7 @@ func handleHTTPRequest(ws *websocket.Conn, token string, port int, r jprq_http.R
 		return
 	}
 
-	err = ws.WriteMessage(websocket.BinaryMessage, message)
-	if err != nil {
-		fmt.Printf("Error Sending Message to Server: %s", err)
-		return
-	}
+	writeSocket <- message
 
 	fmt.Println(r.Method, r.URL, responseMessage.Status)
 }
