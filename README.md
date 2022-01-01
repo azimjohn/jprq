@@ -76,3 +76,6 @@ $ pip uninstall jprq
 
 - With serving React, Vue or any other modern web apps, make sure you run production server or build the app and serve static files as JPRQ is not capable of exposing Websocket.
 - With serving React, Vue or any other modern web apps in development mode, you can use TCP Tunneling
+
+## Self-Hosting 
+<a href="https://github.com/robinvandernoord/jprq-server-deploy">This repository</a> offers excellent resources for self-hosting configuration and setup.
