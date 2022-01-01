@@ -24,9 +24,9 @@ func main() {
 	args := flag.Args()
 
 	if len(os.Args) < 3 {
-		log.Fatalf("Usage: jprq <PROTOCOL> <PORT>\n"+
+		log.Fatalf("Usage: jprq [--subdomain] [--host] <PROTOCOL> <PORT>\n"+
 			"  Supported Protocols: [tcp, http]\n"+
-			"  Optional Argument: -subdomain (only for HTTP), -host\n"+
+			"  Optional Argument: -subdomain, -host\n"+
 			"  Client Version: %s\n", version)
 	}
 
