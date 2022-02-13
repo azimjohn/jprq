@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-var version = "1.1.0"
+var version = "1.2.0"
 var tcpBaseHost = "tcp.jprq.io"
 var httpBaseHost = "open.jprq.io"
 
