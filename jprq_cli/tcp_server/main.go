@@ -21,6 +21,6 @@ func main() {
 		w.Write([]byte("ok"))
 	})
 
-	fmt.Println("Server is running on Port 4500")
+	fmt.Println("JPRQ TCP Server is running on Port 4500")
 	log.Fatal(http.ListenAndServe(":4500", r))
 }

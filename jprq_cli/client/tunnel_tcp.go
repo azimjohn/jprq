@@ -9,7 +9,6 @@ import (
 	"log"
 	"net"
 	urlpkg "net/url"
-	"sync"
 )
 
 type TCPTunnel struct {
@@ -56,7 +55,7 @@ out:
 		case <-ctx.Done():
 			break out
 		case connRequest := <-connRequests:
-			go handleTCPConnection(connRequest, host, port, tunnel.PrivateServerPort, ctx)
+			go handleTCPConnection(connRequest, host, port, tunnel.PrivateServerPort)
 		}
 	}
 
@@ -78,7 +77,7 @@ func handleTCPConnections(ws *websocket.Conn, connRequests chan<- ConnectionRequ
 	}
 }
 
-func handleTCPConnection(connRequest ConnectionRequest, host string, localServerPort int, remoteServerPort int, ctx context.Context) {
+func handleTCPConnection(connRequest ConnectionRequest, host string, localServerPort int, remoteServerPort int) {
 	fmt.Printf("> Opened Connection with %s\n", connRequest.IP)
 	defer fmt.Printf("> Closed Connection with %s\n", connRequest.IP)
 
@@ -103,11 +102,5 @@ func handleTCPConnection(connRequest ConnectionRequest, host string, localServer
 		return
 	}
 
-	var wg sync.WaitGroup
-	wg.Add(2)
-
-	go jprq_tcp.PumpReadToWrite(&remoteConn, &localConn, &wg)
-	go jprq_tcp.PumpReadToWrite(&localConn, &remoteConn, &wg)
-
-	wg.Wait()
+	jprq_tcp.BindTCPConnections(&localConn, &remoteConn)
 }
