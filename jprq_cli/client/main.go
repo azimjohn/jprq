@@ -61,7 +61,8 @@ func main() {
 			// if no host has been supplied, fall back to default for http
 			*host = httpBaseHost
 		}
-		go openHTTPTunnel(port, *host, *subdomain, ctx)
+		fmt.Println(subdomain)
+		//go openHTTPTunnel(port, *host, *subdomain, ctx)
 	}
 
 	<-signalChan
