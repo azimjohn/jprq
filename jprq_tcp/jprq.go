@@ -6,14 +6,10 @@ import (
 	"net"
 )
 
-type Jprq struct {
-	baseHost string
-}
+type Jprq struct {}
 
-func New(baseHost string) Jprq {
-	return Jprq{
-		baseHost: baseHost,
-	}
+func New() Jprq {
+	return Jprq{}
 }
 
 func (j *Jprq) OpenTunnel(conn *websocket.Conn) (*Tunnel, error) {
