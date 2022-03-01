@@ -13,8 +13,8 @@ import (
 )
 
 var version = "1.2.0"
-var tcpBaseHost = "tcp.jprq.io"
-var httpBaseHost = "open.jprq.io"
+var tcpBaseHost = "localhost.uz"
+var httpBaseHost = "localhost.uz"
 
 func main() {
 	subdomain := flag.String("subdomain", "", "Subdomain for HTTP Tunnel")

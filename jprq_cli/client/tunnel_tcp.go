@@ -8,7 +8,6 @@ import (
 	"github.com/gorilla/websocket"
 	"log"
 	"net"
-	urlpkg "net/url"
 )
 
 type TCPTunnel struct {
@@ -22,8 +21,8 @@ type ConnectionRequest struct {
 }
 
 func openTCPTunnel(port int, host string, ctx context.Context) {
-	url := urlpkg.URL{Scheme: "wss", Host: host, Path: "/_ws/"}
-	ws, _, err := websocket.DefaultDialer.Dial(url.String(), nil)
+	//url := urlpkg.URL{Scheme: "wss", Host: host, Path: "/_ws/"}
+	ws, _, err := websocket.DefaultDialer.Dial("ws://localhost:8080/_ws/?version=1&hostname=localhost.uz:8081", nil)
 	if err != nil {
 		log.Fatalf("Error Connecting to %s: %s\n", host, err.Error())
 	}
