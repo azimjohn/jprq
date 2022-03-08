@@ -1,4 +1,13 @@
-# JPRQ - Ngrok Alternative
+# JPRQ - Ngrok Alternative 
+
+# ![#f03c15](https://via.placeholder.com/15/f03c15/000000?text=+) Important Notice
+<br>
+I have brought JPRQ down (only HTTP tunneling) because of a phishing operation.
+<br>
+I am sad to see my tool serve evil purposes. I will come up with better solution and update soon.
+<br>
+Sorry for the inconveniences.
+<br>
 
 ## Get Your Localhost Online and HTTPS
 
