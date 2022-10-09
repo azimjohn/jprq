@@ -1,86 +1,106 @@
 package jprq_http
 
 import (
-	"github.com/go-errors/errors"
-	"github.com/gofrs/uuid"
+	"encoding/json"
+	"github.com/azimjohn/jprq/jprq_tcp"
 	"github.com/gorilla/websocket"
 	"github.com/labstack/gommon/log"
-	"gopkg.in/mgo.v2/bson"
+	"net"
 )
 
 type Tunnel struct {
-	port           int
-	numOfReqServed int
-	host           string
-	token          string
-	conn           *websocket.Conn
-	requestChan    chan RequestMessage
-	responseChan   chan ResponseMessage
-	requests       map[uuid.UUID]RequestMessage
+	hostname             string
+	conn                 *websocket.Conn
+	privateServer        *net.Listener
+	publicPrivateMap     map[int]int
+	publicConnections    map[int]*net.Conn
+	privateConnections   map[int]*net.Conn
+	initialBufferByPort  map[int][]byte
+	publicConnectionChan chan *net.Conn
 }
 
-func (j Jprq) GetTunnelByHost(host string) (*Tunnel, error) {
-	t, ok := j.tunnels[host]
-	if !ok {
-		return t, errors.New("Tunnel doesn't exist")
+func (t *Tunnel) Close() {
+	(*t.privateServer).Close()
+	close(t.publicConnectionChan)
+	log.Infof("HTTP Tunnel Closed from IP %s", t.conn.RemoteAddr())
+}
+
+func (t *Tunnel) SendTunnelStartedEvent() {
+	event := jprq_tcp.TunnelStartedEvent{
+		PublicServerPort:  8081,
+		PrivateServerPort: t.PrivateServerPort(),
 	}
-	return t, nil
+	message, _ := json.Marshal(event)
+	t.conn.WriteMessage(websocket.TextMessage, message)
 }
 
-func (j *Jprq) OpenTunnel(host string, port int, conn *websocket.Conn) *Tunnel {
-	token := generateToken()
-	requests := make(map[uuid.UUID]RequestMessage)
-	requestChan, responseChan := make(chan RequestMessage), make(chan ResponseMessage)
-	tunnel := Tunnel{
-		host:         host,
-		port:         port,
-		conn:         conn,
-		token:        token,
-		requests:     requests,
-		requestChan:  requestChan,
-		responseChan: responseChan,
+func (t *Tunnel) PrivateServerPort() int {
+	return (*t.privateServer).Addr().(*net.TCPAddr).Port
+}
+
+func (t *Tunnel) AcceptPrivateConnections() {
+	for {
+		c, err := (*t.privateServer).Accept()
+		if err != nil {
+			break
+		}
+		privateClientPort := c.RemoteAddr().(*net.TCPAddr).Port
+		t.privateConnections[privateClientPort] = &c
+
+		buffer := make([]byte, 2) // 16 bits
+		_, err = c.Read(buffer)
+		if err != nil {
+			log.Errorf("reading from private client failed: %s\n", err)
+			return
+		}
+
+		publicClientPort := (int(buffer[0]) << 8) + int(buffer[1])
+		go t.PairConnections(publicClientPort, privateClientPort)
 	}
-
-	log.Info("Opened Tunnel: ", host)
-	j.tunnels[host] = &tunnel
-	return &tunnel
 }
 
-func (j *Jprq) CloseTunnel(host string) {
-	tunnel, ok := j.tunnels[host]
-	if !ok {
+func (t *Tunnel) NotifyPublicConnections() {
+	for {
+		conn, ok := <-t.publicConnectionChan
+		if !ok {
+			break
+		}
+		ip := (*conn).RemoteAddr().(*net.TCPAddr).IP.String()
+		port := (*conn).RemoteAddr().(*net.TCPAddr).Port
+		event := jprq_tcp.ConnectionReceivedEvent{
+			PublicClientPort: port, PublicClientIP: ip,
+		}
+		message, _ := json.Marshal(event)
+		t.conn.WriteMessage(websocket.TextMessage, message)
+	}
+}
+
+func (t *Tunnel) PairConnections(publicClientPort, privateClientPort int) {
+	defer delete(t.publicPrivateMap, publicClientPort)
+	defer delete(t.publicConnections, publicClientPort)
+	defer delete(t.privateConnections, privateClientPort)
+
+	t.publicPrivateMap[publicClientPort] = privateClientPort
+	publicClient, found1 := t.publicConnections[publicClientPort]
+	privateClient, found2 := t.privateConnections[privateClientPort]
+
+	if !found1 || !found2 {
+		log.Error("connection not found from connections map")
 		return
 	}
-	log.Infof("Closed Tunnel: %s, Number Of Requests Served: %d", host, tunnel.numOfReqServed)
-	close(tunnel.requestChan)
-	close(tunnel.responseChan)
-	delete(j.tunnels, host)
-}
 
-func (tunnel *Tunnel) DispatchRequests() {
-	for {
-		requestMessage, more := <-tunnel.requestChan
-		if !more {
-			return
-		}
-		messageContent, _ := bson.Marshal(requestMessage)
-		tunnel.requests[requestMessage.ID] = requestMessage
-		tunnel.conn.WriteMessage(websocket.BinaryMessage, messageContent)
+	buffer, ok := t.initialBufferByPort[publicClientPort]
+	if !ok {
+		log.Error("initial buffer not found")
+		return
 	}
-}
 
-func (tunnel *Tunnel) DispatchResponses() {
-	for {
-		responseMessage, more := <-tunnel.responseChan
-		if !more {
-			return
-		}
-		requestMessage, ok := tunnel.requests[responseMessage.RequestId]
-		if !ok {
-			continue
-		}
-		requestMessage.ResponseChan <- responseMessage
-		delete(tunnel.requests, requestMessage.ID)
-		tunnel.numOfReqServed++
+	_, err := (*privateClient).Write(buffer)
+	if err != nil {
+		log.Error("writing initial buffer to private client failed")
+		return
 	}
+
+	delete(t.initialBufferByPort, publicClientPort)
+	jprq_tcp.BindTCPConnections(publicClient, privateClient)
 }

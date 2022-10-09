@@ -5,7 +5,6 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/labstack/gommon/log"
 	"net"
-	"sync"
 )
 
 type Tunnel struct {
@@ -90,11 +89,11 @@ func (t *Tunnel) NotifyPublicConnections() {
 }
 
 func (t *Tunnel) PairConnections(publicClientPort, privateClientPort int) {
-	t.publicPrivateMap[publicClientPort] = privateClientPort
 	defer delete(t.publicPrivateMap, publicClientPort)
 	defer delete(t.publicConnections, publicClientPort)
 	defer delete(t.privateConnections, privateClientPort)
 
+	t.publicPrivateMap[publicClientPort] = privateClientPort
 	publicClient, found1 := t.publicConnections[publicClientPort]
 	privateClient, found2 := t.privateConnections[privateClientPort]
 
@@ -103,11 +102,5 @@ func (t *Tunnel) PairConnections(publicClientPort, privateClientPort int) {
 		return
 	}
 
-	var wg sync.WaitGroup
-	wg.Add(2)
-
-	go PumpReadToWrite(publicClient, privateClient, &wg)
-	go PumpReadToWrite(privateClient, publicClient, &wg)
-
-	wg.Wait()
+	BindTCPConnections(publicClient, privateClient)
 }

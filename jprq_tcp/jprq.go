@@ -6,18 +6,14 @@ import (
 	"net"
 )
 
-type Jprq struct {
-	baseHost string
-}
+type Jprq struct {}
 
-func New(baseHost string) Jprq {
-	return Jprq{
-		baseHost: baseHost,
-	}
+func New() Jprq {
+	return Jprq{}
 }
 
 func (j *Jprq) OpenTunnel(conn *websocket.Conn) (*Tunnel, error) {
-	log.Infof("New Tunnel from IP %s", conn.RemoteAddr())
+	log.Infof("New TCP Tunnel from IP %s", conn.RemoteAddr())
 	publicServer, err := net.Listen("tcp", ":0")
 	if err != nil {
 		return nil, err

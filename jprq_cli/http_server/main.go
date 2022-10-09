@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"github.com/azimjohn/jprq/jprq_http"
 	"github.com/gorilla/mux"
@@ -9,17 +8,18 @@ import (
 	"net/http"
 )
 
-var baseHost string
-
 func main() {
-	flag.StringVar(&baseHost, "host", "jprq.io", "Base Host")
-	flag.Parse()
+	j, err := jprq_http.New()
+	if err != nil {
+		log.Fatal(err.Error())
+	}
 
-	j := jprq_http.New(baseHost)
 	r := mux.NewRouter()
 	r.HandleFunc("/_ws/", j.WebsocketHandler)
-	r.PathPrefix("/").HandlerFunc(j.HttpHandler)
+	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("ok"))
+	})
 
-	fmt.Println("Server is running on Port 4200")
-	log.Fatal(http.ListenAndServe(":4200", r))
+	fmt.Println("JPRQ HTTP Server is running on Port 8080 (ws ctl) & 8081 (public)")
+	log.Fatal(http.ListenAndServe(":8080", r))
 }

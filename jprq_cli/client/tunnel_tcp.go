@@ -8,8 +8,6 @@ import (
 	"github.com/gorilla/websocket"
 	"log"
 	"net"
-	urlpkg "net/url"
-	"sync"
 )
 
 type TCPTunnel struct {
@@ -23,8 +21,8 @@ type ConnectionRequest struct {
 }
 
 func openTCPTunnel(port int, host string, ctx context.Context) {
-	url := urlpkg.URL{Scheme: "wss", Host: host, Path: "/_ws/"}
-	ws, _, err := websocket.DefaultDialer.Dial(url.String(), nil)
+	//url := urlpkg.URL{Scheme: "wss", Host: host, Path: "/_ws/"}
+	ws, _, err := websocket.DefaultDialer.Dial("ws://localhost:8080/_ws/?version=1&hostname=localhost.uz:8081", nil)
 	if err != nil {
 		log.Fatalf("Error Connecting to %s: %s\n", host, err.Error())
 	}
@@ -56,7 +54,7 @@ out:
 		case <-ctx.Done():
 			break out
 		case connRequest := <-connRequests:
-			go handleTCPConnection(connRequest, host, port, tunnel.PrivateServerPort, ctx)
+			go handleTCPConnection(ctx, connRequest, host, port, tunnel.PrivateServerPort)
 		}
 	}
 
@@ -78,18 +76,19 @@ func handleTCPConnections(ws *websocket.Conn, connRequests chan<- ConnectionRequ
 	}
 }
 
-func handleTCPConnection(connRequest ConnectionRequest, host string, localServerPort int, remoteServerPort int, ctx context.Context) {
+func handleTCPConnection(ctx context.Context, connRequest ConnectionRequest, host string, localServerPort int, remoteServerPort int) {
 	fmt.Printf("> Opened Connection with %s\n", connRequest.IP)
 	defer fmt.Printf("> Closed Connection with %s\n", connRequest.IP)
 
-	localConn, err := net.Dial("tcp", fmt.Sprintf("%s:%d", "127.0.0.1", localServerPort))
+	var d net.Dialer
+	localConn, err := d.DialContext(ctx, "tcp", fmt.Sprintf("%s:%d", "127.0.0.1", localServerPort))
 	if err != nil {
 		fmt.Printf("Error Connecting to Local Server: %s\n", err.Error())
 		return
 	}
 	defer localConn.Close()
 
-	remoteConn, err := net.Dial("tcp", fmt.Sprintf("%s:%d", host, remoteServerPort))
+	remoteConn, err := d.DialContext(ctx, "tcp", fmt.Sprintf("%s:%d", host, remoteServerPort))
 	if err != nil {
 		fmt.Printf("Error Connecting to Remote Server: %s\n", err.Error())
 		return
@@ -103,11 +102,5 @@ func handleTCPConnection(connRequest ConnectionRequest, host string, localServer
 		return
 	}
 
-	var wg sync.WaitGroup
-	wg.Add(2)
-
-	go jprq_tcp.PumpReadToWrite(&remoteConn, &localConn, &wg)
-	go jprq_tcp.PumpReadToWrite(&localConn, &remoteConn, &wg)
-
-	wg.Wait()
+	jprq_tcp.BindTCPConnections(&localConn, &remoteConn)
 }

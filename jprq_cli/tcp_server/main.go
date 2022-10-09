@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"github.com/azimjohn/jprq/jprq_tcp"
 	"github.com/gorilla/mux"
@@ -10,17 +9,13 @@ import (
 )
 
 func main() {
-	var baseHost string
-	flag.StringVar(&baseHost, "host", "tcp.jprq.io", "Base Host")
-	flag.Parse()
-
-	j := jprq_tcp.New(baseHost)
+	j := jprq_tcp.New()
 	r := mux.NewRouter()
 	r.HandleFunc("/_ws/", j.WebsocketHandler)
 	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("ok"))
 	})
 
-	fmt.Println("Server is running on Port 4500")
+	fmt.Println("JPRQ TCP Server is running on Port 4500")
 	log.Fatal(http.ListenAndServe(":4500", r))
 }

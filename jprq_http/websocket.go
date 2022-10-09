@@ -3,11 +3,9 @@ package jprq_http
 import (
 	"fmt"
 	"github.com/gorilla/websocket"
-	"github.com/gosimple/slug"
 	"github.com/labstack/gommon/log"
-	"gopkg.in/mgo.v2/bson"
 	"net/http"
-	"strconv"
+	"strings"
 )
 
 var upgrader = websocket.Upgrader{
@@ -18,62 +16,40 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
+func buildErrMessage(msg string) []byte {
+	return []byte(fmt.Sprintf(`{"error": "%s"`, msg))
+}
+
 func (j Jprq) WebsocketHandler(w http.ResponseWriter, r *http.Request) {
 	ws, err := upgrader.Upgrade(w, r, nil)
+	defer ws.Close()
 	if err != nil {
 		return
 	}
-	defer ws.Close()
 
 	query := r.URL.Query()
-	usernames := query["username"]
-	ports := query["port"]
+	versions := query["version"]
+	hostnames := query["hostname"]
 
-	if len(usernames) != 1 || len(ports) != 1 {
-		log.Error("Websocket Connection: Bad Request: ", query)
+	if len(hostnames) != 1 || len(versions) != 1 {
+		ws.WriteMessage(websocket.TextMessage, buildErrMessage("missing params"))
+		log.Error("bad request: ", query)
 		return
 	}
 
-	username := usernames[0]
-	username = slug.Make(username)
-	port, _ := strconv.Atoi(ports[0])
-	host := fmt.Sprintf("%s.%s", username, j.baseHost)
-
-	if _, err := j.GetTunnelByHost(host); err == nil {
-		errMessage := fmt.Sprintf("Tunnel %s is busy, try different subdomain.", host)
-		message := ErrorMessage{errMessage}
-		messageContent, _ := bson.Marshal(message)
-		ws.WriteMessage(websocket.BinaryMessage, messageContent)
-		ws.Close()
+	hostname := strings.ToLower(hostnames[0])
+	tunnel, err := j.OpenTunnel(hostname, ws)
+	if err != nil {
+		ws.WriteMessage(websocket.TextMessage, buildErrMessage(err.Error()))
+		log.Error("could not open tunnel: ", err.Error())
 		return
 	}
-
-	tunnel := j.OpenTunnel(host, port, ws)
-	defer j.CloseTunnel(tunnel.host)
-
-	message := TunnelMessage{tunnel.host, tunnel.token}
-	messageContent, err := bson.Marshal(message)
-
-	ws.WriteMessage(websocket.BinaryMessage, messageContent)
-
-	go tunnel.DispatchRequests()
-	go tunnel.DispatchResponses()
+	defer j.CloseTunnel(tunnel)
 
 	for {
-		_, message, err := ws.ReadMessage()
-		if err != nil {
-			break
+		_, _, closedErr := ws.ReadMessage()
+		if closedErr != nil {
+			return
 		}
-		response := ResponseMessage{}
-		err = bson.Unmarshal(message, &response)
-		if err != nil {
-			log.Error("Failed to Unmarshal Websocket Message: ", string(message), err)
-			continue
-		}
-		if response.Token != tunnel.token {
-			log.Error("Authentication Failed: ", tunnel.host)
-			continue
-		}
-		tunnel.responseChan <- response
 	}
 }

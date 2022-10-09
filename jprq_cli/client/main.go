@@ -12,9 +12,9 @@ import (
 	"time"
 )
 
-var version = "1.1.0"
-var tcpBaseHost = "tcp.jprq.io"
-var httpBaseHost = "open.jprq.io"
+var version = "1.2.0"
+var tcpBaseHost = "localhost.uz"
+var httpBaseHost = "localhost.uz"
 
 func main() {
 	subdomain := flag.String("subdomain", "", "Subdomain for HTTP Tunnel")
@@ -61,7 +61,8 @@ func main() {
 			// if no host has been supplied, fall back to default for http
 			*host = httpBaseHost
 		}
-		go openHTTPTunnel(port, *host, *subdomain, ctx)
+		fmt.Println(subdomain)
+		//go openHTTPTunnel(port, *host, *subdomain, ctx)
 	}
 
 	<-signalChan
