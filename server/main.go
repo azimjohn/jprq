@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"github.com/azimjohn/jprq/server/config"
 	"log"
 	"os"
 	"os/signal"
@@ -10,7 +9,7 @@ import (
 
 func main() {
 	var (
-		conf config.Config
+		conf Config
 		jprq Jprq
 	)
 

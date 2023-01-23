@@ -1,19 +1,18 @@
 package main
 
 import (
+	"context"
 	"fmt"
-	"github.com/azimjohn/jprq/server/config"
-	"golang.org/x/net/context"
 	"log"
 	"net"
 )
 
 type Jprq struct {
-	config       config.Config
+	config       Config
 	publicServer net.Listener
 }
 
-func (j *Jprq) Init(conf config.Config) error {
+func (j *Jprq) Init(conf Config) error {
 	j.config = conf
 	err := j.initPublicServer()
 	if err != nil {
