@@ -15,9 +15,9 @@ type Jprq struct {
 
 func (j *Jprq) Init(conf config.Config) error {
 	j.config = conf
-	err2 := j.initPublicServer()
-	if err2 != nil {
-		return err2
+	err := j.initPublicServer()
+	if err != nil {
+		return err
 	}
 	return nil
 }
