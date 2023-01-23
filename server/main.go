@@ -29,9 +29,9 @@ func main() {
 	signalChan := make(chan os.Signal, 1)
 	signal.Notify(signalChan, os.Interrupt)
 
-	go jprq.Start(ctx)
-	defer jprq.Stop()
-
+	jprq.Start(ctx)
 	<-signalChan
+
 	cancelFunc()
+	log.Printf("jprq server stopped")
 }
