@@ -26,6 +26,7 @@ func main() {
 	signal.Notify(signalChan, os.Interrupt)
 
 	jprq.Start()
+	log.Println("jprq server started")
 
 	<-signalChan
 	log.Printf("jprq server stopped")

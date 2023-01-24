@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"net"
 )
 
@@ -44,8 +43,6 @@ func (j *Jprq) Start() {
 	go j.publicServer.Serve(j.servePublicConn)
 	go j.eventServerTLS.Serve(j.serveEventConn)
 	go j.publicServerTLS.Serve(j.servePublicConn)
-
-	log.Println("jprq server started")
 }
 
 func (j *Jprq) serveEventConn(conn net.Conn) {

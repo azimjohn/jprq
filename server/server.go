@@ -57,9 +57,6 @@ func (s *TCPServer) Connections() <-chan net.Conn {
 
 func (s *TCPServer) Serve(handler func(conn net.Conn)) {
 	for conn := range s.connections {
-		go func(conn net.Conn) {
-			handler(conn)
-			conn.Close()
-		}(conn)
+		go handler(conn)
 	}
 }
