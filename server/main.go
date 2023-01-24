@@ -15,7 +15,7 @@ func main() {
 
 	err := conf.Load()
 	if err != nil {
-		log.Fatalf("failed to load conf %v", err)
+		log.Fatalf("failed to load conf: %v", err)
 	}
 
 	err = jprq.Init(conf)
@@ -27,8 +27,8 @@ func main() {
 	signal.Notify(signalChan, os.Interrupt)
 
 	jprq.Start()
-	log.Println("jprqpkg server started")
+	log.Println("jprq server started")
 
 	<-signalChan
-	log.Printf("jprqpkg server stopped")
+	log.Printf("jprq server stopped")
 }
