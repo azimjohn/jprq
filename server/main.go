@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"log"
 	"os"
 	"os/signal"
@@ -23,15 +22,11 @@ func main() {
 		log.Fatalf("failed to init jprq %v", err)
 	}
 
-	ctx := context.Background()
-	ctx, cancelFunc := context.WithCancel(ctx)
-
 	signalChan := make(chan os.Signal, 1)
 	signal.Notify(signalChan, os.Interrupt)
 
-	jprq.Start(ctx)
-	<-signalChan
+	jprq.Start()
 
-	cancelFunc()
+	<-signalChan
 	log.Printf("jprq server stopped")
 }
