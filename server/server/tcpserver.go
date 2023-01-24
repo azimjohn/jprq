@@ -51,12 +51,16 @@ func (s *TCPServer) Start() <-chan net.Conn {
 	}
 }
 
-func (s *TCPServer) Connections() <-chan net.Conn {
-	return s.connections
-}
-
 func (s *TCPServer) Serve(handler func(conn net.Conn)) {
 	for conn := range s.connections {
 		go handler(conn)
 	}
+}
+
+func (s *TCPServer) Connections() <-chan net.Conn {
+	return s.connections
+}
+
+func (s *TCPServer) Port() int {
+	return s.listener.Addr().(*net.TCPAddr).Port
 }
