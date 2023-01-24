@@ -6,9 +6,11 @@ import (
 )
 
 type Jprq struct {
-	config       Config
-	eventServer  TCPServer
-	publicServer TCPServer
+	config          Config
+	eventServer     TCPServer
+	publicServer    TCPServer
+	eventServerTLS  TCPServer
+	publicServerTLS TCPServer
 }
 
 func (j *Jprq) Init(conf Config) error {
@@ -21,35 +23,35 @@ func (j *Jprq) Init(conf Config) error {
 	if err != nil {
 		return err
 	}
+	err = j.eventServerTLS.InitTLS(conf.EventServerPort, conf.TLSCertFile, conf.TLSKeyFile)
+	if err != nil {
+		return err
+	}
+	err = j.publicServerTLS.InitTLS(conf.PublicServerPort, conf.TLSCertFile, conf.TLSKeyFile)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
 func (j *Jprq) Start() {
 	go j.eventServer.Start()
 	go j.publicServer.Start()
+	go j.eventServerTLS.Start()
+	go j.publicServerTLS.Start()
 
-	go j.handleEventConnections()
-	go j.handlePublicConnections()
+	go j.eventServer.Serve(j.serveEventConn)
+	go j.publicServer.Serve(j.servePublicConn)
+	go j.eventServerTLS.Serve(j.serveEventConn)
+	go j.publicServerTLS.Serve(j.servePublicConn)
 
 	log.Println("jprq server started")
 }
 
-func (j *Jprq) handleEventConnections() {
-	for conn := range j.eventServer.Connections() {
-		go j.handleEventConnection(conn)
-	}
-}
-
-func (j *Jprq) handlePublicConnections() {
-	for conn := range j.eventServer.Connections() {
-		go j.handlePublicConnection(conn)
-	}
-}
-
-func (j *Jprq) handleEventConnection(conn net.Conn) {
+func (j *Jprq) serveEventConn(conn net.Conn) {
 	// todo
 }
 
-func (j *Jprq) handlePublicConnection(conn net.Conn) {
+func (j *Jprq) servePublicConn(conn net.Conn) {
 	// todo
 }
