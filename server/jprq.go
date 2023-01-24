@@ -1,18 +1,20 @@
 package main
 
 import (
+	"github.com/azimjohn/jprq/server/config"
+	"github.com/azimjohn/jprq/server/server"
 	"net"
 )
 
 type Jprq struct {
-	config          Config
-	eventServer     TCPServer
-	publicServer    TCPServer
-	eventServerTLS  TCPServer
-	publicServerTLS TCPServer
+	config          config.Config
+	eventServer     server.TCPServer
+	publicServer    server.TCPServer
+	eventServerTLS  server.TCPServer
+	publicServerTLS server.TCPServer
 }
 
-func (j *Jprq) Init(conf Config) error {
+func (j *Jprq) Init(conf config.Config) error {
 	j.config = conf
 	err := j.eventServer.Init(conf.EventServerPort)
 	if err != nil {

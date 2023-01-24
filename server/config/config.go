@@ -1,4 +1,4 @@
-package main
+package config
 
 type Environment string
 
@@ -23,7 +23,7 @@ func (c *Config) Load() error {
 	c.EventServerPort = 4321
 	c.PublicServerTLSPort = 443
 	c.EventServerTLSPort = 4322
-	c.TLSKeyFile = "~/.cert/jprq.key"   // todo read from env
-	c.TLSCertFile = "~/.cert/jprq.cert" // todo read from env
+	c.TLSKeyFile = "~/.cert/jprqpkg.key"   // todo read from env
+	c.TLSCertFile = "~/.cert/jprqpkg.cert" // todo read from env
 	return nil
 }

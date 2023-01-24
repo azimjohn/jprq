@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/azimjohn/jprq/server/config"
 	"log"
 	"os"
 	"os/signal"
@@ -8,7 +9,7 @@ import (
 
 func main() {
 	var (
-		conf Config
+		conf config.Config
 		jprq Jprq
 	)
 
@@ -19,15 +20,15 @@ func main() {
 
 	err = jprq.Init(conf)
 	if err != nil {
-		log.Fatalf("failed to init jprq %v", err)
+		log.Fatalf("failed to init jprqpkg %v", err)
 	}
 
 	signalChan := make(chan os.Signal, 1)
 	signal.Notify(signalChan, os.Interrupt)
 
 	jprq.Start()
-	log.Println("jprq server started")
+	log.Println("jprqpkg server started")
 
 	<-signalChan
-	log.Printf("jprq server stopped")
+	log.Printf("jprqpkg server stopped")
 }
