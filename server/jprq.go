@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/azimjohn/jprq/server/config"
 	"github.com/azimjohn/jprq/server/server"
+	"github.com/azimjohn/jprq/server/tunnel"
 	"net"
 )
 
@@ -12,10 +13,17 @@ type Jprq struct {
 	publicServer    server.TCPServer
 	eventServerTLS  server.TCPServer
 	publicServerTLS server.TCPServer
+	userTunnels     map[string]tunnel.Tunnel
+	tcpTunnels      map[uint16]tunnel.TCPTunnel
+	httpTunnels     map[string]tunnel.HTTPTunnel
 }
 
 func (j *Jprq) Init(conf config.Config) error {
 	j.config = conf
+	j.userTunnels = make(map[string]tunnel.Tunnel)
+	j.tcpTunnels = make(map[uint16]tunnel.TCPTunnel)
+	j.httpTunnels = make(map[string]tunnel.HTTPTunnel)
+
 	err := j.eventServer.Init(conf.EventServerPort)
 	if err != nil {
 		return err
