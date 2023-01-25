@@ -6,10 +6,10 @@ import (
 )
 
 type Config struct {
-	EventServerPort     int
-	PublicServerPort    int
-	EventServerTLSPort  int
-	PublicServerTLSPort int
+	EventServerPort     uint16
+	PublicServerPort    uint16
+	EventServerTLSPort  uint16
+	PublicServerTLSPort uint16
 	TLSCertFile         string
 	TLSKeyFile          string
 }

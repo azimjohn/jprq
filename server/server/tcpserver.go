@@ -12,7 +12,7 @@ type TCPServer struct {
 	connections chan net.Conn
 }
 
-func (s *TCPServer) Init(port int) error {
+func (s *TCPServer) Init(port uint16) error {
 	ln, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 	if err != nil {
 		return err
@@ -22,7 +22,7 @@ func (s *TCPServer) Init(port int) error {
 	return nil
 }
 
-func (s *TCPServer) InitTLS(port int, certFile, keyFile string) error {
+func (s *TCPServer) InitTLS(port uint16, certFile, keyFile string) error {
 	cert, err := tls.LoadX509KeyPair(certFile, keyFile)
 	if err != nil {
 		return err
@@ -61,6 +61,6 @@ func (s *TCPServer) Connections() <-chan net.Conn {
 	return s.connections
 }
 
-func (s *TCPServer) Port() int {
-	return s.listener.Addr().(*net.TCPAddr).Port
+func (s *TCPServer) Port() uint16 {
+	return uint16(s.listener.Addr().(*net.TCPAddr).Port)
 }
