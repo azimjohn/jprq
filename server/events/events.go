@@ -17,7 +17,6 @@ type EventType interface {
 }
 
 type Event[Type EventType] struct {
-	Size uint16
 	Data *Type
 }
 
@@ -28,7 +27,6 @@ func (e *Event[EventType]) Encode() ([]byte, error) {
 		return nil, err
 	}
 	data := buf.Bytes()
-	e.Size = uint16(len(data))
 	return data, nil
 }
 
