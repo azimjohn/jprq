@@ -31,9 +31,9 @@ func (c *Config) Load() error {
 	if c.DomainName == "" {
 		return errors.New("JPRQ_DOMAIN env is not set")
 	}
-
 	if c.TLSKeyFile == "" || c.TLSCertFile == "" {
 		return errors.New("TLS key/cert file is missing")
 	}
+
 	return nil
 }
