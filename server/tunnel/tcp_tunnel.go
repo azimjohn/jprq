@@ -11,16 +11,16 @@ type TCPTunnel struct {
 	privateServer server.TCPServer
 }
 
-func NewTCPTunnel(hostname string) (*TCPTunnel, error) {
+func NewTCPTunnel(hostname string) (TCPTunnel, error) {
 	var t TCPTunnel
 	t.hostname = hostname
 	if err := t.privateServer.Init(0); err != nil {
-		return nil, fmt.Errorf("error init private server: %w", err)
+		return t, fmt.Errorf("error init private server: %w", err)
 	}
 	if err := t.publicServer.Init(0); err != nil {
-		return nil, fmt.Errorf("error init public server: %w", err)
+		return t, fmt.Errorf("error init public server: %w", err)
 	}
-	return &t, nil
+	return t, nil
 }
 
 func (t *TCPTunnel) Protocol() string {

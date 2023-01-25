@@ -17,16 +17,16 @@ type HTTPTunnel struct {
 	privateServer server.TCPServer
 }
 
-func NewHTTPTunnel(hostname string) (*HTTPTunnel, error) {
+func NewHTTPTunnel(hostname string) (HTTPTunnel, error) {
 	var t HTTPTunnel
 	t.hostname = hostname
 	if err := validate(hostname); err != nil {
-		return nil, err
+		return t, err
 	}
 	if err := t.privateServer.Init(0); err != nil {
-		return nil, err
+		return t, err
 	}
-	return &t, nil
+	return t, nil
 }
 
 func (t *HTTPTunnel) Protocol() string {
