@@ -40,14 +40,14 @@ func (e *Event[EventType]) Decode(data []byte) error {
 }
 
 type TunnelRequested struct {
-	Subdomain  string
+	Hostname   string
 	Protocol   Protocol
 	AuthToken  string
 	CliVersion string
 }
 
 type TunnelStarted struct {
-	Host           string   `json:"host"`
+	Hostname       string   `json:"host_name"`
 	Protocol       Protocol `json:"protocol"`
 	PublicServer   uint16   `json:"public_server"`
 	PrivateServer  uint16   `json:"private_server"`
