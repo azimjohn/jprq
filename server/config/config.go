@@ -7,6 +7,7 @@ import (
 
 type Config struct {
 	DomainName          string
+	MaxTunnelsPerUser   uint16
 	MaxConsPerTunnel    uint16
 	EventServerPort     uint16
 	PublicServerPort    uint16
@@ -17,6 +18,7 @@ type Config struct {
 }
 
 func (c *Config) Load() error {
+	c.MaxTunnelsPerUser = 5
 	c.MaxConsPerTunnel = 50
 	c.PublicServerPort = 80
 	c.EventServerPort = 4321
