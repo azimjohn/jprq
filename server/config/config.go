@@ -11,7 +11,6 @@ type Config struct {
 	MaxConsPerTunnel    uint16
 	EventServerPort     uint16
 	PublicServerPort    uint16
-	EventServerTLSPort  uint16
 	PublicServerTLSPort uint16
 	TLSCertFile         string
 	TLSKeyFile          string
@@ -22,7 +21,6 @@ func (c *Config) Load() error {
 	c.MaxConsPerTunnel = 50
 	c.PublicServerPort = 80
 	c.EventServerPort = 4321
-	c.EventServerTLSPort = 4322
 	c.PublicServerTLSPort = 443
 	c.DomainName = os.Getenv("JPRQ_DOMAIN")
 	c.TLSKeyFile = os.Getenv("JPRQ_TLS_KEY")
