@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -17,49 +18,45 @@ func TestConfig_Load(t *testing.T) {
 	}
 }
 
-func TestConfig_LoadEmptyEnv(t *testing.T) {
-	cases := []struct {
-		description string
-		domainEnv   string
-		keyEnv      string
-		certEnv     string
-		expected    string
+func TestConfig_loadEmptvEnv2(t *testing.T) {
+	envs := []struct {
+		key     string
+		value   string
+		ErrText string
 	}{
 		{
-			description: "JPRQ_DOMAIN env is not provided",
-			domainEnv:   "",
-			keyEnv:      "example.key",
-			certEnv:     "example.cert",
-			expected:    "JPRQ_DOMAIN env is not set",
+			"JPRQ_DOMAIN",
+			"jprq.live",
+			"JPRQ_DOMAIN env is not set",
 		},
 		{
-			description: "JPRQ_TLS_KEY env is not provided",
-			domainEnv:   "jprq.live",
-			keyEnv:      "",
-			certEnv:     "example.cert",
-			expected:    "TLS key/cert file is missing",
+			"JPRQ_TLS_KEY",
+			"example.key",
+			"TLS key/cert file is missing",
 		},
 		{
-			description: "JPRQ_TLS_CERT not is not provided",
-			domainEnv:   "jprq.live",
-			keyEnv:      "example.key",
-			certEnv:     "",
-			expected:    "TLS key/cert file is missing",
+			"JPRQ_TLS_CERT",
+			"example.cert",
+			"TLS key/cert file is missing",
 		},
 	}
-	for _, tt := range cases {
-		t.Run(tt.description, func(t *testing.T) {
-			t.Setenv("JPRQ_DOMAIN", tt.domainEnv)
-			t.Setenv("JPRQ_TLS_KEY", tt.keyEnv)
-			t.Setenv("JPRQ_TLS_CERT", tt.certEnv)
 
+	for i, missing := range envs {
+		t.Run(fmt.Sprintf("Missing %s", missing.key), func(t *testing.T) {
+			for j, env := range envs {
+				if i == j {
+					continue
+				}
+				t.Setenv(env.key, env.value)
+			}
 			config := &Config{}
 			err := config.Load()
+
 			if err == nil {
-				t.Logf("expected %v, but got %v", tt.expected, err)
+				t.Logf("expected %v, but got %v", missing.ErrText, err)
 			}
-			if err.Error() != tt.expected {
-				t.Logf("expected %s, but got %s", tt.expected, err.Error())
+			if err.Error() != missing.ErrText {
+				t.Logf("expected %s, but got %s", missing.ErrText, err.Error())
 			}
 		})
 	}
