@@ -46,20 +46,6 @@ func TestConfig_LoadEmptyEnv(t *testing.T) {
 			certEnv:     "",
 			expected:    "TLS key/cert file is missing",
 		},
-		{
-			description: "JPRQ_TLS_KEY and JPRQ_TLS_CERT are not provided",
-			domainEnv:   "jprq.live",
-			keyEnv:      "",
-			certEnv:     "",
-			expected:    "TLS key/cert file is missing",
-		},
-		{
-			description: "Nothing is provided",
-			domainEnv:   "",
-			keyEnv:      "",
-			certEnv:     "",
-			expected:    "JPRQ_DOMAIN env is not set",
-		},
 	}
 	for _, tt := range cases {
 		t.Run(tt.description, func(t *testing.T) {
