@@ -1,4 +1,24 @@
 const requestsEl = document.getElementById("requests");
+const infoSections = document.getElementsByClassName("card-info");
+
+for (let infoSection of infoSections) {
+    let title = infoSection.getElementsByClassName("header-title")[0];
+
+    title.addEventListener("click", () => {
+        let is_open = !(infoSection.dataset.isOpen === "true");
+        infoSection.dataset.isOpen = is_open;
+
+        let detailsEl = infoSection.getElementsByClassName("details")[0];
+        let arrowSvg = infoSection.getElementsByTagName("svg")[0];
+        if (is_open) {
+            detailsEl.classList.remove("hidden");
+            arrowSvg.classList.add("open");
+        } else {
+            detailsEl.classList.add("hidden");
+            arrowSvg.classList.remove("open");
+        }
+    });
+}
 
 function MakeRequest(
     method,

@@ -103,6 +103,13 @@
                 padding: 0.25rem 1rem;
                 background: rgb(243, 243, 243);
             }
+            .arrow {
+                transform: translateZ(0deg);
+                transition-duration: 400ms;
+            }
+            svg.open {
+                transform: rotateZ(90deg);
+            }
         </style>
     </head>
     <body>
@@ -144,50 +151,103 @@
                 </div>
 
                 <div>
-                    <div class="body card card-info flex-col">
-                        <div class="header-title border-b">Body</div>
-                        <div
-                            class="px-4 font-normal py-2 text-black/70"
-                            style="font-size: smaller"
-                        >
-                            { "glossary": { "title": "example glossary",
-                            "GlossDiv": { "title": "S", "GlossList": {
-                            "GlossEntry": { "ID": "SGML", "SortAs": "SGML",
-                            "GlossTerm": "Standard Generalized Markup Language",
-                            "Acronym": "SGML", "Abbrev": "ISO 8879:1986",
-                            "GlossDef": { "para": "A meta-markup language, used
-                            to create markup languages such as DocBook.",
-                            "GlossSeeAlso": ["GML", "XML"] }, "GlossSee":
-                            "markup" } } } } }
+                    <div
+                        class="body card card-info flex-col"
+                        data-is-open="true"
+                        aria-m
+                    >
+                        <div class="header-title border-b flex items-center">
+                            <svg
+                                width="16"
+                                height="16"
+                                viewBox="0 0 16 16"
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="#aaaaaa"
+                                class="arrow open mr-1 cursor-pointer"
+                            >
+                                <path
+                                    d="M5.56 14L5 13.587V2.393L5.54 2 11 7.627v.827L5.56 14z"
+                                />
+                            </svg>
+
+                            Body
+                        </div>
+                        <div class="details">
+                            <div
+                                class="px-4 font-normal py-2 text-black/70"
+                                style="font-size: smaller"
+                            >
+                                { "glossary": { "title": "example glossary",
+                                "GlossDiv": { "title": "S", "GlossList": {
+                                "GlossEntry": { "ID": "SGML", "SortAs": "SGML",
+                                "GlossTerm": "Standard Generalized Markup
+                                Language", "Acronym": "SGML", "Abbrev": "ISO
+                                8879:1986", "GlossDef": { "para": "A meta-markup
+                                language, used to create markup languages such
+                                as DocBook.", "GlossSeeAlso": ["GML", "XML"] },
+                                "GlossSee": "markup" } } } } }
+                            </div>
                         </div>
                     </div>
-                    <div class="basic card card-info flex-col">
-                        <div class="header-title border-b">Request Headers</div>
-                        <div class="">
+                    <div
+                        class="basic card card-info flex-col"
+                        data-is-open="true"
+                    >
+                        <div class="header-title border-b flex items-center">
+                            <svg
+                                width="16"
+                                height="16"
+                                viewBox="0 0 16 16"
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="#aaaaaa"
+                                class="arrow open mr-1 cursor-pointer"
+                            >
+                                <path
+                                    d="M5.56 14L5 13.587V2.393L5.54 2 11 7.627v.827L5.56 14z"
+                                />
+                            </svg>
+                            Request Headers
+                        </div>
+                        <div class="details">
                             <div class="header-item flex mt">
                                 <p class="header-key">Status:</p>
                                 <p class="header-val">200 OK</p>
                             </div>
-                        </div>
-                        <div class="header-item flex mt">
-                            <p class="header-key">Version:</p>
-                            <p class="header-val">HTTP/2</p>
-                        </div>
-                        <div class="header-item flex mt">
-                            <p class="header-key">Transferred:</p>
-                            <p class="header-val">2.29 kB (6.62 kB size)</p>
-                        </div>
-                        <div class="header-item flex mt">
-                            <p class="header-key">Referrer Policy:</p>
-                            <p class="header-val">
-                                strict-origin-when-cross-origin
-                            </p>
+
+                            <div class="header-item flex mt">
+                                <p class="header-key">Version:</p>
+                                <p class="header-val">HTTP/2</p>
+                            </div>
+                            <div class="header-item flex mt">
+                                <p class="header-key">Transferred:</p>
+                                <p class="header-val">2.29 kB (6.62 kB size)</p>
+                            </div>
+                            <div class="header-item flex mt">
+                                <p class="header-key">Referrer Policy:</p>
+                                <p class="header-val">
+                                    strict-origin-when-cross-origin
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="basic card card-info flex-col">
-                    <div class="header-title border-b">Response Headers</div>
-                    <div class="">
+                <div class="basic card card-info flex-col" data-is-open="true">
+                    <div class="header-title border-b flex items-center">
+                        <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 16 16"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="#aaaaaa"
+                            class="arrow open mr-1 cursor-pointer"
+                        >
+                            <path
+                                d="M5.56 14L5 13.587V2.393L5.54 2 11 7.627v.827L5.56 14z"
+                            />
+                        </svg>
+                        Response Headers
+                    </div>
+                    <div class="details">
                         <div class="header-item flex mt">
                             <p class="header-key">Status:</p>
                             <p class="header-val">200 OK</p>
