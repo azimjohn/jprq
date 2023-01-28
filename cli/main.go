@@ -1,9 +1,10 @@
 package main
 
-import (
-	"fmt"
-)
+import "log"
 
 func main() {
-	fmt.Println("Hello, World!")
+	w := webServer{}
+	if err := w.Run(4444); err != nil {
+		log.Fatalf("fail to run web server: %v", err)
+	}
 }
