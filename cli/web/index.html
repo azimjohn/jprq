@@ -31,6 +31,40 @@
                 border-bottom: 1px solid rgb(236, 236, 236);
                 user-select: none;
             }
+            .online {
+                width: 0.425rem;
+                height: 0.425rem;
+                background: #34d399;
+                border-radius: 100%;
+                position: relative;
+                margin-right: 0.75rem;
+            }
+
+            .online::before {
+                content: " ";
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: #d1fae5;
+                border-radius: 100%;
+                z-index: -1;
+                animation: onlineOuterAnimation 2s linear infinite;
+            }
+
+            @keyframes onlineOuterAnimation {
+                0%,
+                100% {
+                    width: 0.625rem;
+                    height: 0.625rem;
+                }
+                20%,
+                80% {
+                    width: 1.25rem;
+                    height: 1.25rem;
+                }
+            }
+
             .card:hover {
                 background: rgb(247, 247, 247);
             }
@@ -89,13 +123,7 @@
                         jasurbek.jprq.live
                     </h6>
                     <h6 class="inline-flex items-center justify-center">
-                        <div
-                            class="online-btn w-5 h-5 bg-emerald-100 rounded-full flex items-center justify-center mr-1"
-                        >
-                            <div
-                                class="online-btn w-1.5 h-1.5 bg-emerald-500 rounded-full"
-                            ></div>
-                        </div>
+                        <div class="online"></div>
                         Online
                     </h6>
                 </div>
