@@ -18,7 +18,7 @@ func TestConfig_Load(t *testing.T) {
 	}
 }
 
-func TestConfig_loadEmptvEnv2(t *testing.T) {
+func TestConfig_loadEmptyEnv(t *testing.T) {
 	envs := []struct {
 		key     string
 		value   string

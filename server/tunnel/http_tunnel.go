@@ -3,22 +3,29 @@ package tunnel
 import (
 	"errors"
 	"github.com/azimjohn/jprq/server/server"
+	"net"
 	"regexp"
 	"strings"
 )
 
 const DefaultHttpPort = 80
 
-var regex = regexp.MustCompile(`^[a-z0-9]+[a-z0-9\-]+[a-z0-9]$`)
-var blockList = map[string]bool{"www": true, "jprq": true}
-
 type HTTPTunnel struct {
-	hostname      string
-	privateServer server.TCPServer
+	hostname       string
+	privateServer  server.TCPServer
+	initialBuffer  map[uint16][]byte
+	privateCons    map[uint16]net.Conn
+	publicCons     map[uint16]net.Conn
+	publicConsChan chan net.Conn
 }
 
 func NewHTTPTunnel(hostname string) (HTTPTunnel, error) {
-	var t HTTPTunnel
+	t := HTTPTunnel{
+		hostname:       hostname,
+		publicCons:     make(map[uint16]net.Conn),
+		privateCons:    make(map[uint16]net.Conn),
+		publicConsChan: make(chan net.Conn),
+	}
 	t.hostname = hostname
 	if err := validate(hostname); err != nil {
 		return t, err
@@ -45,10 +52,23 @@ func (t *HTTPTunnel) PublicServerPort() uint16 {
 	return DefaultHttpPort
 }
 
+func (t *HTTPTunnel) PublicConnections() chan<- net.Conn {
+	return t.publicConsChan
+}
+
 func (t *HTTPTunnel) Start() {
 	go t.privateServer.Start()
-	// todo handle private connections
+
 }
+
+func (t *HTTPTunnel) PublicConnectionHandler(conn net.Conn, initialBuffer []byte) {
+	port := uint16(conn.RemoteAddr().(*net.TCPAddr).Port)
+	t.publicCons[port] = conn
+	t.initialBuffer[port] = initialBuffer
+}
+
+var regex = regexp.MustCompile(`^[a-z0-9]+[a-z0-9\-]+[a-z0-9]$`)
+var blockList = map[string]bool{"www": true, "jprq": true}
 
 func validate(hostname string) error {
 	domains := strings.Split(hostname, ".")
