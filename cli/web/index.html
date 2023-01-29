@@ -4,6 +4,164 @@
         <meta charset="UTF-8" />
         <title>JPRQ Dashboard</title>
         <link rel="stylesheet" href="style.css" />
+        <!-- Highlight.js -->
+        <style>
+            pre code.hljs {
+                display: block;
+                overflow-x: auto;
+                padding: 1em;
+            }
+            code.hljs {
+                padding: 3px 5px;
+            }
+            .hljs {
+                color: #24292e;
+                background: #fff;
+            }
+            .hljs-doctag,
+            .hljs-keyword,
+            .hljs-meta .hljs-keyword,
+            .hljs-template-tag,
+            .hljs-template-variable,
+            .hljs-type,
+            .hljs-variable.language_ {
+                color: #d73a49;
+            }
+            .hljs-title,
+            .hljs-title.class_,
+            .hljs-title.class_.inherited__,
+            .hljs-title.function_ {
+                color: #6f42c1;
+            }
+            .hljs-attr,
+            .hljs-attribute,
+            .hljs-literal,
+            .hljs-meta,
+            .hljs-number,
+            .hljs-operator,
+            .hljs-selector-attr,
+            .hljs-selector-class,
+            .hljs-selector-id,
+            .hljs-variable {
+                color: #005cc5;
+            }
+            .hljs-meta .hljs-string,
+            .hljs-regexp,
+            .hljs-string {
+                color: #032f62;
+            }
+            .hljs-built_in,
+            .hljs-symbol {
+                color: #e36209;
+            }
+            .hljs-code,
+            .hljs-comment,
+            .hljs-formula {
+                color: #6a737d;
+            }
+            .hljs-name,
+            .hljs-quote,
+            .hljs-selector-pseudo,
+            .hljs-selector-tag {
+                color: #22863a;
+            }
+            .hljs-subst {
+                color: #24292e;
+            }
+            .hljs-section {
+                color: #005cc5;
+                font-weight: 700;
+            }
+            .hljs-bullet {
+                color: #735c0f;
+            }
+            .hljs-emphasis {
+                color: #24292e;
+                font-style: italic;
+            }
+            .hljs-strong {
+                color: #24292e;
+                font-weight: 700;
+            }
+            .hljs-addition {
+                color: #22863a;
+                background-color: #f0fff4;
+            }
+            .hljs-deletion {
+                color: #b31d28;
+                background-color: #ffeef0;
+            }
+        </style>
+        <!-- [CLOSE] Highlight.js -->
+
+        <!-- Loader -->
+
+        <style>
+            .loader {
+                border: 2px solid #f3f3f3;
+                border-radius: 50%;
+                border-top: 2px solid #676767;
+                width: 18px;
+                height: 18px;
+                -webkit-animation: spin 2s linear infinite; /* Safari */
+                animation: spin 2s linear infinite;
+                display: inline-block;
+            }
+
+            /* Safari */
+            @-webkit-keyframes spin {
+                0% {
+                    -webkit-transform: rotate(0deg);
+                }
+                100% {
+                    -webkit-transform: rotate(360deg);
+                }
+            }
+
+            @keyframes spin {
+                0% {
+                    transform: rotate(0deg);
+                }
+                100% {
+                    transform: rotate(360deg);
+                }
+            }
+        </style>
+        <!-- Loader -->
+
+        <!-- FadeInRight Animation -->
+        <style>
+            @-webkit-keyframes fadeInRight {
+                0% {
+                    opacity: 0;
+                    -webkit-transform: translate3d(100%, 0, 0);
+                    transform: translate3d(100%, 0, 0);
+                }
+                to {
+                    opacity: 1;
+                    -webkit-transform: translateZ(0);
+                    transform: translateZ(0);
+                }
+            }
+            @keyframes fadeInRight {
+                0% {
+                    opacity: 0;
+                    -webkit-transform: translate3d(100%, 0, 0);
+                    transform: translate3d(100%, 0, 0);
+                }
+                to {
+                    opacity: 1;
+                    -webkit-transform: translateZ(0);
+                    transform: translateZ(0);
+                }
+            }
+            .animate__fadeInRight {
+                -webkit-animation-name: fadeInRight;
+                animation-name: fadeInRight;
+            }
+        </style>
+        <!-- [CLOSE] FadeInRight Animation -->
+
         <style>
             /* For Webkit-based browsers (Chrome, Safari and Opera) */
             .scrollbar-hide::-webkit-scrollbar {
@@ -28,8 +186,8 @@
                 /* box-shadow: 2px 2px 3px 2px rgba(66, 68, 90, 0.1); */
                 transition-duration: 150ms;
                 transition-duration: 300ms;
-                border-bottom: 1px solid rgb(236, 236, 236);
                 user-select: none;
+                border: 1px solid transparent;
             }
             .online {
                 width: 0.425rem;
@@ -110,16 +268,54 @@
             svg.open {
                 transform: rotateZ(90deg);
             }
+            .request {
+                animation: fadeInRight 250ms ease-in-out;
+                transition: border 0ms;
+                transition: all 200ms;
+            }
+            .request[data-is-active="true"] {
+                position: relative;
+                border: 1px solid #363636;
+                -webkit-box-shadow: 4px 4px 8px 4px rgba(66, 68, 90, 0.1);
+                -moz-box-shadow: 4px 4px 8px 4px rgba(66, 68, 90, 0.1);
+                box-shadow: 4px 4px 8px 4px rgba(66, 68, 90, 0.1);
+                z-index: 5;
+            }
+            .request:nth-child(1):not([data-is-active="true"]) {
+                border-top: 1px solid transparent;
+            }
+
+            .request:nth-last-child(1):not([data-is-active="true"]) {
+                border-bottom: 1px solid rgb(236, 236, 236);
+            }
+            @keyframes inFromRight {
+                0% {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                100% {
+                    transform: translateX(0);
+                    opacity: 100%;
+                }
+            }
         </style>
     </head>
     <body>
+        <!-- TW Classes, Don't Touch -->
         <div class="dont-touch used-classes hidden">
             <div
-                class="text-yellow-500 text-sky-500 text-red-500 text-indigo-500 text-blue-500 text-green-500 text-orange-500 text-emerald-500 text-gray-500"
+                class="border-l text-yellow-500 text-sky-500 text-red-500 text-indigo-500 text-blue-500 text-green-500 text-orange-500 text-emerald-500 text-gray-500"
             ></div>
         </div>
+        <!-- [CLOSE] TW Classes, Don't Touch -->
+
+        <!-- Main -->
         <div class="screen h-screen w-full flex overflow-hidden font-semibold">
+            <!-- Navbar -->
             <div class="navbar w-16 h-full bg-black"></div>
+            <!-- [CLOSE] Navbar -->
+
+            <!-- Requests -->
             <div
                 class="requests-wrapper w-52 lg:w-80 xl:w-96 h-full flex flex-col border-r"
             >
@@ -140,7 +336,10 @@
                     class="flex-1 overflow-y-auto scrollbar-hide"
                 ></div>
             </div>
-            <div class="info flex-1 h-full flex flex-col">
+            <!-- [CLOSE] Requests -->
+
+            <!-- Single Requst -->
+            <div id="info" class="flex-1 h-full flex flex-col">
                 <div
                     class="flex items-center text-black/60 px-10 py-6 border-b"
                 >
@@ -149,49 +348,59 @@
                         https://www.mozilla.org/media/js/site.d8d3c66f72e1.js
                     </h6>
                 </div>
-
-                <div>
-                    <div
-                        class="body card card-info flex-col"
-                        data-is-open="true"
-                        aria-m
-                    >
-                        <div class="header-title border-b flex items-center">
-                            <svg
-                                width="16"
-                                height="16"
-                                viewBox="0 0 16 16"
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="#aaaaaa"
-                                class="arrow open mr-1 cursor-pointer"
-                            >
-                                <path
-                                    d="M5.56 14L5 13.587V2.393L5.54 2 11 7.627v.827L5.56 14z"
-                                />
-                            </svg>
-
-                            Body
-                        </div>
-                        <div class="details">
+                <div class="flex-1 overflow-x-auto">
+                    <div>
+                        <div
+                            class="card card-info flex-col"
+                            data-is-open="true"
+                            data-title="requestHeaders"
+                        >
                             <div
-                                class="px-4 font-normal py-2 text-black/70"
-                                style="font-size: smaller"
+                                class="header-title border-b flex items-center"
                             >
-                                { "glossary": { "title": "example glossary",
-                                "GlossDiv": { "title": "S", "GlossList": {
-                                "GlossEntry": { "ID": "SGML", "SortAs": "SGML",
-                                "GlossTerm": "Standard Generalized Markup
-                                Language", "Acronym": "SGML", "Abbrev": "ISO
-                                8879:1986", "GlossDef": { "para": "A meta-markup
-                                language, used to create markup languages such
-                                as DocBook.", "GlossSeeAlso": ["GML", "XML"] },
-                                "GlossSee": "markup" } } } } }
+                                <svg
+                                    width="16"
+                                    height="16"
+                                    viewBox="0 0 16 16"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="#aaaaaa"
+                                    class="arrow open mr-1 cursor-pointer"
+                                >
+                                    <path
+                                        d="M5.56 14L5 13.587V2.393L5.54 2 11 7.627v.827L5.56 14z"
+                                    />
+                                </svg>
+                                Request Headers
+                            </div>
+                            <div class="details">
+                                <div class="header-item flex mt">
+                                    <p class="header-key">Status:</p>
+                                    <p class="header-val">200 OK</p>
+                                </div>
+
+                                <div class="header-item flex mt">
+                                    <p class="header-key">Version:</p>
+                                    <p class="header-val">HTTP/2</p>
+                                </div>
+                                <div class="header-item flex mt">
+                                    <p class="header-key">Transferred:</p>
+                                    <p class="header-val">
+                                        2.29 kB (6.62 kB size)
+                                    </p>
+                                </div>
+                                <div class="header-item flex mt">
+                                    <p class="header-key">Referrer Policy:</p>
+                                    <p class="header-val">
+                                        strict-origin-when-cross-origin
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     </div>
                     <div
-                        class="basic card card-info flex-col"
+                        class="card card-info flex-col"
                         data-is-open="true"
+                        data-title="responseHeaders"
                     >
                         <div class="header-title border-b flex items-center">
                             <svg
@@ -206,14 +415,13 @@
                                     d="M5.56 14L5 13.587V2.393L5.54 2 11 7.627v.827L5.56 14z"
                                 />
                             </svg>
-                            Request Headers
+                            Response Headers
                         </div>
                         <div class="details">
                             <div class="header-item flex mt">
                                 <p class="header-key">Status:</p>
                                 <p class="header-val">200 OK</p>
                             </div>
-
                             <div class="header-item flex mt">
                                 <p class="header-key">Version:</p>
                                 <p class="header-val">HTTP/2</p>
@@ -230,46 +438,79 @@
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="basic card card-info flex-col" data-is-open="true">
-                    <div class="header-title border-b flex items-center">
-                        <svg
-                            width="16"
-                            height="16"
-                            viewBox="0 0 16 16"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="#aaaaaa"
-                            class="arrow open mr-1 cursor-pointer"
+
+                    <div>
+                        <div
+                            class="body card card-info flex-col"
+                            data-is-open="true"
+                            data-title="requestBody"
                         >
-                            <path
-                                d="M5.56 14L5 13.587V2.393L5.54 2 11 7.627v.827L5.56 14z"
-                            />
-                        </svg>
-                        Response Headers
+                            <div
+                                class="header-title border-b flex items-center"
+                            >
+                                <svg
+                                    width="16"
+                                    height="16"
+                                    viewBox="0 0 16 16"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="#aaaaaa"
+                                    class="arrow open mr-1 cursor-pointer"
+                                >
+                                    <path
+                                        d="M5.56 14L5 13.587V2.393L5.54 2 11 7.627v.827L5.56 14z"
+                                    />
+                                </svg>
+
+                                Request Body
+                            </div>
+                            <div class="details font-normal px-4"></div>
+                        </div>
                     </div>
-                    <div class="details">
-                        <div class="header-item flex mt">
-                            <p class="header-key">Status:</p>
-                            <p class="header-val">200 OK</p>
-                        </div>
-                        <div class="header-item flex mt">
-                            <p class="header-key">Version:</p>
-                            <p class="header-val">HTTP/2</p>
-                        </div>
-                        <div class="header-item flex mt">
-                            <p class="header-key">Transferred:</p>
-                            <p class="header-val">2.29 kB (6.62 kB size)</p>
-                        </div>
-                        <div class="header-item flex mt">
-                            <p class="header-key">Referrer Policy:</p>
-                            <p class="header-val">
-                                strict-origin-when-cross-origin
-                            </p>
+                    <div>
+                        <div
+                            class="body card card-info flex-col"
+                            data-is-open="true"
+                            data-title="responseBody"
+                        >
+                            <div
+                                class="header-title border-b flex items-center"
+                            >
+                                <svg
+                                    width="16"
+                                    height="16"
+                                    viewBox="0 0 16 16"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="#aaaaaa"
+                                    class="arrow open mr-1 cursor-pointer"
+                                >
+                                    <path
+                                        d="M5.56 14L5 13.587V2.393L5.54 2 11 7.627v.827L5.56 14z"
+                                    />
+                                </svg>
+
+                                Response Body
+                            </div>
+                            <div class="details">
+                                <div
+                                    class="px-4 font-normal py-2 text-black/70"
+                                    style="font-size: smaller"
+                                >
+                                    <pre class="">
+                                    <code class="language-json pl-0">
+                                    </code>
+                                </pre>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+            <!-- [CLOSE] Single Requst -->
         </div>
         <script src="script.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+        <script>
+            hljs.highlightAll();
+        </script>
     </body>
 </html>

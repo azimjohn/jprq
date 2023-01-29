@@ -1,5 +1,6 @@
 const requestsEl = document.getElementById("requests");
 const infoSections = document.getElementsByClassName("card-info");
+let requests = [];
 
 for (let infoSection of infoSections) {
     let title = infoSection.getElementsByClassName("header-title")[0];
@@ -18,24 +19,6 @@ for (let infoSection of infoSections) {
             arrowSvg.classList.remove("open");
         }
     });
-}
-
-function MakeRequest(
-    method,
-    path,
-    statusCode,
-    generalInfo,
-    requestHeaders,
-    responseHeaders
-) {
-    return {
-        method,
-        path,
-        statusCode,
-        generalInfo,
-        requestHeaders,
-        responseHeaders,
-    };
 }
 
 function createElementFromHTML(htmlString) {
@@ -73,34 +56,123 @@ const getStatusColor = (status) => {
 
 const addRequest = (request) => {
     let methodColor = getMethodColor(request.method);
-    let statusColor = getStatusColor(request.statusCode);
     const requestElHTML = `
-    <div class="card cursor-pointer">
+    <div class="card cursor-pointer request border-l border-t" onclick="selectRequest(${
+        request.id
+    })" data-is-active="false" data-id=${request.id}>
         <div class="method w-20 text-${methodColor}">${request.method}</div>
-        <div class="path flex-1 text-black/60" title=${request.path}>
-		${request.path.slice(0, 20)}${request.path.length > 20 ? "..." : ""}
+        <div class="path flex-1 text-black/60" title=${request.url}>
+		${request.url.slice(0, 20)}${request.url.length > 20 ? "..." : ""}
 		</div>
-        <div class="status w-12 text-${statusColor} text-center">${
-        request.statusCode
-    }</div>
+        <div class="status w-12 text-right"><div class="loader"></div></div>
     </div>
     `;
     const requestElJS = createElementFromHTML(requestElHTML);
-    requestsEl.appendChild(requestElJS);
+    requestsEl.prepend(requestElJS);
 };
 
-addRequest(MakeRequest("GET", "/posts", 200, "", "", ""));
-addRequest(MakeRequest("POST", "/posts", 201, "", "", ""));
-addRequest(MakeRequest("DELETE", "/posts", 202, "", "", ""));
-addRequest(MakeRequest("OPTIONS", "/posts", 200, "", "", ""));
-addRequest(MakeRequest("PUT", "/posts", 204, "", "", ""));
-addRequest(MakeRequest("PATCH", "/posts", 404, "", "", ""));
-addRequest(
-    MakeRequest("PATCH", "/posts?adflkjadkfjdsjklflkjb", 504, "", "", "")
-);
-addRequest(MakeRequest("HEAD", "/posts", 304, "", "", ""));
-addRequest(MakeRequest("HEAD", "/posts", 304, "", "", ""));
-addRequest(MakeRequest("HEAD", "/posts", 304, "", "", ""));
-addRequest(MakeRequest("HEAD", "/posts", 304, "", "", ""));
-addRequest(MakeRequest("HEAD", "/posts", 304, "", "", ""));
-addRequest(MakeRequest("HEAD", "/posts", 304, "", "", ""));
+const update_request_status = (request_id, status) => {
+    let requestEl = document.querySelector(`[data-id='${request_id}']`);
+    let statusEl = requestEl.querySelector(".status");
+    let statusColor = getStatusColor(status);
+
+    statusEl.classList.add(`text-${statusColor}`);
+    statusEl.innerHTML = status;
+};
+const prettifyJson = (json_str) => {
+    json = JSON.parse(json_str);
+    return JSON.stringify(json, null, 2);
+};
+
+const selectRequest = (request_id) => {
+    request = requests.find((request) => request.id === request_id);
+    let requestEls = document.querySelector("#requests");
+    for (let requestEl of requestEls.childNodes) {
+        if (parseInt(requestEl.dataset.id) === request_id) {
+            requestEl.dataset.isActive = true;
+        } else {
+            requestEl.dataset.isActive = false;
+        }
+    }
+
+    // console.log(requestEl);
+};
+
+const changeRequestInfo = (request) => {
+    let infoSectionEl = document.getElementById("info");
+    let requestBodyEl = infoSectionEl
+        .querySelector('[data-title="requestBody"]')
+        .querySelector(".details");
+    let responseBodyEl = infoSectionEl
+        .querySelector('[data-title="responseBody"]')
+        .querySelector(".details");
+    let requestHeadersEl = infoSectionEl
+        .querySelector('[data-title="requestHeaders"]')
+        .querySelector(".details");
+    let responseHeadersEl = infoSectionEl
+        .querySelector('[data-title="responseHeaders"]')
+        .querySelector(".details");
+
+    let dummyJSON = `[
+        {
+          "title": "apples",
+          "count": [12000, 20000],
+          "description": {"text": "...", "sensitive": false}
+        },
+        {
+          "title": "oranges",
+          "count": [17500, null],
+          "description": {"text": "...", "sensitive": false}
+        }
+      ]`;
+
+    requestBodyEl.innerHTML = `<pre>
+            <code class="language-json text-normal">${prettifyJson(
+                dummyJSON
+            )}</code>
+        </pre>`;
+};
+
+changeRequestInfo();
+
+const handleEvents = async () => {
+    for (let i = 0; i < 10; i++) {
+        await new Promise((r) => setTimeout(r, Math.random() * 1000));
+
+        handleEvent(
+            `{"data": {"id": ${i}, "method":"GET","url":"https://google.com","body":"","headers":{"keep-alive":"true"}}}`
+        );
+        await new Promise((r) => setTimeout(r, 1500));
+
+        setTimeout(() => {}, 3000);
+        handleEvent(
+            `{"data": {"request_id": ${i}, "status":200,"headers":{"accept":"Json"},"body":[]}}`
+        );
+    }
+};
+
+const handleEvent = (event_str) => {
+    let event = JSON.parse(event_str)["data"];
+    if ("request_id" in event) {
+        // Event is response
+        request = requests.find((request) => request.id === event.request_id);
+        if (request) {
+            request.response = event;
+            update_request_status(request.id, event.status);
+        }
+    } else {
+        try {
+            event["response"] = {};
+            requests.push(event);
+            addRequest(event);
+        } catch {
+            console.log("Could not load request");
+        }
+    }
+};
+
+function main() {
+    handleEvents();
+}
+
+main();
