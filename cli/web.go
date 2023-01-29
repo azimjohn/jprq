@@ -15,6 +15,20 @@ var css string
 //go:embed web/script.js
 var js string
 
+type Request struct {
+	Method   string            `json:"method"`
+	URL      string            `json:"url"`
+	Body     string            `json:"body"`
+	Headers  map[string]string `json:"header"`
+	Response Response          `json:"response"`
+}
+
+type Response struct {
+	Status  int               `json:"status"`
+	Headers map[string]string `json:"header"`
+	Body    string            `json:"body"`
+}
+
 type webServer struct {
 }
 
