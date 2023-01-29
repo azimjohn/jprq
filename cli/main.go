@@ -5,15 +5,29 @@ import (
 	"time"
 )
 
+type Request struct {
+	Method   string            `json:"method"`
+	URL      string            `json:"url"`
+	Body     string            `json:"body"`
+	Headers  map[string]string `json:"header"`
+	Response Response          `json:"response"`
+}
+
+type Response struct {
+	Status  int               `json:"status"`
+	Headers map[string]string `json:"header"`
+	Body    string            `json:"body"`
+}
+
 func main() {
-	w := webServer{}
+	w := NewWebServer()
 
 	go func() {
 		r := Request{}
 
 		ticker := time.NewTicker(1 * time.Second)
 		for _ = range ticker.C {
-			w.Dispatch(r)
+			w.DispatchEvent(r)
 		}
 	}()
 	
