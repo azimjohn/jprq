@@ -1,7 +1,8 @@
 package tunnel
 
 type Tunnel interface {
-	Start()
+	Open() error
+	Close() error
 	Hostname() string
 	Protocol() string
 	PublicServerPort() uint16

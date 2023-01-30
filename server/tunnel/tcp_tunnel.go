@@ -15,7 +15,7 @@ type TCPTunnel struct {
 	publicConsChan chan net.Conn
 }
 
-func NewTCPTunnel(hostname string) (TCPTunnel, error) {
+func NewTCP(hostname string) (TCPTunnel, error) {
 	t := TCPTunnel{
 		hostname:       hostname,
 		publicCons:     make(map[uint16]net.Conn),
@@ -51,9 +51,22 @@ func (t *TCPTunnel) PublicConnections() <-chan net.Conn {
 	return t.publicConsChan
 }
 
-func (t *TCPTunnel) Start() {
+func (t *TCPTunnel) Open() error {
 	go t.privateServer.Start()
 	go t.publicServer.Start()
 
 	// handle private and public servers
+	return nil
+}
+
+func (t *TCPTunnel) Close() error {
+	close(t.publicConsChan)
+
+	if err := t.privateServer.Stop(); err != nil {
+		return err
+	}
+	if err := t.publicServer.Stop(); err != nil {
+		return err
+	}
+	return nil
 }

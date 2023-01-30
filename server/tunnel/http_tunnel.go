@@ -19,7 +19,7 @@ type HTTPTunnel struct {
 	publicConsChan chan net.Conn
 }
 
-func NewHTTPTunnel(hostname string) (HTTPTunnel, error) {
+func NewHTTP(hostname string) (HTTPTunnel, error) {
 	t := HTTPTunnel{
 		hostname:       hostname,
 		publicCons:     make(map[uint16]net.Conn),
@@ -56,9 +56,17 @@ func (t *HTTPTunnel) PublicConnections() chan<- net.Conn {
 	return t.publicConsChan
 }
 
-func (t *HTTPTunnel) Start() {
+func (t *HTTPTunnel) Open() error {
 	go t.privateServer.Start()
+	return nil
+}
 
+func (t *HTTPTunnel) Close() error {
+	if err := t.privateServer.Stop(); err != nil {
+		return err
+	}
+	close(t.publicConsChan)
+	return nil
 }
 
 func (t *HTTPTunnel) PublicConnectionHandler(conn net.Conn, initialBuffer []byte) {
