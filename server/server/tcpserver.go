@@ -37,18 +37,20 @@ func (s *TCPServer) InitTLS(port uint16, certFile, keyFile string) error {
 	return nil
 }
 
-func (s *TCPServer) Start() <-chan net.Conn {
-	defer s.listener.Close()
-	defer close(s.connections)
-
+func (s *TCPServer) Start() {
 	for {
 		conn, err := s.listener.Accept()
 		if err != nil {
-			log.Printf("could not accept client %v", err)
-			continue
+			log.Printf("closing server on port %d", s.Port())
+			return
 		}
 		s.connections <- conn
 	}
+}
+
+func (s *TCPServer) Stop() error {
+	close(s.connections)
+	return s.listener.Close()
 }
 
 func (s *TCPServer) Serve(handler func(conn net.Conn)) {
