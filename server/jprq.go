@@ -31,7 +31,7 @@ func (j *Jprq) Init(conf config.Config) error {
 	if err != nil {
 		return err
 	}
-	err = j.publicServerTLS.InitTLS(conf.PublicServerPort, conf.TLSCertFile, conf.TLSKeyFile)
+	err = j.publicServerTLS.InitTLS(conf.PublicServerTLSPort, conf.TLSCertFile, conf.TLSKeyFile)
 	if err != nil {
 		return err
 	}
@@ -46,6 +46,19 @@ func (j *Jprq) Start() {
 	go j.eventServer.Serve(j.serveEventConn)
 	go j.publicServer.Serve(j.servePublicConn)
 	go j.publicServerTLS.Serve(j.servePublicConn)
+}
+
+func (j *Jprq) Stop() error {
+	if err := j.eventServer.Stop(); err != nil {
+		return err
+	}
+	if err := j.publicServer.Stop(); err != nil {
+		return err
+	}
+	if err := j.publicServerTLS.Stop(); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (j *Jprq) serveEventConn(conn net.Conn) {
