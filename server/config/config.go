@@ -17,8 +17,8 @@ type Config struct {
 }
 
 func (c *Config) Load() error {
-	c.MaxTunnelsPerUser = 5
-	c.MaxConsPerTunnel = 50
+	c.MaxTunnelsPerUser = 4
+	c.MaxConsPerTunnel = 25
 	c.PublicServerPort = 80
 	c.EventServerPort = 4321
 	c.PublicServerTLSPort = 443
