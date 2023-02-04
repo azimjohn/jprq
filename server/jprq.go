@@ -19,11 +19,12 @@ type Jprq struct {
 	userTunnels     map[string]map[string]tunnel.Tunnel
 }
 
-func (j *Jprq) Init(conf config.Config) error {
+func (j *Jprq) Init(conf config.Config, oauth github.Authenticator) error {
 	j.config = conf
-	j.userTunnels = make(map[string]map[string]tunnel.Tunnel)
+	j.authenticator = oauth
 	j.tcpTunnels = make(map[uint16]tunnel.TCPTunnel)
 	j.httpTunnels = make(map[string]tunnel.HTTPTunnel)
+	j.userTunnels = make(map[string]map[string]tunnel.Tunnel)
 
 	err := j.eventServer.Init(conf.EventServerPort)
 	if err != nil {
@@ -36,9 +37,6 @@ func (j *Jprq) Init(conf config.Config) error {
 	err = j.publicServerTLS.InitTLS(conf.PublicServerTLSPort, conf.TLSCertFile, conf.TLSKeyFile)
 	if err != nil {
 		return err
-	}
-	if conf.GithubClientID != "" && conf.GithubClientSecret != "" {
-		j.authenticator = github.New(conf.GithubClientID, conf.GithubClientSecret)
 	}
 	return nil
 }

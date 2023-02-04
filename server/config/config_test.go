@@ -27,7 +27,7 @@ func TestConfig_loadEmptyEnv(t *testing.T) {
 		{
 			"JPRQ_DOMAIN",
 			"jprq.live",
-			"JPRQ_DOMAIN env is not set",
+			"jprq domain env is not set",
 		},
 		{
 			"JPRQ_TLS_KEY",
@@ -38,6 +38,16 @@ func TestConfig_loadEmptyEnv(t *testing.T) {
 			"JPRQ_TLS_CERT",
 			"example.cert",
 			"TLS key/cert file is missing",
+		},
+		{
+			"GITHUB_CLIENT_ID",
+			"client-id",
+			"github client id/secret is missing",
+		},
+		{
+			"GITHUB_CLIENT_SECRET",
+			"client-secret",
+			"github client id/secret is missing",
 		},
 	}
 

@@ -31,11 +31,13 @@ func (c *Config) Load() error {
 	c.GithubClientSecret = os.Getenv("GITHUB_CLIENT_SECRET")
 
 	if c.DomainName == "" {
-		return errors.New("JPRQ_DOMAIN env is not set")
+		return errors.New("jprq domain env is not set")
 	}
 	if c.TLSKeyFile == "" || c.TLSCertFile == "" {
 		return errors.New("TLS key/cert file is missing")
 	}
-
+	if c.GithubClientID == "" || c.GithubClientSecret == "" {
+		return errors.New("github client id/secret is missing")
+	}
 	return nil
 }

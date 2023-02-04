@@ -64,14 +64,14 @@ func (g github) ObtainToken(code string) (string, error) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("error obtaining access token: http %d", resp.StatusCode)
+		return "", fmt.Errorf("failed to obtain access token: http %d", resp.StatusCode)
 	}
 
 	var response struct {
 		AccessToken string `json:"access_token"`
 	}
 	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
-		return "", fmt.Errorf("error decoding github response: %v", err)
+		return "", fmt.Errorf("failed to decode github response: %v", err)
 	}
 	return response.AccessToken, nil
 }
@@ -93,7 +93,7 @@ func (g github) Authenticate(token string) (User, error) {
 	}
 	err = json.NewDecoder(resp.Body).Decode(&user)
 	if err != nil {
-		return user, fmt.Errorf("decoding user data failed: %v", err)
+		return user, fmt.Errorf("failed to decode user data: %v", err)
 	}
 
 	return user, nil

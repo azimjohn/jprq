@@ -23,12 +23,15 @@ var installer string
 func main() {
 	clientId := os.Getenv("GITHUB_CLIENT_ID")
 	clientSecret := os.Getenv("GITHUB_CLIENT_SECRET")
+	if clientId == "" || clientSecret == "" {
+		log.Fatalf("missing github client id/secret")
+	}
 	oauth = github.New(clientId, clientSecret)
 
 	http.HandleFunc("/", contentHandler([]byte(html), "text/html"))
 	http.HandleFunc("/config.json", contentHandler([]byte(config), "application/json"))
 	http.HandleFunc("/install.sh", contentHandler([]byte(installer), "text/x-shellscript"))
-	http.HandleFunc("/login", loginHandler)
+	http.HandleFunc("/auth", authHandler)
 	http.HandleFunc("/oauth-callback", oauthCallback)
 
 	log.Print("Listening on 127.0.0.1:3300")
@@ -42,7 +45,7 @@ func contentHandler(content []byte, contentType string) func(w http.ResponseWrit
 	}
 }
 
-func loginHandler(w http.ResponseWriter, r *http.Request) {
+func authHandler(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, oauth.OAuthUrl(), http.StatusFound)
 }
 
