@@ -51,7 +51,7 @@ func TestGithub_Authenticate(t *testing.T) {
 			}))
 			defer server.Close()
 
-			g := github{authEndpoint: server.URL}
+			g := github{userEndpoint: server.URL}
 			user, err := g.Authenticate("token")
 
 			if (err != nil) != tt.wantErr {

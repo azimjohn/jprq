@@ -33,7 +33,12 @@ func NewWebServer() WebServer {
 	http.HandleFunc("/script.js", contentHandler(js, "text/javascript"))
 	http.HandleFunc("/style.css", contentHandler(css, "text/css"))
 	http.HandleFunc("/events", web.eventHandler)
+	http.HandleFunc("/store-token", authHandler)
 	return web
+}
+
+func authHandler(w http.ResponseWriter, r *http.Request) {
+
 }
 
 func (web *webServer) Run(port uint16) error {
