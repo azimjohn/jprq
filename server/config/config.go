@@ -14,6 +14,8 @@ type Config struct {
 	PublicServerTLSPort uint16
 	TLSCertFile         string
 	TLSKeyFile          string
+	GithubClientID      string
+	GithubClientSecret  string
 }
 
 func (c *Config) Load() error {
@@ -25,6 +27,8 @@ func (c *Config) Load() error {
 	c.DomainName = os.Getenv("JPRQ_DOMAIN")
 	c.TLSKeyFile = os.Getenv("JPRQ_TLS_KEY")
 	c.TLSCertFile = os.Getenv("JPRQ_TLS_CERT")
+	c.GithubClientID = os.Getenv("GITHUB_CLIENT_ID")
+	c.GithubClientSecret = os.Getenv("GITHUB_CLIENT_SECRET")
 
 	if c.DomainName == "" {
 		return errors.New("JPRQ_DOMAIN env is not set")

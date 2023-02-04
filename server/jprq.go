@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/azimjohn/jprq/server/config"
+	"github.com/azimjohn/jprq/server/github"
 	"github.com/azimjohn/jprq/server/server"
 	"github.com/azimjohn/jprq/server/tunnel"
 	"net"
@@ -12,14 +13,15 @@ type Jprq struct {
 	eventServer     server.TCPServer
 	publicServer    server.TCPServer
 	publicServerTLS server.TCPServer
-	userTunnels     map[string]tunnel.Tunnel
+	authenticator   github.Authenticator
 	tcpTunnels      map[uint16]tunnel.TCPTunnel
 	httpTunnels     map[string]tunnel.HTTPTunnel
+	userTunnels     map[string]map[string]tunnel.Tunnel
 }
 
 func (j *Jprq) Init(conf config.Config) error {
 	j.config = conf
-	j.userTunnels = make(map[string]tunnel.Tunnel)
+	j.userTunnels = make(map[string]map[string]tunnel.Tunnel)
 	j.tcpTunnels = make(map[uint16]tunnel.TCPTunnel)
 	j.httpTunnels = make(map[string]tunnel.HTTPTunnel)
 
@@ -34,6 +36,9 @@ func (j *Jprq) Init(conf config.Config) error {
 	err = j.publicServerTLS.InitTLS(conf.PublicServerTLSPort, conf.TLSCertFile, conf.TLSKeyFile)
 	if err != nil {
 		return err
+	}
+	if conf.GithubClientID != "" && conf.GithubClientSecret != "" {
+		j.authenticator = github.New(conf.GithubClientID, conf.GithubClientSecret)
 	}
 	return nil
 }
