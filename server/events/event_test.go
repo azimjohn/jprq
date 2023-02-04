@@ -14,13 +14,13 @@ func TestEvent_EncodeDecode(t *testing.T) {
 		},
 	}
 
-	data, err := event.Encode()
+	data, err := event.encode()
 	if err != nil {
 		t.Errorf("error encoding %v", err)
 	}
 
 	var result Event[ConnectionReceived]
-	err = result.Decode(data)
+	err = result.decode(data)
 	if err != nil {
 		t.Errorf("error decoding %v", err)
 	}

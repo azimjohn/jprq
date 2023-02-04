@@ -44,7 +44,7 @@ type ConnectionReceived struct {
 	RateLimited bool   `json:"rate_limited"`
 }
 
-func (e *Event[EventType]) Encode() ([]byte, error) {
+func (e *Event[EventType]) encode() ([]byte, error) {
 	var buf bytes.Buffer
 	enc := gob.NewEncoder(&buf)
 	if err := enc.Encode(e.Data); err != nil {
@@ -54,7 +54,7 @@ func (e *Event[EventType]) Encode() ([]byte, error) {
 	return data, nil
 }
 
-func (e *Event[EventType]) Decode(data []byte) error {
+func (e *Event[EventType]) decode(data []byte) error {
 	buf := bytes.NewBuffer(data)
 	dec := gob.NewDecoder(buf)
 	if err := dec.Decode(&e.Data); err != nil {
@@ -73,14 +73,14 @@ func (e *Event[EventType]) Read(conn io.Reader) error {
 	if _, err := conn.Read(buffer); err != nil {
 		return err
 	}
-	if err := e.Decode(buffer); err != nil {
+	if err := e.decode(buffer); err != nil {
 		return err
 	}
 	return nil
 }
 
 func (e *Event[EventType]) Write(conn io.Writer) error {
-	data, err := e.Encode()
+	data, err := e.encode()
 	if err != nil {
 		return err
 	}
