@@ -1,4 +1,4 @@
-package main
+package web
 
 import (
 	_ "embed"
@@ -8,13 +8,13 @@ import (
 	"time"
 )
 
-//go:embed web/index.html
+//go:embed static/index.html
 var html string
 
-//go:embed web/style.css
+//go:embed static/style.css
 var css string
 
-//go:embed web/script.js
+//go:embed static/script.js
 var js string
 
 type webServer struct {

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/azimjohn/jprq/cli/web"
 	"log"
 	"time"
 )
@@ -21,7 +22,7 @@ type Response struct {
 }
 
 func main() {
-	w := NewWebServer()
+	w := web.NewWebServer()
 
 	go func() {
 		r := Request{}
