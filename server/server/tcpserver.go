@@ -53,7 +53,7 @@ func (s *TCPServer) Stop() error {
 	return s.listener.Close()
 }
 
-func (s *TCPServer) Serve(handler func(conn net.Conn)) {
+func (s *TCPServer) Serve(handler func(conn net.Conn) error) {
 	for conn := range s.connections {
 		go handler(conn)
 	}

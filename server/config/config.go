@@ -7,8 +7,8 @@ import (
 
 type Config struct {
 	DomainName          string
-	MaxTunnelsPerUser   uint16
-	MaxConsPerTunnel    uint16
+	MaxTunnelsPerUser   int
+	MaxConsPerTunnel    int
 	EventServerPort     uint16
 	PublicServerPort    uint16
 	PublicServerTLSPort uint16

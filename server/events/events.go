@@ -5,6 +5,7 @@ import (
 	"encoding/binary"
 	"encoding/gob"
 	"io"
+	"net"
 )
 
 type Protocol string
@@ -30,18 +31,26 @@ type TunnelRequested struct {
 }
 
 type TunnelStarted struct {
-	Hostname       string   `json:"host_name"`
-	Protocol       Protocol `json:"protocol"`
-	PublicServer   uint16   `json:"public_server"`
-	PrivateServer  uint16   `json:"private_server"`
-	UserMessage    string   `json:"user_message"`
-	MaxConnections uint16   `json:"max_connections"`
+	Hostname      string   `json:"host_name"`
+	Protocol      Protocol `json:"protocol"`
+	PublicServer  uint16   `json:"public_server"`
+	PrivateServer uint16   `json:"private_server"`
+	ErrorMessage  string   `json:"error_message"`
 }
 
 type ConnectionReceived struct {
 	ClientIP    string `json:"client_ip"`
 	ClientPort  uint16 `json:"client_port"`
 	RateLimited bool   `json:"rate_limited"`
+}
+
+func WriteError(message string, conn net.Conn) error {
+	event := Event[TunnelStarted]{
+		Data: &TunnelStarted{
+			ErrorMessage: message,
+		},
+	}
+	return event.Write(conn)
 }
 
 func (e *Event[EventType]) encode() ([]byte, error) {

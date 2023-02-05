@@ -15,8 +15,8 @@ type TCPTunnel struct {
 	publicConsChan chan net.Conn
 }
 
-func NewTCP(hostname string) (TCPTunnel, error) {
-	t := TCPTunnel{
+func NewTCP(hostname string) (*TCPTunnel, error) {
+	t := &TCPTunnel{
 		hostname:       hostname,
 		publicCons:     make(map[uint16]net.Conn),
 		privateCons:    make(map[uint16]net.Conn),

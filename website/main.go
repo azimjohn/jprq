@@ -60,5 +60,5 @@ func oauthCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	redirect := fmt.Sprintf("http://127.0.0.1:4444/store-token?token=%s", token)
-	http.Redirect(w, r, redirect, http.StatusFound)
+	http.Redirect(w, r, redirect, http.StatusFound) // todo show command to copy & execute `jprq auth <token>`
 }
