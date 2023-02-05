@@ -1,6 +1,7 @@
 package tunnel
 
 import (
+	"github.com/azimjohn/jprq/server/events"
 	"github.com/azimjohn/jprq/server/server"
 	"io"
 	"net"
@@ -52,7 +53,7 @@ func (t *HTTPTunnel) PublicServerPort() uint16 {
 func (t *HTTPTunnel) Open() {
 	go t.privateServer.Start()
 
-	// handle private connections
+	// todo: handle private connections
 }
 
 func (t *HTTPTunnel) Close() {
@@ -60,8 +61,20 @@ func (t *HTTPTunnel) Close() {
 	close(t.publicConsChan)
 }
 
-func (t *HTTPTunnel) PublicConnectionHandler(conn net.Conn, initialBuffer []byte) {
+func (t *HTTPTunnel) PublicConnectionHandler(conn net.Conn, initialBuffer []byte) error {
+	ip := conn.RemoteAddr().(*net.TCPAddr).IP
 	port := uint16(conn.RemoteAddr().(*net.TCPAddr).Port)
+	event := events.Event[events.ConnectionReceived]{
+		Data: &events.ConnectionReceived{
+			ClientIP:    ip,
+			ClientPort:  port,
+			RateLimited: false,
+		},
+	}
+	if err := event.Write(t.eventWriter); err != nil {
+		return conn.Close()
+	}
 	t.publicCons[port] = conn
 	t.initialBuffer[port] = initialBuffer
+	return nil
 }

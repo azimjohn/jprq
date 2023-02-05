@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
 	"github.com/azimjohn/jprq/server/config"
@@ -71,8 +72,27 @@ func (j *Jprq) Stop() error {
 }
 
 func (j *Jprq) servePublicConn(conn net.Conn) error {
-	// todo
-	return nil
+	reader := bufio.NewReader(conn)
+
+	first, err := reader.ReadString('\n')
+	if err != nil {
+		return conn.Close() // todo write http response: bad request
+	}
+	second, err := reader.ReadString('\n')
+	if err != nil {
+		return conn.Close() // todo write http response: bad request
+	}
+	i := strings.Index(second, ":")
+	if i < 0 {
+		return conn.Close() // todo write http response: bad request
+	}
+	host := strings.Trim(second[i+1:], "\r\n")
+	host = strings.ToLower(host)
+	t, found := j.httpTunnels[host]
+	if !found {
+		return conn.Close() // todo write http response: not found
+	}
+	return t.PublicConnectionHandler(conn, []byte(first+second))
 }
 
 func (j *Jprq) serveEventConn(conn net.Conn) error {

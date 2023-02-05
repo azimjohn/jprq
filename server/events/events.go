@@ -30,17 +30,17 @@ type TunnelRequested struct {
 }
 
 type TunnelOpened struct {
-	Hostname      string `json:"hostname"`
-	Protocol      string `json:"protocol"`
-	PublicServer  uint16 `json:"public_server"`
-	PrivateServer uint16 `json:"private_server"`
-	ErrorMessage  string `json:"error_message"`
+	Hostname      string
+	Protocol      string
+	PublicServer  uint16
+	PrivateServer uint16
+	ErrorMessage  string
 }
 
 type ConnectionReceived struct {
-	ClientIP    string `json:"client_ip"`
-	ClientPort  uint16 `json:"client_port"`
-	RateLimited bool   `json:"rate_limited"`
+	ClientIP    []byte
+	ClientPort  uint16
+	RateLimited bool
 }
 
 func WriteError(message string, eventWriter io.Writer) error {

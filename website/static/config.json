@@ -1,3 +1,5 @@
 {
-  "servers": ["jprq.live", "jprq.net"]
+  "server": {
+    "hostname": "jprq.live"
+  }
 }
