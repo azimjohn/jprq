@@ -8,6 +8,7 @@ import (
 	"github.com/azimjohn/jprq/server/github"
 	"github.com/azimjohn/jprq/server/server"
 	"github.com/azimjohn/jprq/server/tunnel"
+	"io"
 	"net"
 	"regexp"
 	"strings"
@@ -27,7 +28,8 @@ type Jprq struct {
 func (j *Jprq) Init(conf config.Config, oauth github.Authenticator) error {
 	j.config = conf
 	j.authenticator = oauth
-	j.httpTunnels = make(map[string]tunnel.HTTPTunnel)
+	j.tcpTunnels = make(map[uint16]*tunnel.TCPTunnel)
+	j.httpTunnels = make(map[string]*tunnel.HTTPTunnel)
 	j.userTunnels = make(map[string]map[string]tunnel.Tunnel)
 
 	err := j.eventServer.Init(conf.EventServerPort)
@@ -101,17 +103,17 @@ func (j *Jprq) serveEventConn(conn net.Conn) error {
 	var t tunnel.Tunnel
 	switch request.Protocol {
 	case events.HTTP:
-		tn, err := tunnel.NewHTTP(request.Hostname)
+		tn, err := tunnel.NewHTTP(request.Hostname, conn)
 		if err != nil {
-			return events.WriteError("server-side error", conn)
+			return events.WriteError("server failed to create tunnel", conn)
 		}
 		j.httpTunnels[request.Hostname] = tn
 		defer delete(j.httpTunnels, request.Hostname)
 		t = tn
 	case events.TCP:
-		tn, err := tunnel.NewTCP(request.Hostname)
+		tn, err := tunnel.NewTCP(request.Hostname, conn)
 		if err != nil {
-			return events.WriteError("server-side error", conn)
+			return events.WriteError("server failed to create tunnel", conn)
 		}
 		j.tcpTunnels[tn.PublicServerPort()] = tn
 		defer delete(j.tcpTunnels, tn.PublicServerPort())
@@ -122,11 +124,23 @@ func (j *Jprq) serveEventConn(conn net.Conn) error {
 	j.userTunnels[user.Login][tunnelId] = t
 	defer delete(j.userTunnels[user.Login], tunnelId)
 
-	err = t.Open()
-	if err != nil {
-		return events.WriteError("server-side error", conn)
+	t.Open()
+	defer t.Close()
+	opened := events.Event[events.TunnelOpened]{
+		Data: &events.TunnelOpened{
+			Hostname:      t.Hostname(),
+			Protocol:      t.Protocol(),
+			PublicServer:  t.PublicServerPort(),
+			PrivateServer: t.PrivateServerPort(),
+		},
 	}
-	return t.Close()
+	opened.Write(conn)
+	buffer := make([]byte, 1)
+	for {
+		if _, err := conn.Read(buffer); err == io.EOF {
+			return err
+		}
+	}
 }
 
 var regex = regexp.MustCompile(`^[a-z0-9]+[a-z0-9\-]+[a-z0-9]$`)

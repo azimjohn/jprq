@@ -2,6 +2,7 @@ package tunnel
 
 import (
 	"github.com/azimjohn/jprq/server/server"
+	"io"
 	"net"
 )
 
@@ -9,16 +10,18 @@ const DefaultHttpPort = 80
 
 type HTTPTunnel struct {
 	hostname       string
+	eventWriter    io.Writer
+	publicConsChan chan net.Conn
 	privateServer  server.TCPServer
 	initialBuffer  map[uint16][]byte
 	privateCons    map[uint16]net.Conn
 	publicCons     map[uint16]net.Conn
-	publicConsChan chan net.Conn
 }
 
-func NewHTTP(hostname string) (*HTTPTunnel, error) {
+func NewHTTP(hostname string, eventWriter io.Writer) (*HTTPTunnel, error) {
 	t := &HTTPTunnel{
 		hostname:       hostname,
+		eventWriter:    eventWriter,
 		publicCons:     make(map[uint16]net.Conn),
 		privateCons:    make(map[uint16]net.Conn),
 		publicConsChan: make(chan net.Conn),
@@ -46,21 +49,15 @@ func (t *HTTPTunnel) PublicServerPort() uint16 {
 	return DefaultHttpPort
 }
 
-func (t *HTTPTunnel) PublicConnections() chan<- net.Conn {
-	return t.publicConsChan
-}
-
-func (t *HTTPTunnel) Open() error {
+func (t *HTTPTunnel) Open() {
 	go t.privateServer.Start()
-	return nil
+
+	// handle private connections
 }
 
-func (t *HTTPTunnel) Close() error {
-	if err := t.privateServer.Stop(); err != nil {
-		return err
-	}
+func (t *HTTPTunnel) Close() {
+	t.privateServer.Stop()
 	close(t.publicConsChan)
-	return nil
 }
 
 func (t *HTTPTunnel) PublicConnectionHandler(conn net.Conn, initialBuffer []byte) {

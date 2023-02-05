@@ -3,11 +3,13 @@ package tunnel
 import (
 	"fmt"
 	"github.com/azimjohn/jprq/server/server"
+	"io"
 	"net"
 )
 
 type TCPTunnel struct {
 	hostname       string
+	eventWriter    io.Writer
 	publicServer   server.TCPServer
 	privateServer  server.TCPServer
 	privateCons    map[uint16]net.Conn
@@ -15,9 +17,10 @@ type TCPTunnel struct {
 	publicConsChan chan net.Conn
 }
 
-func NewTCP(hostname string) (*TCPTunnel, error) {
+func NewTCP(hostname string, eventWriter io.Writer) (*TCPTunnel, error) {
 	t := &TCPTunnel{
 		hostname:       hostname,
+		eventWriter:    eventWriter,
 		publicCons:     make(map[uint16]net.Conn),
 		privateCons:    make(map[uint16]net.Conn),
 		publicConsChan: make(chan net.Conn),
@@ -47,26 +50,15 @@ func (t *TCPTunnel) PrivateServerPort() uint16 {
 	return t.privateServer.Port()
 }
 
-func (t *TCPTunnel) PublicConnections() <-chan net.Conn {
-	return t.publicConsChan
-}
-
-func (t *TCPTunnel) Open() error {
+func (t *TCPTunnel) Open() {
 	go t.privateServer.Start()
 	go t.publicServer.Start()
 
-	// handle private and public servers
-	return nil
+	// handle private and public connections
 }
 
-func (t *TCPTunnel) Close() error {
+func (t *TCPTunnel) Close() {
 	close(t.publicConsChan)
-
-	if err := t.privateServer.Stop(); err != nil {
-		return err
-	}
-	if err := t.publicServer.Stop(); err != nil {
-		return err
-	}
-	return nil
+	t.privateServer.Stop()
+	t.publicServer.Stop()
 }
