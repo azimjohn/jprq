@@ -1,6 +1,7 @@
 package tunnel
 
 import (
+	"errors"
 	"github.com/azimjohn/jprq/server/events"
 	"github.com/azimjohn/jprq/server/server"
 	"io"
@@ -11,6 +12,7 @@ const DefaultHttpPort = 80
 
 type HTTPTunnel struct {
 	hostname       string
+	maxConsLimit   int
 	eventWriter    io.Writer
 	publicConsChan chan net.Conn
 	privateServer  server.TCPServer
@@ -19,10 +21,11 @@ type HTTPTunnel struct {
 	publicCons     map[uint16]net.Conn
 }
 
-func NewHTTP(hostname string, eventWriter io.Writer) (*HTTPTunnel, error) {
+func NewHTTP(hostname string, eventWriter io.Writer, maxConsLimit int) (*HTTPTunnel, error) {
 	t := &HTTPTunnel{
 		hostname:       hostname,
 		eventWriter:    eventWriter,
+		maxConsLimit:   maxConsLimit,
 		publicCons:     make(map[uint16]net.Conn),
 		privateCons:    make(map[uint16]net.Conn),
 		publicConsChan: make(chan net.Conn),
@@ -64,6 +67,19 @@ func (t *HTTPTunnel) Close() {
 func (t *HTTPTunnel) PublicConnectionHandler(conn net.Conn, initialBuffer []byte) error {
 	ip := conn.RemoteAddr().(*net.TCPAddr).IP
 	port := uint16(conn.RemoteAddr().(*net.TCPAddr).Port)
+
+	if len(t.publicCons) >= t.maxConsLimit {
+		event := events.Event[events.ConnectionReceived]{
+			Data: &events.ConnectionReceived{
+				ClientIP:    ip,
+				RateLimited: true,
+			},
+		}
+		conn.Close()
+		event.Write(t.eventWriter)
+		return errors.New("connection rate limited")
+	}
+
 	event := events.Event[events.ConnectionReceived]{
 		Data: &events.ConnectionReceived{
 			ClientIP:    ip,

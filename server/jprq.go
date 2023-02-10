@@ -102,38 +102,45 @@ func (j *Jprq) serveEventConn(conn net.Conn) error {
 	if err := event.Read(conn); err != nil {
 		return err
 	}
+
 	request := event.Data
 	user, err := j.authenticator.Authenticate(request.AuthToken)
 	if err != nil {
 		return events.WriteError("authentication failed", conn)
 	}
+
 	if request.Protocol != events.HTTP && request.Protocol != events.TCP {
 		return events.WriteError("invalid protocol", conn)
 	}
+
 	if len(j.userTunnels[user.Login]) >= j.config.MaxTunnelsPerUser {
 		return events.WriteError("tunnels limit reached", conn)
 	}
+
 	if _, ok := j.httpTunnels[request.Hostname]; ok {
 		return events.WriteError("host is currently busy", conn)
 	}
+
 	if err := validate(request.Hostname); err != nil {
 		return events.WriteError(err.Error(), conn)
 	}
 
 	var t tunnel.Tunnel
+	var maxConsLimit = j.config.MaxConsPerTunnel
+
 	switch request.Protocol {
 	case events.HTTP:
-		tn, err := tunnel.NewHTTP(request.Hostname, conn)
+		tn, err := tunnel.NewHTTP(request.Hostname, conn, maxConsLimit)
 		if err != nil {
-			return events.WriteError("server failed to create tunnel", conn)
+			return events.WriteError("failed to create tunnel", conn)
 		}
 		j.httpTunnels[request.Hostname] = tn
 		defer delete(j.httpTunnels, request.Hostname)
 		t = tn
 	case events.TCP:
-		tn, err := tunnel.NewTCP(request.Hostname, conn)
+		tn, err := tunnel.NewTCP(request.Hostname, conn, maxConsLimit)
 		if err != nil {
-			return events.WriteError("server failed to create tunnel", conn)
+			return events.WriteError("failed to create tunnel", conn)
 		}
 		j.tcpTunnels[tn.PublicServerPort()] = tn
 		defer delete(j.tcpTunnels, tn.PublicServerPort())

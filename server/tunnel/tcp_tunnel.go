@@ -9,6 +9,7 @@ import (
 
 type TCPTunnel struct {
 	hostname       string
+	maxConsLimit   int
 	eventWriter    io.Writer
 	publicServer   server.TCPServer
 	privateServer  server.TCPServer
@@ -17,10 +18,11 @@ type TCPTunnel struct {
 	publicConsChan chan net.Conn
 }
 
-func NewTCP(hostname string, eventWriter io.Writer) (*TCPTunnel, error) {
+func NewTCP(hostname string, eventWriter io.Writer, maxConsLimit int) (*TCPTunnel, error) {
 	t := &TCPTunnel{
 		hostname:       hostname,
 		eventWriter:    eventWriter,
+		maxConsLimit:   maxConsLimit,
 		publicCons:     make(map[uint16]net.Conn),
 		privateCons:    make(map[uint16]net.Conn),
 		publicConsChan: make(chan net.Conn),
