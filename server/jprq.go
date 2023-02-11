@@ -124,12 +124,15 @@ func (j *Jprq) serveEventConn(conn net.Conn) error {
 		return events.WriteError(conn, "tunnels limit reached for %s", user.Login)
 	}
 
-	if _, ok := j.httpTunnels[request.Hostname]; ok {
-		return events.WriteError(conn, "%host currently busy: %s", request.Hostname)
+	if request.Subdomain == "" {
+		request.Subdomain = user.Login
 	}
-
-	if err := validate(request.Hostname); err != nil {
-		return events.WriteError(conn, "invalid hostname %s: %s", request.Hostname, err.Error())
+	if err := validate(request.Subdomain); err != nil {
+		return events.WriteError(conn, "invalid subdomain %s: %s", request.Subdomain, err.Error())
+	}
+	hostname := fmt.Sprintf("%s.%s", request.Subdomain, j.config.DomainName)
+	if _, ok := j.httpTunnels[hostname]; ok {
+		return events.WriteError(conn, "subdomain is busy: %s, try another one", request.Subdomain)
 	}
 
 	var t tunnel.Tunnel
@@ -137,15 +140,15 @@ func (j *Jprq) serveEventConn(conn net.Conn) error {
 
 	switch request.Protocol {
 	case events.HTTP:
-		tn, err := tunnel.NewHTTP(request.Hostname, conn, maxConsLimit)
+		tn, err := tunnel.NewHTTP(hostname, conn, maxConsLimit)
 		if err != nil {
 			return events.WriteError(conn, "failed to create http tunnel", err.Error())
 		}
-		j.httpTunnels[request.Hostname] = tn
-		defer delete(j.httpTunnels, request.Hostname)
+		j.httpTunnels[hostname] = tn
+		defer delete(j.httpTunnels, hostname)
 		t = tn
 	case events.TCP:
-		tn, err := tunnel.NewTCP(request.Hostname, conn, maxConsLimit)
+		tn, err := tunnel.NewTCP(hostname, conn, maxConsLimit)
 		if err != nil {
 			return events.WriteError(conn, "failed to create tcp tunnel", err.Error())
 		}

@@ -5,19 +5,13 @@ import (
 	"fmt"
 	"io"
 	"regexp"
-	"strings"
 )
 
-var regex = regexp.MustCompile(`^[a-z0-9]+[a-z0-9\-]+[a-z0-9]$`)
+var regex = regexp.MustCompile(`^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$`)
 var blockList = map[string]bool{"www": true, "jprq": true}
 
-func validate(hostname string) error {
-	domains := strings.Split(hostname, ".")
-	if len(domains) != 3 {
-		return errors.New("3.level.domain is expected")
-	}
-	subdomain := domains[0]
-	if len(subdomain) > 42 || len(subdomain) < 3 {
+func validate(subdomain string) error {
+	if len(subdomain) > 38 || len(subdomain) < 3 {
 		return errors.New("subdomain length must be between 3 and 42")
 	}
 	if blockList[subdomain] {

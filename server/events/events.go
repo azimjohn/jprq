@@ -25,8 +25,8 @@ type Event[Type EventType] struct {
 }
 
 type TunnelRequested struct {
-	Hostname   string
 	Protocol   Protocol
+	Subdomain  string
 	AuthToken  string
 	CliVersion string
 }
