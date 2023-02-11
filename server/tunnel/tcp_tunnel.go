@@ -26,10 +26,10 @@ func NewTCP(hostname string, eventWriter io.Writer, maxConsLimit int) (*TCPTunne
 		maxConsLimit: maxConsLimit,
 		publicCons:   make(map[uint16]net.Conn),
 	}
-	if err := t.privateServer.Init(0); err != nil {
+	if err := t.privateServer.Init(0, "tcp_tunnel_private_server"); err != nil {
 		return t, fmt.Errorf("error init private server: %w", err)
 	}
-	if err := t.publicServer.Init(0); err != nil {
+	if err := t.publicServer.Init(0, "tcp_tunnel_public_server"); err != nil {
 		return t, fmt.Errorf("error init public server: %w", err)
 	}
 	return t, nil
@@ -67,8 +67,7 @@ func (t *TCPTunnel) Open() {
 				},
 			}
 			publicCon.Close()
-			event.Write(t.eventWriter)
-			return errors.New("connection rate limited")
+			return event.Write(t.eventWriter)
 		}
 
 		event := events.Event[events.ConnectionReceived]{
@@ -109,4 +108,8 @@ func (t *TCPTunnel) Open() {
 func (t *TCPTunnel) Close() {
 	t.privateServer.Stop()
 	t.publicServer.Stop()
+	for port, con := range t.publicCons {
+		con.Close()
+		delete(t.publicCons, port)
+	}
 }

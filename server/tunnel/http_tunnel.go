@@ -12,25 +12,23 @@ import (
 const DefaultHttpPort = 80
 
 type HTTPTunnel struct {
-	hostname       string
-	maxConsLimit   int
-	eventWriter    io.Writer
-	publicConsChan chan net.Conn
-	privateServer  server.TCPServer
-	initialBuffer  map[uint16][]byte
-	publicCons     map[uint16]net.Conn
+	hostname      string
+	maxConsLimit  int
+	eventWriter   io.Writer
+	privateServer server.TCPServer
+	initialBuffer map[uint16][]byte
+	publicCons    map[uint16]net.Conn
 }
 
 func NewHTTP(hostname string, eventWriter io.Writer, maxConsLimit int) (*HTTPTunnel, error) {
 	t := &HTTPTunnel{
-		hostname:       hostname,
-		eventWriter:    eventWriter,
-		maxConsLimit:   maxConsLimit,
-		publicCons:     make(map[uint16]net.Conn),
-		publicConsChan: make(chan net.Conn),
+		hostname:     hostname,
+		eventWriter:  eventWriter,
+		maxConsLimit: maxConsLimit,
+		publicCons:   make(map[uint16]net.Conn),
 	}
 	t.hostname = hostname
-	if err := t.privateServer.Init(0); err != nil {
+	if err := t.privateServer.Init(0, "http_tunnel_private_server"); err != nil {
 		return t, err
 	}
 	return t, nil
@@ -65,7 +63,6 @@ func (t *HTTPTunnel) Open() {
 		if !found {
 			return errors.New("public connection not found")
 		}
-
 		defer publicCon.Close()
 		delete(t.publicCons, port)
 		defer delete(t.initialBuffer, port)
@@ -77,11 +74,6 @@ func (t *HTTPTunnel) Open() {
 		io.Copy(privateCon, publicCon)
 		return nil
 	})
-}
-
-func (t *HTTPTunnel) Close() {
-	t.privateServer.Stop()
-	close(t.publicConsChan)
 }
 
 func (t *HTTPTunnel) PublicConnectionHandler(publicCon net.Conn, initialBuffer []byte) error {
@@ -96,8 +88,7 @@ func (t *HTTPTunnel) PublicConnectionHandler(publicCon net.Conn, initialBuffer [
 			},
 		}
 		publicCon.Close()
-		event.Write(t.eventWriter)
-		return errors.New("connection rate limited")
+		return event.Write(t.eventWriter)
 	}
 
 	event := events.Event[events.ConnectionReceived]{
@@ -113,4 +104,12 @@ func (t *HTTPTunnel) PublicConnectionHandler(publicCon net.Conn, initialBuffer [
 	t.publicCons[port] = publicCon
 	t.initialBuffer[port] = initialBuffer
 	return nil
+}
+
+func (t *HTTPTunnel) Close() {
+	t.privateServer.Stop()
+	for port, con := range t.publicCons {
+		con.Close()
+		delete(t.publicCons, port)
+	}
 }

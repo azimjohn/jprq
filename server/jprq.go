@@ -33,16 +33,14 @@ func (j *Jprq) Init(conf config.Config, oauth github.Authenticator) error {
 	j.httpTunnels = make(map[string]*tunnel.HTTPTunnel)
 	j.userTunnels = make(map[string]map[string]tunnel.Tunnel)
 
-	err := j.eventServer.Init(conf.EventServerPort)
-	if err != nil {
+	if err := j.eventServer.Init(conf.EventServerPort, "jprq_event_server"); err != nil {
 		return err
 	}
-	err = j.publicServer.Init(conf.PublicServerPort)
-	if err != nil {
+	if err := j.publicServer.Init(conf.PublicServerPort, "jprq_public_server"); err != nil {
 		return err
 	}
-	err = j.publicServerTLS.InitTLS(conf.PublicServerTLSPort, conf.TLSCertFile, conf.TLSKeyFile)
-	if err != nil {
+	if err := j.publicServerTLS.InitTLS(conf.PublicServerTLSPort, "jprq_public_server_tls", conf.TLSCertFile,
+		conf.TLSKeyFile); err != nil {
 		return err
 	}
 	return nil
@@ -148,6 +146,9 @@ func (j *Jprq) serveEventConn(conn net.Conn) error {
 	}
 
 	tunnelId := fmt.Sprintf("%s:%d", t.Hostname(), t.PublicServerPort())
+	if len(j.userTunnels[user.Login]) == 0 {
+		j.userTunnels[user.Login] = make(map[string]tunnel.Tunnel)
+	}
 	j.userTunnels[user.Login][tunnelId] = t
 	defer delete(j.userTunnels[user.Login], tunnelId)
 

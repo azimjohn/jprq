@@ -6,11 +6,11 @@ import (
 
 func TestTCPServerInit(t *testing.T) {
 	s := &TCPServer{}
-	err := s.Init(1234)
+	err := s.Init(1234, "test_server")
 	defer s.Stop()
 
 	if err != nil {
-		t.Fatalf("Failed to init server: %v", err)
+		t.Fatalf("failed to init server: %v", err)
 	}
 
 	if s.listener == nil {
@@ -26,7 +26,7 @@ func TestTCPServerPort(t *testing.T) {
 	s := &TCPServer{}
 	defer s.Stop()
 
-	err := s.Init(1234)
+	err := s.Init(1234, "test_server")
 	if err != nil {
 		t.Fatalf("failed to init server: %v", err)
 	}
@@ -41,7 +41,7 @@ func TestTCPServerConnections(t *testing.T) {
 	s := &TCPServer{}
 	defer s.Stop()
 
-	err := s.Init(1234)
+	err := s.Init(1234, "test_server")
 	if err != nil {
 		t.Fatalf("failed to init server: %v", err)
 	}
