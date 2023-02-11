@@ -9,11 +9,9 @@ import (
 	"io"
 )
 
-type protocol string
-
 const (
-	TCP  protocol = "tcp"
-	HTTP protocol = "http"
+	TCP  string = "tcp"
+	HTTP string = "http"
 )
 
 type EventType interface {
@@ -25,7 +23,7 @@ type Event[Type EventType] struct {
 }
 
 type TunnelRequested struct {
-	Protocol   protocol
+	Protocol   string
 	Subdomain  string
 	AuthToken  string
 	CliVersion string
