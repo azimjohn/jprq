@@ -8,13 +8,16 @@ import (
 	"path/filepath"
 )
 
+var localConfig = ".jprq-config"
+var remoteConfig = "https://jprq.io/config.json"
+
 type Config struct {
 	Remote struct {
 		Domain string `json:"domain"`
 		Events string `json:"events"`
 	}
 	Local struct {
-		APIKey string `json:"api_key"`
+		AuthToken string `json:"auth_token"`
 	}
 }
 
@@ -43,7 +46,7 @@ func (c *Config) Load() error {
 	return nil
 }
 
-func (c *Config) PutLocal() error {
+func (c *Config) Write() error {
 	content, err := json.Marshal(c.Local)
 	if err != nil {
 		return fmt.Errorf("error marshaling config: %s", err)
