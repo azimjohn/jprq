@@ -7,7 +7,7 @@ import (
 	"regexp"
 )
 
-var regex = regexp.MustCompile(`^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$`)
+var regex = regexp.MustCompile(`^[a-z\d](?:[a-z\d]|-[a-z\d]){0,38}$`)
 var blockList = map[string]bool{"www": true, "jprq": true}
 
 func validate(subdomain string) error {
