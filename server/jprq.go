@@ -161,8 +161,10 @@ func (j *Jprq) serveEventConn(conn net.Conn) error {
 			PrivateServer: t.PrivateServerPort(),
 		},
 	}
-	opened.Write(conn)
-	buffer := make([]byte, 1)
+	if err := opened.Write(conn); err != nil {
+		return err
+	}
+	buffer := make([]byte, 8) // wait until connection is closed
 	for {
 		if _, err := conn.Read(buffer); err == io.EOF {
 			return err

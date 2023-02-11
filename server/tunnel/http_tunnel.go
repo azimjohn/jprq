@@ -1,6 +1,7 @@
 package tunnel
 
 import (
+	"encoding/binary"
 	"errors"
 	"github.com/azimjohn/jprq/server/events"
 	"github.com/azimjohn/jprq/server/server"
@@ -17,7 +18,6 @@ type HTTPTunnel struct {
 	publicConsChan chan net.Conn
 	privateServer  server.TCPServer
 	initialBuffer  map[uint16][]byte
-	privateCons    map[uint16]net.Conn
 	publicCons     map[uint16]net.Conn
 }
 
@@ -27,7 +27,6 @@ func NewHTTP(hostname string, eventWriter io.Writer, maxConsLimit int) (*HTTPTun
 		eventWriter:    eventWriter,
 		maxConsLimit:   maxConsLimit,
 		publicCons:     make(map[uint16]net.Conn),
-		privateCons:    make(map[uint16]net.Conn),
 		publicConsChan: make(chan net.Conn),
 	}
 	t.hostname = hostname
@@ -55,8 +54,29 @@ func (t *HTTPTunnel) PublicServerPort() uint16 {
 
 func (t *HTTPTunnel) Open() {
 	go t.privateServer.Start()
+	go t.privateServer.Serve(func(privateCon net.Conn) error {
+		defer privateCon.Close()
+		buffer := make([]byte, 2)
+		if _, err := privateCon.Read(buffer); err != nil {
+			return err
+		}
+		port := binary.LittleEndian.Uint16(buffer)
+		publicCon, found := t.publicCons[port]
+		if !found {
+			return errors.New("public connection not found")
+		}
 
-	// todo: handle private connections
+		defer publicCon.Close()
+		delete(t.publicCons, port)
+		defer delete(t.initialBuffer, port)
+		if _, err := privateCon.Write(t.initialBuffer[port]); err != nil {
+			return err
+		}
+
+		go io.Copy(publicCon, privateCon)
+		io.Copy(privateCon, publicCon)
+		return nil
+	})
 }
 
 func (t *HTTPTunnel) Close() {
@@ -64,9 +84,9 @@ func (t *HTTPTunnel) Close() {
 	close(t.publicConsChan)
 }
 
-func (t *HTTPTunnel) PublicConnectionHandler(conn net.Conn, initialBuffer []byte) error {
-	ip := conn.RemoteAddr().(*net.TCPAddr).IP
-	port := uint16(conn.RemoteAddr().(*net.TCPAddr).Port)
+func (t *HTTPTunnel) PublicConnectionHandler(publicCon net.Conn, initialBuffer []byte) error {
+	ip := publicCon.RemoteAddr().(*net.TCPAddr).IP
+	port := uint16(publicCon.RemoteAddr().(*net.TCPAddr).Port)
 
 	if len(t.publicCons) >= t.maxConsLimit {
 		event := events.Event[events.ConnectionReceived]{
@@ -75,7 +95,7 @@ func (t *HTTPTunnel) PublicConnectionHandler(conn net.Conn, initialBuffer []byte
 				RateLimited: true,
 			},
 		}
-		conn.Close()
+		publicCon.Close()
 		event.Write(t.eventWriter)
 		return errors.New("connection rate limited")
 	}
@@ -88,9 +108,9 @@ func (t *HTTPTunnel) PublicConnectionHandler(conn net.Conn, initialBuffer []byte
 		},
 	}
 	if err := event.Write(t.eventWriter); err != nil {
-		return conn.Close()
+		return publicCon.Close()
 	}
-	t.publicCons[port] = conn
+	t.publicCons[port] = publicCon
 	t.initialBuffer[port] = initialBuffer
 	return nil
 }

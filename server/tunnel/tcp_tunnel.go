@@ -1,31 +1,30 @@
 package tunnel
 
 import (
+	"encoding/binary"
+	"errors"
 	"fmt"
+	"github.com/azimjohn/jprq/server/events"
 	"github.com/azimjohn/jprq/server/server"
 	"io"
 	"net"
 )
 
 type TCPTunnel struct {
-	hostname       string
-	maxConsLimit   int
-	eventWriter    io.Writer
-	publicServer   server.TCPServer
-	privateServer  server.TCPServer
-	privateCons    map[uint16]net.Conn
-	publicCons     map[uint16]net.Conn
-	publicConsChan chan net.Conn
+	hostname      string
+	maxConsLimit  int
+	eventWriter   io.Writer
+	publicServer  server.TCPServer
+	privateServer server.TCPServer
+	publicCons    map[uint16]net.Conn
 }
 
 func NewTCP(hostname string, eventWriter io.Writer, maxConsLimit int) (*TCPTunnel, error) {
 	t := &TCPTunnel{
-		hostname:       hostname,
-		eventWriter:    eventWriter,
-		maxConsLimit:   maxConsLimit,
-		publicCons:     make(map[uint16]net.Conn),
-		privateCons:    make(map[uint16]net.Conn),
-		publicConsChan: make(chan net.Conn),
+		hostname:     hostname,
+		eventWriter:  eventWriter,
+		maxConsLimit: maxConsLimit,
+		publicCons:   make(map[uint16]net.Conn),
 	}
 	if err := t.privateServer.Init(0); err != nil {
 		return t, fmt.Errorf("error init private server: %w", err)
@@ -56,11 +55,58 @@ func (t *TCPTunnel) Open() {
 	go t.privateServer.Start()
 	go t.publicServer.Start()
 
-	// handle private and public connections
+	go t.publicServer.Serve(func(publicCon net.Conn) error {
+		ip := publicCon.RemoteAddr().(*net.TCPAddr).IP
+		port := uint16(publicCon.RemoteAddr().(*net.TCPAddr).Port)
+
+		if len(t.publicCons) >= t.maxConsLimit {
+			event := events.Event[events.ConnectionReceived]{
+				Data: &events.ConnectionReceived{
+					ClientIP:    ip,
+					RateLimited: true,
+				},
+			}
+			publicCon.Close()
+			event.Write(t.eventWriter)
+			return errors.New("connection rate limited")
+		}
+
+		event := events.Event[events.ConnectionReceived]{
+			Data: &events.ConnectionReceived{
+				ClientIP:    ip,
+				ClientPort:  port,
+				RateLimited: false,
+			},
+		}
+		if err := event.Write(t.eventWriter); err != nil {
+			return publicCon.Close()
+		}
+		t.publicCons[port] = publicCon
+		return nil
+	})
+
+	go t.privateServer.Serve(func(privateCon net.Conn) error {
+		defer privateCon.Close()
+		buffer := make([]byte, 2)
+		if _, err := privateCon.Read(buffer); err != nil {
+			return err
+		}
+		port := binary.LittleEndian.Uint16(buffer)
+		publicCon, found := t.publicCons[port]
+		if !found {
+			return errors.New("public connection not found")
+		}
+
+		defer publicCon.Close()
+		delete(t.publicCons, port)
+
+		go io.Copy(publicCon, privateCon)
+		io.Copy(privateCon, publicCon)
+		return nil
+	})
 }
 
 func (t *TCPTunnel) Close() {
-	close(t.publicConsChan)
 	t.privateServer.Stop()
 	t.publicServer.Stop()
 }
