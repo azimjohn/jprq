@@ -23,10 +23,11 @@ type HTTPTunnel struct {
 
 func NewHTTP(hostname string, eventWriter io.Writer, maxConsLimit int) (*HTTPTunnel, error) {
 	t := &HTTPTunnel{
-		hostname:     hostname,
-		eventWriter:  eventWriter,
-		maxConsLimit: maxConsLimit,
-		publicCons:   make(map[uint16]net.Conn),
+		hostname:      hostname,
+		eventWriter:   eventWriter,
+		maxConsLimit:  maxConsLimit,
+		initialBuffer: make(map[uint16][]byte),
+		publicCons:    make(map[uint16]net.Conn),
 	}
 	t.hostname = hostname
 	if err := t.privateServer.Init(0, "http-tunnel-private-server"); err != nil {

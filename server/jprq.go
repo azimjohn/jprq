@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"errors"
 	"fmt"
 	"github.com/azimjohn/jprq/server/config"
@@ -11,7 +10,6 @@ import (
 	"github.com/azimjohn/jprq/server/tunnel"
 	"io"
 	"net"
-	"regexp"
 	"strings"
 	"time"
 )
@@ -73,13 +71,12 @@ func (j *Jprq) Stop() error {
 }
 
 func (j *Jprq) servePublicConn(conn net.Conn) error {
-	reader := bufio.NewReader(conn)
-	first, err := reader.ReadString('\r')
+	first, err := readLine(conn)
 	if err != nil {
 		writeResponse(conn, 400, "Bad Request", "Bad Request")
 		return nil
 	}
-	second, err := reader.ReadString('\r')
+	second, err := readLine(conn)
 	if err != nil {
 		writeResponse(conn, 400, "Bad Request", "Bad Request")
 		return nil
@@ -89,7 +86,7 @@ func (j *Jprq) servePublicConn(conn net.Conn) error {
 		writeResponse(conn, 400, "Bad Request", "Bad Request")
 		return errors.New("error reading host header from request")
 	}
-	host := strings.Trim(second[i+1:], "\r\n")
+	host := strings.Trim(second[i+1:], "\r\n ")
 	host = strings.ToLower(host)
 	t, found := j.httpTunnels[host]
 	if !found {
@@ -172,41 +169,13 @@ func (j *Jprq) serveEventConn(conn net.Conn) error {
 		return err
 	}
 
-	fmt.Printf("%s [tunnel-opened] %s: %s", time.Now().Format(dateFormat), user.Login, tunnelId)
+	fmt.Printf("%s [tunnel-opened] %s: %s\n", time.Now().Format(dateFormat), user.Login, tunnelId)
 	buffer := make([]byte, 8) // wait until connection is closed
 	for {
 		if _, err := conn.Read(buffer); err == io.EOF {
 			break
 		}
 	}
-	fmt.Printf("%s [tunnel-closed] %s: %s", time.Now().Format(dateFormat), user.Login, tunnelId)
+	fmt.Printf("%s [tunnel-closed] %s: %s\n", time.Now().Format(dateFormat), user.Login, tunnelId)
 	return nil
-}
-
-var regex = regexp.MustCompile(`^[a-z0-9]+[a-z0-9\-]+[a-z0-9]$`)
-var blockList = map[string]bool{"www": true, "jprq": true}
-
-func validate(hostname string) error {
-	domains := strings.Split(hostname, ".")
-	if len(domains) != 3 {
-		return errors.New("3.level.domain is expected")
-	}
-	subdomain := domains[0]
-	if len(subdomain) > 42 || len(subdomain) < 3 {
-		return errors.New("subdomain length must be between 3 and 42")
-	}
-	if blockList[subdomain] {
-		return errors.New("subdomain is in deny list")
-	}
-	if !regex.MatchString(subdomain) {
-		return errors.New("subdomain must be lowercase & alphanumeric")
-	}
-	return nil
-}
-
-func writeResponse(conn net.Conn, statusCode int, status string, message string) {
-	response := fmt.Sprintf(
-		"HTTP/1.1 %d %s\r\nContent-Length: %d\r\n\r\n%s", statusCode, status, len(message), message)
-	conn.Write([]byte(response))
-	conn.Close()
 }
