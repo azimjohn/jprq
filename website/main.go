@@ -51,14 +51,14 @@ func authHandler(w http.ResponseWriter, r *http.Request) {
 
 func oauthCallback(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil || r.FormValue("code") == "" {
-		http.Redirect(w, r, "/login", http.StatusTemporaryRedirect)
+		http.Redirect(w, r, "/auth", http.StatusTemporaryRedirect)
 		return
 	}
 	token, err := oauth.ObtainToken(r.FormValue("code"))
 	if err != nil {
-		http.Redirect(w, r, "/login", http.StatusTemporaryRedirect)
+		fmt.Printf("error obtaining token: %s\n", err)
+		http.Redirect(w, r, "/auth", http.StatusTemporaryRedirect)
 		return
 	}
-	redirect := fmt.Sprintf("http://127.0.0.1:4444/store-token?token=%s", token)
-	http.Redirect(w, r, redirect, http.StatusFound) // todo show command to copy & execute `jprq auth <token>`
+	w.Write([]byte(fmt.Sprintf("auth was successful: run <code>jprq auth %s</code>", token)))
 }
