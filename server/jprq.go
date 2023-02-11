@@ -88,6 +88,12 @@ func (j *Jprq) servePublicConn(conn net.Conn) error {
 	}
 	host := strings.Trim(second[i+1:], "\r\n ")
 	host = strings.ToLower(host)
+
+	if host == j.config.DomainName {
+		writeRedirectResponse(conn, "https://jprq.io")
+		return nil
+	}
+
 	t, found := j.httpTunnels[host]
 	if !found {
 		writeResponse(conn, 404, "Not Found", "tunnel not found")
