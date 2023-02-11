@@ -13,7 +13,10 @@ import (
 	"net"
 	"regexp"
 	"strings"
+	"time"
 )
+
+const dateFormat = "2006/01/02 15:04:05"
 
 type Jprq struct {
 	config          config.Config
@@ -71,24 +74,27 @@ func (j *Jprq) Stop() error {
 
 func (j *Jprq) servePublicConn(conn net.Conn) error {
 	reader := bufio.NewReader(conn)
-
-	first, err := reader.ReadString('\n')
+	first, err := reader.ReadString('\r')
 	if err != nil {
-		return conn.Close() // todo write http response: bad request
+		writeResponse(conn, 400, "Bad Request", "Bad Request")
+		return nil
 	}
-	second, err := reader.ReadString('\n')
+	second, err := reader.ReadString('\r')
 	if err != nil {
-		return conn.Close() // todo write http response: bad request
+		writeResponse(conn, 400, "Bad Request", "Bad Request")
+		return nil
 	}
 	i := strings.Index(second, ":")
 	if i < 0 {
-		return conn.Close() // todo write http response: bad request
+		writeResponse(conn, 400, "Bad Request", "Bad Request")
+		return errors.New("error reading host header from request")
 	}
 	host := strings.Trim(second[i+1:], "\r\n")
 	host = strings.ToLower(host)
 	t, found := j.httpTunnels[host]
 	if !found {
-		return conn.Close() // todo write http response: not found
+		writeResponse(conn, 404, "Not Found", "tunnel not found")
+		return errors.New(fmt.Sprintf("unknown host requested %s", host))
 	}
 	return t.PublicConnectionHandler(conn, []byte(first+second))
 }
@@ -104,23 +110,23 @@ func (j *Jprq) serveEventConn(conn net.Conn) error {
 	request := event.Data
 	user, err := j.authenticator.Authenticate(request.AuthToken)
 	if err != nil {
-		return events.WriteError("authentication failed", conn)
+		return events.WriteError(conn, "authentication failed")
 	}
 
 	if request.Protocol != events.HTTP && request.Protocol != events.TCP {
-		return events.WriteError("invalid protocol", conn)
+		return events.WriteError(conn, "invalid protocol %s", string(request.Protocol))
 	}
 
 	if len(j.userTunnels[user.Login]) >= j.config.MaxTunnelsPerUser {
-		return events.WriteError("tunnels limit reached", conn)
+		return events.WriteError(conn, "tunnels limit reached for %s", user.Login)
 	}
 
 	if _, ok := j.httpTunnels[request.Hostname]; ok {
-		return events.WriteError("host is currently busy", conn)
+		return events.WriteError(conn, "%host currently busy: %s", request.Hostname)
 	}
 
 	if err := validate(request.Hostname); err != nil {
-		return events.WriteError(err.Error(), conn)
+		return events.WriteError(conn, "invalid hostname %s: %s", request.Hostname, err.Error())
 	}
 
 	var t tunnel.Tunnel
@@ -130,7 +136,7 @@ func (j *Jprq) serveEventConn(conn net.Conn) error {
 	case events.HTTP:
 		tn, err := tunnel.NewHTTP(request.Hostname, conn, maxConsLimit)
 		if err != nil {
-			return events.WriteError("failed to create tunnel", conn)
+			return events.WriteError(conn, "failed to create http tunnel", err.Error())
 		}
 		j.httpTunnels[request.Hostname] = tn
 		defer delete(j.httpTunnels, request.Hostname)
@@ -138,7 +144,7 @@ func (j *Jprq) serveEventConn(conn net.Conn) error {
 	case events.TCP:
 		tn, err := tunnel.NewTCP(request.Hostname, conn, maxConsLimit)
 		if err != nil {
-			return events.WriteError("failed to create tunnel", conn)
+			return events.WriteError(conn, "failed to create tcp tunnel", err.Error())
 		}
 		j.tcpTunnels[tn.PublicServerPort()] = tn
 		defer delete(j.tcpTunnels, tn.PublicServerPort())
@@ -165,12 +171,16 @@ func (j *Jprq) serveEventConn(conn net.Conn) error {
 	if err := opened.Write(conn); err != nil {
 		return err
 	}
+
+	fmt.Printf("%s [tunnel-opened] %s: %s", time.Now().Format(dateFormat), user.Login, tunnelId)
 	buffer := make([]byte, 8) // wait until connection is closed
 	for {
 		if _, err := conn.Read(buffer); err == io.EOF {
-			return err
+			break
 		}
 	}
+	fmt.Printf("%s [tunnel-closed] %s: %s", time.Now().Format(dateFormat), user.Login, tunnelId)
+	return nil
 }
 
 var regex = regexp.MustCompile(`^[a-z0-9]+[a-z0-9\-]+[a-z0-9]$`)
@@ -179,7 +189,7 @@ var blockList = map[string]bool{"www": true, "jprq": true}
 func validate(hostname string) error {
 	domains := strings.Split(hostname, ".")
 	if len(domains) != 3 {
-		return errors.New("invalid hostname")
+		return errors.New("3.level.domain is expected")
 	}
 	subdomain := domains[0]
 	if len(subdomain) > 42 || len(subdomain) < 3 {
@@ -192,4 +202,11 @@ func validate(hostname string) error {
 		return errors.New("subdomain must be lowercase & alphanumeric")
 	}
 	return nil
+}
+
+func writeResponse(conn net.Conn, statusCode int, status string, message string) {
+	response := fmt.Sprintf(
+		"HTTP/1.1 %d %s\r\nContent-Length: %d\r\n\r\n%s", statusCode, status, len(message), message)
+	conn.Write([]byte(response))
+	conn.Close()
 }

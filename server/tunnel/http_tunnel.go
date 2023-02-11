@@ -3,6 +3,7 @@ package tunnel
 import (
 	"encoding/binary"
 	"errors"
+	"fmt"
 	"github.com/azimjohn/jprq/server/events"
 	"github.com/azimjohn/jprq/server/server"
 	"io"
@@ -28,7 +29,7 @@ func NewHTTP(hostname string, eventWriter io.Writer, maxConsLimit int) (*HTTPTun
 		publicCons:   make(map[uint16]net.Conn),
 	}
 	t.hostname = hostname
-	if err := t.privateServer.Init(0, "http_tunnel_private_server"); err != nil {
+	if err := t.privateServer.Init(0, "http-tunnel-private-server"); err != nil {
 		return t, err
 	}
 	return t, nil
@@ -61,7 +62,7 @@ func (t *HTTPTunnel) Open() {
 		port := binary.LittleEndian.Uint16(buffer)
 		publicCon, found := t.publicCons[port]
 		if !found {
-			return errors.New("public connection not found")
+			return errors.New("public connection not found, cannot pair")
 		}
 		defer publicCon.Close()
 		delete(t.publicCons, port)
@@ -88,7 +89,8 @@ func (t *HTTPTunnel) PublicConnectionHandler(publicCon net.Conn, initialBuffer [
 			},
 		}
 		publicCon.Close()
-		return event.Write(t.eventWriter)
+		event.Write(t.eventWriter)
+		return errors.New(fmt.Sprintf("[connections-limit-reached]: %s", t.hostname))
 	}
 
 	event := events.Event[events.ConnectionReceived]{

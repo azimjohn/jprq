@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"encoding/binary"
 	"encoding/gob"
+	"errors"
+	"fmt"
 	"io"
 )
 
@@ -43,13 +45,14 @@ type ConnectionReceived struct {
 	RateLimited bool
 }
 
-func WriteError(message string, eventWriter io.Writer) error {
+func WriteError(eventWriter io.Writer, message string, args ...string) error {
 	event := Event[TunnelOpened]{
 		Data: &TunnelOpened{
-			ErrorMessage: message,
+			ErrorMessage: fmt.Sprintf(message, args),
 		},
 	}
-	return event.Write(eventWriter)
+	event.Write(eventWriter)
+	return errors.New(event.Data.ErrorMessage)
 }
 
 func (e *Event[EventType]) encode() ([]byte, error) {
