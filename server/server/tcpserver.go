@@ -8,9 +8,8 @@ import (
 )
 
 type TCPServer struct {
-	title       string
-	listener    net.Listener
-	connections chan net.Conn
+	title    string
+	listener net.Listener
 }
 
 func (s *TCPServer) Init(port uint16, title string) error {
@@ -20,7 +19,6 @@ func (s *TCPServer) Init(port uint16, title string) error {
 	}
 	s.title = title
 	s.listener = ln
-	s.connections = make(chan net.Conn)
 	return nil
 }
 
@@ -36,30 +34,16 @@ func (s *TCPServer) InitTLS(port uint16, title, certFile, keyFile string) error 
 	}
 	s.title = title
 	s.listener = ln
-	s.connections = make(chan net.Conn)
 	return nil
 }
 
-func (s *TCPServer) Start() {
+func (s *TCPServer) Start(handler func(conn net.Conn) error) {
 	log.Printf("[%s]: started on port %d\n", s.title, s.Port())
 	for {
 		conn, err := s.listener.Accept()
 		if err != nil {
 			return
 		}
-		s.connections <- conn
-	}
-}
-
-func (s *TCPServer) Stop() error {
-	log.Printf("[%s]: stopped on port %d\n", s.title, s.Port())
-	close(s.connections)
-	return s.listener.Close()
-}
-
-func (s *TCPServer) Serve(handler func(conn net.Conn) error) {
-	for conn := range s.connections {
-		conn := conn
 		go func() {
 			err := handler(conn)
 			if err != nil {
@@ -69,8 +53,9 @@ func (s *TCPServer) Serve(handler func(conn net.Conn) error) {
 	}
 }
 
-func (s *TCPServer) Connections() <-chan net.Conn {
-	return s.connections
+func (s *TCPServer) Stop() error {
+	log.Printf("[%s]: stopped on port %d\n", s.title, s.Port())
+	return s.listener.Close()
 }
 
 func (s *TCPServer) Port() uint16 {

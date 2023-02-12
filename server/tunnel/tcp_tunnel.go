@@ -52,10 +52,7 @@ func (t *TCPTunnel) PrivateServerPort() uint16 {
 }
 
 func (t *TCPTunnel) Open() {
-	go t.privateServer.Start()
-	go t.publicServer.Start()
-
-	go t.publicServer.Serve(func(publicCon net.Conn) error {
+	go t.publicServer.Start(func(publicCon net.Conn) error {
 		ip := publicCon.RemoteAddr().(*net.TCPAddr).IP
 		port := uint16(publicCon.RemoteAddr().(*net.TCPAddr).Port)
 
@@ -84,7 +81,7 @@ func (t *TCPTunnel) Open() {
 		return nil
 	})
 
-	go t.privateServer.Serve(func(privateCon net.Conn) error {
+	go t.privateServer.Start(func(privateCon net.Conn) error {
 		defer privateCon.Close()
 		buffer := make([]byte, 2)
 		if _, err := privateCon.Read(buffer); err != nil {

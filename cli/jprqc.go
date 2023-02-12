@@ -50,11 +50,11 @@ func (j *jprqClient) Start() {
 		if err := event.Read(eventCon); err != nil {
 			log.Fatalf("error receiving connection received even: %s\n", err)
 		}
-		go j.handleEvent(event.Data, tunnel.Data.PrivateServer)
+		go j.handleEvent(*event.Data, tunnel.Data.PrivateServer)
 	}
 }
 
-func (j *jprqClient) handleEvent(event *events.ConnectionReceived, privateServerPort uint16) {
+func (j *jprqClient) handleEvent(event events.ConnectionReceived, privateServerPort uint16) {
 	localCon, err := net.Dial("tcp", fmt.Sprintf("127.0.0.1:%d", j.port))
 	if err != nil {
 		log.Printf("error connecting to local server: %s\n", err)

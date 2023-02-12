@@ -53,8 +53,7 @@ func (t *HTTPTunnel) PublicServerPort() uint16 {
 }
 
 func (t *HTTPTunnel) Open() {
-	go t.privateServer.Start()
-	go t.privateServer.Serve(func(privateCon net.Conn) error {
+	go t.privateServer.Start(func(privateCon net.Conn) error {
 		defer privateCon.Close()
 		buffer := make([]byte, 2)
 		if _, err := privateCon.Read(buffer); err != nil {
