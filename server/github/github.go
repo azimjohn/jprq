@@ -8,6 +8,8 @@ import (
 	"strings"
 )
 
+const tokenPrefix = "gho_"
+
 type User struct {
 	Name  string `json:"name"`
 	Login string `json:"login"`
@@ -73,7 +75,7 @@ func (g github) ObtainToken(code string) (string, error) {
 	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
 		return "", fmt.Errorf("failed to decode github response: %v", err)
 	}
-	return response.AccessToken, nil
+	return strings.TrimLeft(response.AccessToken, tokenPrefix), nil
 }
 
 func (g github) Authenticate(token string) (User, error) {
@@ -81,7 +83,7 @@ func (g github) Authenticate(token string) (User, error) {
 	client := &http.Client{}
 
 	req, _ := http.NewRequest("GET", g.userEndpoint, nil)
-	req.Header.Set("Authorization", "token "+token)
+	req.Header.Set("Authorization", fmt.Sprintf("token %s%s", tokenPrefix, token))
 	resp, err := client.Do(req)
 
 	if err != nil {
