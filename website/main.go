@@ -55,7 +55,7 @@ func oauthCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	token, err := oauth.ObtainToken(r.FormValue("code"))
-	if err != nil {
+	if err != nil || token == "" {
 		fmt.Printf("error obtaining token: %s\n", err)
 		http.Redirect(w, r, "/auth", http.StatusTemporaryRedirect)
 		return
