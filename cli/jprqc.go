@@ -4,7 +4,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"github.com/azimjohn/jprq/server/events"
-	"io"
+	"github.com/azimjohn/jprq/server/tunnel"
 	"log"
 	"net"
 )
@@ -73,6 +73,6 @@ func (j *jprqClient) handleEvent(event *events.ConnectionReceived, privateServer
 	binary.LittleEndian.PutUint16(buffer, event.ClientPort)
 	remoteCon.Write(buffer)
 
-	go io.Copy(localCon, remoteCon)
-	io.Copy(remoteCon, localCon)
+	go tunnel.Bind(localCon, remoteCon)
+	tunnel.Bind(remoteCon, localCon)
 }
