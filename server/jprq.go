@@ -48,13 +48,9 @@ func (j *Jprq) Init(conf config.Config, oauth github.Authenticator) error {
 }
 
 func (j *Jprq) Start() {
-	go j.eventServer.Start()
-	go j.publicServer.Start()
-	go j.publicServerTLS.Start()
-
-	go j.eventServer.Serve(j.serveEventConn)
-	go j.publicServer.Serve(j.servePublicConn)
-	go j.publicServerTLS.Serve(j.servePublicConn)
+	go j.eventServer.Start(j.serveEventConn)
+	go j.publicServer.Start(j.servePublicConn)
+	go j.publicServerTLS.Start(j.servePublicConn)
 }
 
 func (j *Jprq) Stop() error {
