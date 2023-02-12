@@ -18,7 +18,7 @@ func main() {
 
 	port := 3000
 	subdomain := ""
-	protocol := events.TCP
+	protocol := events.HTTP
 
 	if !canReachServer(port) {
 		log.Fatalf("server isn't running on port: %d\n", port)
@@ -43,9 +43,8 @@ func main() {
 }
 
 func canReachServer(port int) bool {
-	timeout := 500 * time.Millisecond
 	address := fmt.Sprintf("127.0.0.1:%d", port)
-	conn, err := net.DialTimeout("tcp", address, timeout)
+	conn, err := net.DialTimeout("tcp", address, time.Second)
 	if err != nil {
 		return false
 	}

@@ -72,8 +72,8 @@ func (t *HTTPTunnel) Open() {
 			return err
 		}
 
-		go io.Copy(publicCon, privateCon)
-		io.Copy(privateCon, publicCon)
+		go Bind(publicCon, privateCon)
+		Bind(privateCon, publicCon)
 		return nil
 	})
 }

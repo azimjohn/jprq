@@ -2,3 +2,8 @@
 .DS_Store
 vendor/
 go.sum
+
+# binaries
+cli/jprq
+server/jprq-server
+website/jprq-website
