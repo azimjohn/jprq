@@ -8,6 +8,7 @@ import (
 	"github.com/azimjohn/jprq/server/server"
 	"io"
 	"net"
+	"sync"
 )
 
 type Tunnel interface {
@@ -23,6 +24,7 @@ type tunnel struct {
 	hostname      string
 	maxConsLimit  int
 	eventWriter   io.Writer
+	eventWriterMx sync.Mutex
 	privateServer server.TCPServer
 	publicCons    map[uint16]net.Conn
 	initialBuffer map[uint16][]byte
@@ -58,6 +60,9 @@ func (t *tunnel) PrivateServerPort() uint16 {
 func (t *tunnel) publicConnectionHandler(publicCon net.Conn) error {
 	ip := publicCon.RemoteAddr().(*net.TCPAddr).IP
 	port := uint16(publicCon.RemoteAddr().(*net.TCPAddr).Port)
+
+	t.eventWriterMx.Lock()
+	defer t.eventWriterMx.Unlock()
 
 	if len(t.publicCons) >= t.maxConsLimit {
 		event := events.Event[events.ConnectionReceived]{
