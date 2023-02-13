@@ -18,7 +18,7 @@ func main() {
 
 	port := 3000
 	subdomain := ""
-	protocol := events.TCP
+	protocol := events.HTTP
 
 	if !canReachServer(port) {
 		log.Fatalf("error: can't reach server on port: %d\n", port)
@@ -29,13 +29,12 @@ func main() {
 		log.Fatal(err)
 	}
 	client := jprqClient{
-		port:      port,
 		config:    conf,
 		protocol:  protocol,
 		subdomain: subdomain,
 	}
 
-	go client.Start()
+	go client.Start(port)
 
 	signalChan := make(chan os.Signal, 1)
 	signal.Notify(signalChan, os.Interrupt)
