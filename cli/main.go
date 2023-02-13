@@ -18,10 +18,10 @@ func main() {
 
 	port := 3000
 	subdomain := ""
-	protocol := events.HTTP
+	protocol := events.TCP
 
 	if !canReachServer(port) {
-		log.Fatalf("server isn't running on port: %d\n", port)
+		log.Fatalf("error: can't reach server on port: %d\n", port)
 	}
 
 	var conf Config
@@ -36,9 +36,9 @@ func main() {
 	}
 
 	go client.Start()
+
 	signalChan := make(chan os.Signal, 1)
 	signal.Notify(signalChan, os.Interrupt)
-
 	<-signalChan
 }
 
