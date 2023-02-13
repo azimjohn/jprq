@@ -4,7 +4,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"github.com/azimjohn/jprq/server/events"
-	"github.com/azimjohn/jprq/server/tunnel"
+	"io"
 	"log"
 	"net"
 )
@@ -48,7 +48,7 @@ func (j *jprqClient) Start() {
 	var event events.Event[events.ConnectionReceived]
 	for {
 		if err := event.Read(eventCon); err != nil {
-			log.Fatalf("error receiving connection received even: %s\n", err)
+			log.Fatalf("error receiving connection received event: %s\n", err)
 		}
 		go j.handleEvent(*event.Data, tunnel.Data.PrivateServer)
 	}
@@ -73,6 +73,6 @@ func (j *jprqClient) handleEvent(event events.ConnectionReceived, privateServerP
 	binary.LittleEndian.PutUint16(buffer, event.ClientPort)
 	remoteCon.Write(buffer)
 
-	go tunnel.Bind(localCon, remoteCon)
-	tunnel.Bind(remoteCon, localCon)
+	go io.Copy(localCon, remoteCon)
+	io.Copy(remoteCon, localCon)
 }
