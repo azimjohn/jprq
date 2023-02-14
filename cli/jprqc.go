@@ -10,13 +10,14 @@ import (
 )
 
 type jprqClient struct {
-	port      int
-	config    Config
-	protocol  string
-	subdomain string
+	config       Config
+	protocol     string
+	subdomain    string
+	localServer  string
+	remoteServer string
 }
 
-func (j *jprqClient) Start() {
+func (j *jprqClient) Start(port int) {
 	request := events.Event[events.TunnelRequested]{
 		Data: &events.TunnelRequested{
 			Protocol:   j.protocol,
@@ -43,6 +44,9 @@ func (j *jprqClient) Start() {
 		log.Fatalf(tunnel.Data.ErrorMessage)
 	}
 
+	j.localServer = fmt.Sprintf("127.0.0.1:%d", port)
+	j.remoteServer = fmt.Sprintf("jprq.%s:%d", j.config.Remote.Domain, tunnel.Data.PrivateServer)
+
 	// todo: display tunnel info
 
 	var event events.Event[events.ConnectionReceived]
@@ -50,19 +54,19 @@ func (j *jprqClient) Start() {
 		if err := event.Read(eventCon); err != nil {
 			log.Fatalf("error receiving connection received event: %s\n", err)
 		}
-		go j.handleEvent(*event.Data, tunnel.Data.PrivateServer)
+		go j.handleEvent(*event.Data)
 	}
 }
 
-func (j *jprqClient) handleEvent(event events.ConnectionReceived, privateServerPort uint16) {
-	localCon, err := net.Dial("tcp", fmt.Sprintf("127.0.0.1:%d", j.port))
+func (j *jprqClient) handleEvent(event events.ConnectionReceived) {
+	localCon, err := net.Dial("tcp", j.localServer)
 	if err != nil {
 		log.Printf("error connecting to local server: %s\n", err)
 		return
 	}
 	defer localCon.Close()
 
-	remoteCon, err := net.Dial("tcp", fmt.Sprintf("jprq.live:%d", privateServerPort))
+	remoteCon, err := net.Dial("tcp", j.remoteServer)
 	if err != nil {
 		log.Printf("error connecting to remote server: %s\n", err)
 		return

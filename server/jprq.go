@@ -67,35 +67,18 @@ func (j *Jprq) Stop() error {
 }
 
 func (j *Jprq) servePublicConn(conn net.Conn) error {
-	first, err := readLine(conn)
-	if err != nil {
+	host, buffer, err := parseHost(conn)
+	if err != nil || host == "" {
 		writeResponse(conn, 400, "Bad Request", "Bad Request")
 		return nil
 	}
-	second, err := readLine(conn)
-	if err != nil {
-		writeResponse(conn, 400, "Bad Request", "Bad Request")
-		return nil
-	}
-	i := strings.Index(second, ":")
-	if i < 0 {
-		writeResponse(conn, 400, "Bad Request", "Bad Request")
-		return errors.New("error reading host header from request")
-	}
-	host := strings.Trim(second[i+1:], "\r\n ")
 	host = strings.ToLower(host)
-
-	if host == j.config.DomainName {
-		writeRedirectResponse(conn, "https://jprq.io")
-		return nil
-	}
-
 	t, found := j.httpTunnels[host]
 	if !found {
-		writeResponse(conn, 404, "Not Found", "tunnel not found")
+		writeResponse(conn, 404, "Not Found", "tunnel not found. create one at jprq.io")
 		return errors.New(fmt.Sprintf("unknown host requested %s", host))
 	}
-	return t.PublicConnectionHandler(conn, []byte(first+second))
+	return t.PublicConnectionHandler(conn, buffer)
 }
 
 func (j *Jprq) serveEventConn(conn net.Conn) error {
@@ -113,7 +96,7 @@ func (j *Jprq) serveEventConn(conn net.Conn) error {
 	}
 
 	if request.Protocol != events.HTTP && request.Protocol != events.TCP {
-		return events.WriteError(conn, "invalid protocol %s", string(request.Protocol))
+		return events.WriteError(conn, "invalid protocol %s", request.Protocol)
 	}
 
 	if len(j.userTunnels[user.Login]) >= j.config.MaxTunnelsPerUser {

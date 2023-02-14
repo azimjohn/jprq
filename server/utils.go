@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"regexp"
+	"strings"
 )
 
 var regex = regexp.MustCompile(`^[a-z\d](?:[a-z\d]|-[a-z\d]){0,38}$`)
@@ -23,22 +24,24 @@ func validate(subdomain string) error {
 	return nil
 }
 
-func readLine(r io.Reader) (string, error) {
-	var line []byte
-	buffer := make([]byte, 1)
-	for {
-		if _, err := r.Read(buffer); err != nil {
-			return "", err
-		}
-		line = append(line, buffer[0])
-		if buffer[0] == '\n' {
-			break
-		}
-		if len(buffer) > 4096 {
-			return "", errors.New("host search limit reached")
-		}
+func parseHost(r io.Reader) (string, []byte, error) {
+	buffer := make([]byte, 2048)
+	size, err := r.Read(buffer)
+	buffer = buffer[:size]
+	if err != nil {
+		return "", buffer, err
 	}
-	return string(line), nil
+	text := string(buffer)
+	left := strings.Index(text, "Host: ")
+	if left < 0 {
+		return "", buffer, fmt.Errorf("no host detected")
+	}
+	text = text[left+6:] // drops chars "Host: "
+	right := strings.Index(text, "\n")
+	if right < 0 {
+		return "", buffer, fmt.Errorf("no host detected")
+	}
+	return strings.TrimSpace(text[:right]), buffer, nil
 }
 
 func writeResponse(conn io.WriteCloser, statusCode int, status string, message string) {
