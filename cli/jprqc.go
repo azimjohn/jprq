@@ -18,6 +18,12 @@ type jprqClient struct {
 }
 
 func (j *jprqClient) Start(port int) {
+	eventCon, err := net.Dial("tcp", j.config.Remote.Events)
+	if err != nil {
+		log.Fatalf("error connecting to event server: %s\n", err)
+	}
+	defer eventCon.Close()
+
 	request := events.Event[events.TunnelRequested]{
 		Data: &events.TunnelRequested{
 			Protocol:   j.protocol,
@@ -26,16 +32,10 @@ func (j *jprqClient) Start(port int) {
 			CliVersion: version,
 		},
 	}
-
-	eventCon, err := net.Dial("tcp", j.config.Remote.Events)
-	if err != nil {
-		log.Fatalf("error connecting to event server: %s\n", err)
-	}
-	defer eventCon.Close()
-
 	if err := request.Write(eventCon); err != nil {
 		log.Fatalf("error sendind request: %s\n", err)
 	}
+
 	var tunnel events.Event[events.TunnelOpened]
 	if err := tunnel.Read(eventCon); err != nil {
 		log.Fatalf("error receiving tunnel info: %s\n", err)
