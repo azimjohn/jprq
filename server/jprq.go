@@ -161,7 +161,11 @@ func (j *Jprq) serveEventConn(conn net.Conn) error {
 	fmt.Printf("%s [tunnel-opened] %s: %s\n", time.Now().Format(dateFormat), user.Login, tunnelId)
 	buffer := make([]byte, 8) // wait until connection is closed
 	for {
+		_ = conn.SetReadDeadline(time.Now().Add(time.Minute))
 		if _, err := conn.Read(buffer); err == io.EOF {
+			break
+		}
+		if _, found := j.blockedUsers[user.Login]; found {
 			break
 		}
 	}
