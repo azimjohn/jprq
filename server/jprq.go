@@ -21,6 +21,7 @@ type Jprq struct {
 	eventServer     server.TCPServer
 	publicServer    server.TCPServer
 	publicServerTLS server.TCPServer
+	blockedUsers    map[string]string
 	authenticator   github.Authenticator
 	tcpTunnels      map[uint16]*tunnel.TCPTunnel
 	httpTunnels     map[string]*tunnel.HTTPTunnel
@@ -90,21 +91,21 @@ func (j *Jprq) serveEventConn(conn net.Conn) error {
 	}
 
 	request := event.Data
+	if request.Protocol != events.HTTP && request.Protocol != events.TCP {
+		return events.WriteError(conn, "invalid protocol %s", request.Protocol)
+	}
 	user, err := j.authenticator.Authenticate(request.AuthToken)
 	if err != nil {
 		return events.WriteError(conn, "authentication failed")
 	}
-
-	if request.Protocol != events.HTTP && request.Protocol != events.TCP {
-		return events.WriteError(conn, "invalid protocol %s", request.Protocol)
+	if reason, found := j.blockedUsers[user.Login]; found {
+		return events.WriteError(conn, "account blocked for %s", reason)
 	}
-
 	if len(j.userTunnels[user.Login]) >= j.config.MaxTunnelsPerUser {
 		return events.WriteError(conn, "tunnels limit reached for %s", user.Login)
 	}
-
 	if request.Subdomain == "" {
-		request.Subdomain = strings.ToLower(user.Login)
+		request.Subdomain = user.Login
 	}
 	if err := validate(request.Subdomain); err != nil {
 		return events.WriteError(conn, "invalid subdomain %s: %s", request.Subdomain, err.Error())
