@@ -111,7 +111,7 @@ func (j *Jprq) serveEventConn(conn net.Conn) error {
 		return events.WriteError(conn, "authentication failed")
 	}
 	if reason, found := j.blockedUsers[user.Login]; found {
-		return events.WriteError(conn, "account blocked for %s", reason)
+		return events.WriteError(conn, "your account is blocked for %s", reason)
 	}
 	if len(j.userTunnels[user.Login]) >= j.config.MaxTunnelsPerUser {
 		return events.WriteError(conn, "tunnels limit reached for %s", user.Login)
@@ -202,6 +202,8 @@ func (j *Jprq) loadBlockedUsers() {
 	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
+	j.blockedUsers = make(map[string]string)
+
 	for scanner.Scan() {
 		fields := strings.Split(scanner.Text(), ",")
 		if len(fields) >= 2 {
@@ -211,5 +213,5 @@ func (j *Jprq) loadBlockedUsers() {
 	}
 
 	j.blockedLastMod = stat.ModTime()
-	log.Println("blocked users list loaded")
+	log.Println("new blocked users list loaded")
 }
