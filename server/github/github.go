@@ -11,6 +11,7 @@ import (
 const tokenPrefix = "gho_"
 
 type User struct {
+	ID    int    `json:"id"`
 	Name  string `json:"name"`
 	Login string `json:"login"`
 }
@@ -97,6 +98,6 @@ func (g github) Authenticate(token string) (User, error) {
 	if err != nil {
 		return user, fmt.Errorf("failed to decode user data: %v", err)
 	}
-
+	user.Login = strings.ToLower(user.Login)
 	return user, nil
 }

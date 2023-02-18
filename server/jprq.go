@@ -13,6 +13,7 @@ import (
 	"log"
 	"net"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -24,7 +25,7 @@ type Jprq struct {
 	eventServer     server.TCPServer
 	publicServer    server.TCPServer
 	publicServerTLS server.TCPServer
-	blockedUsers    map[string]string
+	blockedUsers    map[int]string
 	blockedLastMod  time.Time
 	authenticator   github.Authenticator
 	tcpTunnels      map[uint16]*tunnel.TCPTunnel
@@ -35,7 +36,7 @@ type Jprq struct {
 func (j *Jprq) Init(conf config.Config, oauth github.Authenticator) error {
 	j.config = conf
 	j.authenticator = oauth
-	j.blockedUsers = make(map[string]string)
+	j.blockedUsers = make(map[int]string)
 	j.tcpTunnels = make(map[uint16]*tunnel.TCPTunnel)
 	j.httpTunnels = make(map[string]*tunnel.HTTPTunnel)
 	j.userTunnels = make(map[string]map[string]tunnel.Tunnel)
@@ -110,7 +111,7 @@ func (j *Jprq) serveEventConn(conn net.Conn) error {
 	if err != nil {
 		return events.WriteError(conn, "authentication failed")
 	}
-	if reason, found := j.blockedUsers[user.Login]; found {
+	if reason, found := j.blockedUsers[user.ID]; found {
 		return events.WriteError(conn, "your account is blocked for %s", reason)
 	}
 	if len(j.userTunnels[user.Login]) >= j.config.MaxTunnelsPerUser {
@@ -177,7 +178,7 @@ func (j *Jprq) serveEventConn(conn net.Conn) error {
 		if _, err := conn.Read(buffer); err == io.EOF {
 			break
 		}
-		if _, found := j.blockedUsers[user.Login]; found {
+		if _, found := j.blockedUsers[user.ID]; found {
 			break
 		}
 	}
@@ -202,13 +203,14 @@ func (j *Jprq) loadBlockedUsers() {
 	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
-	j.blockedUsers = make(map[string]string)
+	j.blockedUsers = make(map[int]string)
 
 	for scanner.Scan() {
 		fields := strings.Split(scanner.Text(), ",")
 		if len(fields) >= 2 {
-			user, reason := fields[0], fields[1]
-			j.blockedUsers[user] = reason
+			id, _ := strconv.Atoi(fields[0])
+			reason := fields[1]
+			j.blockedUsers[id] = reason
 		}
 	}
 
