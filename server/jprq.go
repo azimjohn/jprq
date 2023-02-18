@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
 	"github.com/azimjohn/jprq/server/config"
@@ -9,7 +10,9 @@ import (
 	"github.com/azimjohn/jprq/server/server"
 	"github.com/azimjohn/jprq/server/tunnel"
 	"io"
+	"log"
 	"net"
+	"os"
 	"strings"
 	"time"
 )
@@ -22,6 +25,7 @@ type Jprq struct {
 	publicServer    server.TCPServer
 	publicServerTLS server.TCPServer
 	blockedUsers    map[string]string
+	blockedLastMod  time.Time
 	authenticator   github.Authenticator
 	tcpTunnels      map[uint16]*tunnel.TCPTunnel
 	httpTunnels     map[string]*tunnel.HTTPTunnel
@@ -31,6 +35,7 @@ type Jprq struct {
 func (j *Jprq) Init(conf config.Config, oauth github.Authenticator) error {
 	j.config = conf
 	j.authenticator = oauth
+	j.blockedUsers = make(map[string]string)
 	j.tcpTunnels = make(map[uint16]*tunnel.TCPTunnel)
 	j.httpTunnels = make(map[string]*tunnel.HTTPTunnel)
 	j.userTunnels = make(map[string]map[string]tunnel.Tunnel)
@@ -52,6 +57,13 @@ func (j *Jprq) Start() {
 	go j.eventServer.Start(j.serveEventConn)
 	go j.publicServer.Start(j.servePublicConn)
 	go j.publicServerTLS.Start(j.servePublicConn)
+
+	go func() { // periodically load blocked users
+		j.loadBlockedUsers()
+		for range time.Tick(time.Minute) {
+			j.loadBlockedUsers()
+		}
+	}()
 }
 
 func (j *Jprq) Stop() error {
@@ -171,4 +183,33 @@ func (j *Jprq) serveEventConn(conn net.Conn) error {
 	}
 	fmt.Printf("%s [tunnel-closed] %s: %s\n", time.Now().Format(dateFormat), user.Login, tunnelId)
 	return nil
+}
+
+func (j *Jprq) loadBlockedUsers() {
+	stat, err := os.Stat(j.config.BlockedUsersFile)
+	if err != nil {
+		log.Printf("failed to stat blocked users file: %s", err)
+		return
+	}
+	if !stat.ModTime().After(j.blockedLastMod) {
+		return
+	}
+	file, err := os.Open(j.config.BlockedUsersFile)
+	if err != nil {
+		log.Printf("failed to read blocked users file: %s", err)
+		return
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		fields := strings.Split(scanner.Text(), ",")
+		if len(fields) >= 2 {
+			user, reason := fields[0], fields[1]
+			j.blockedUsers[user] = reason
+		}
+	}
+
+	j.blockedLastMod = stat.ModTime()
+	log.Println("blocked users list loaded")
 }
