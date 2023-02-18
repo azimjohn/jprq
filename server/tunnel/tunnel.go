@@ -9,6 +9,7 @@ import (
 	"io"
 	"net"
 	"sync"
+	"time"
 )
 
 type Tunnel interface {
@@ -113,7 +114,25 @@ func (t *tunnel) privateConnectionHandler(privateCon net.Conn) error {
 		}
 	}
 
-	go io.Copy(publicCon, privateCon)
-	io.Copy(privateCon, publicCon)
+	go Bind(publicCon, privateCon)
+	Bind(privateCon, publicCon)
+	return nil
+}
+
+func Bind(src net.Conn, dst net.Conn) error {
+	defer dst.Close()
+	buf := make([]byte, 4096)
+	for {
+		_ = src.SetReadDeadline(time.Now().Add(time.Second))
+		n, err := src.Read(buf)
+		if err == io.EOF {
+			break
+		}
+		_ = dst.SetWriteDeadline(time.Now().Add(time.Second))
+		_, err = dst.Write(buf[:n])
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }

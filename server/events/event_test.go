@@ -8,7 +8,7 @@ import (
 func TestEvent_EncodeDecode(t *testing.T) {
 	event := Event[ConnectionReceived]{
 		Data: &ConnectionReceived{
-			ClientIP:    "127.0.0.1",
+			ClientIP:    []byte{127, 0, 0, 1},
 			ClientPort:  8000,
 			RateLimited: false,
 		},
@@ -25,7 +25,7 @@ func TestEvent_EncodeDecode(t *testing.T) {
 		t.Errorf("error decoding %v", err)
 	}
 
-	if result.Data.ClientIP != event.Data.ClientIP {
+	if result.Data.ClientIP.String() != event.Data.ClientIP.String() {
 		t.Logf("expected %s, got %s", event.Data.ClientIP, result.Data.ClientIP)
 		t.Fail()
 	}
@@ -40,7 +40,7 @@ func TestEvent_ReadWrite(t *testing.T) {
 	pr, pw := io.Pipe()
 	event := Event[ConnectionReceived]{
 		Data: &ConnectionReceived{
-			ClientIP:    "127.0.0.1",
+			ClientIP:    []byte{127, 0, 0, 1},
 			ClientPort:  8000,
 			RateLimited: false,
 		},
@@ -57,7 +57,7 @@ func TestEvent_ReadWrite(t *testing.T) {
 		t.Errorf("error reading: %v", err)
 	}
 
-	if result.Data.ClientIP != event.Data.ClientIP {
+	if result.Data.ClientIP.String() != event.Data.ClientIP.String() {
 		t.Logf("expected %s, got %s", event.Data.ClientIP, result.Data.ClientIP)
 		t.Fail()
 	}

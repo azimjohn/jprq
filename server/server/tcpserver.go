@@ -38,7 +38,6 @@ func (s *TCPServer) InitTLS(port uint16, title, certFile, keyFile string) error 
 }
 
 func (s *TCPServer) Start(handler func(conn net.Conn) error) {
-	log.Printf("[%s]: started on port %d\n", s.title, s.Port())
 	for {
 		conn, err := s.listener.Accept()
 		if err != nil {
@@ -54,7 +53,6 @@ func (s *TCPServer) Start(handler func(conn net.Conn) error) {
 }
 
 func (s *TCPServer) Stop() error {
-	log.Printf("[%s]: stopped on port %d\n", s.title, s.Port())
 	return s.listener.Close()
 }
 

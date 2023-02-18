@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net"
 )
 
 const (
@@ -38,7 +39,7 @@ type TunnelOpened struct {
 }
 
 type ConnectionReceived struct {
-	ClientIP    []byte
+	ClientIP    net.IP
 	ClientPort  uint16
 	RateLimited bool
 }
