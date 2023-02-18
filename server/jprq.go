@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
 	"github.com/azimjohn/jprq/server/config"
@@ -9,7 +10,10 @@ import (
 	"github.com/azimjohn/jprq/server/server"
 	"github.com/azimjohn/jprq/server/tunnel"
 	"io"
+	"log"
 	"net"
+	"os"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -21,6 +25,8 @@ type Jprq struct {
 	eventServer     server.TCPServer
 	publicServer    server.TCPServer
 	publicServerTLS server.TCPServer
+	blockedUsers    map[int]string
+	blockedLastMod  time.Time
 	authenticator   github.Authenticator
 	tcpTunnels      map[uint16]*tunnel.TCPTunnel
 	httpTunnels     map[string]*tunnel.HTTPTunnel
@@ -30,6 +36,7 @@ type Jprq struct {
 func (j *Jprq) Init(conf config.Config, oauth github.Authenticator) error {
 	j.config = conf
 	j.authenticator = oauth
+	j.blockedUsers = make(map[int]string)
 	j.tcpTunnels = make(map[uint16]*tunnel.TCPTunnel)
 	j.httpTunnels = make(map[string]*tunnel.HTTPTunnel)
 	j.userTunnels = make(map[string]map[string]tunnel.Tunnel)
@@ -51,6 +58,13 @@ func (j *Jprq) Start() {
 	go j.eventServer.Start(j.serveEventConn)
 	go j.publicServer.Start(j.servePublicConn)
 	go j.publicServerTLS.Start(j.servePublicConn)
+
+	go func() { // periodically load blocked users
+		j.loadBlockedUsers()
+		for range time.Tick(time.Minute) {
+			j.loadBlockedUsers()
+		}
+	}()
 }
 
 func (j *Jprq) Stop() error {
@@ -90,21 +104,21 @@ func (j *Jprq) serveEventConn(conn net.Conn) error {
 	}
 
 	request := event.Data
+	if request.Protocol != events.HTTP && request.Protocol != events.TCP {
+		return events.WriteError(conn, "invalid protocol %s", request.Protocol)
+	}
 	user, err := j.authenticator.Authenticate(request.AuthToken)
 	if err != nil {
 		return events.WriteError(conn, "authentication failed")
 	}
-
-	if request.Protocol != events.HTTP && request.Protocol != events.TCP {
-		return events.WriteError(conn, "invalid protocol %s", request.Protocol)
+	if reason, found := j.blockedUsers[user.ID]; found {
+		return events.WriteError(conn, "your account is blocked for %s", reason)
 	}
-
 	if len(j.userTunnels[user.Login]) >= j.config.MaxTunnelsPerUser {
 		return events.WriteError(conn, "tunnels limit reached for %s", user.Login)
 	}
-
 	if request.Subdomain == "" {
-		request.Subdomain = strings.ToLower(user.Login)
+		request.Subdomain = user.Login
 	}
 	if err := validate(request.Subdomain); err != nil {
 		return events.WriteError(conn, "invalid subdomain %s: %s", request.Subdomain, err.Error())
@@ -160,10 +174,46 @@ func (j *Jprq) serveEventConn(conn net.Conn) error {
 	fmt.Printf("%s [tunnel-opened] %s: %s\n", time.Now().Format(dateFormat), user.Login, tunnelId)
 	buffer := make([]byte, 8) // wait until connection is closed
 	for {
+		_ = conn.SetReadDeadline(time.Now().Add(time.Minute))
 		if _, err := conn.Read(buffer); err == io.EOF {
+			break
+		}
+		if _, found := j.blockedUsers[user.ID]; found {
 			break
 		}
 	}
 	fmt.Printf("%s [tunnel-closed] %s: %s\n", time.Now().Format(dateFormat), user.Login, tunnelId)
 	return nil
+}
+
+func (j *Jprq) loadBlockedUsers() {
+	stat, err := os.Stat(j.config.BlockedUsersFile)
+	if err != nil {
+		log.Printf("failed to stat blocked users file: %s", err)
+		return
+	}
+	if !stat.ModTime().After(j.blockedLastMod) {
+		return
+	}
+	file, err := os.Open(j.config.BlockedUsersFile)
+	if err != nil {
+		log.Printf("failed to read blocked users file: %s", err)
+		return
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	j.blockedUsers = make(map[int]string)
+
+	for scanner.Scan() {
+		fields := strings.Split(scanner.Text(), ",")
+		if len(fields) >= 2 {
+			id, _ := strconv.Atoi(fields[0])
+			reason := fields[1]
+			j.blockedUsers[id] = reason
+		}
+	}
+
+	j.blockedLastMod = stat.ModTime()
+	log.Println("new blocked users list loaded")
 }
