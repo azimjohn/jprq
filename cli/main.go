@@ -68,6 +68,9 @@ func main() {
 		log.Fatalf("error: cannot reach server on port: %d\n", port)
 	}
 
+	fmt.Printf("jprq: \t%s\n\n", version)
+	defer log.Println("jprq tunnel closed")
+
 	client := jprqClient{
 		config:    conf,
 		protocol:  protocol,
@@ -107,7 +110,7 @@ func handleAuth(args []string) {
 
 func canReachServer(port int) bool {
 	address := fmt.Sprintf("127.0.0.1:%d", port)
-	conn, err := net.DialTimeout("tcp", address, time.Second)
+	conn, err := net.DialTimeout("tcp", address, 512*time.Millisecond)
 	if err != nil {
 		return false
 	}
