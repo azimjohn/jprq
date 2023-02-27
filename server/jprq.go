@@ -81,6 +81,7 @@ func (j *Jprq) Stop() error {
 }
 
 func (j *Jprq) servePublicConn(conn net.Conn) error {
+	conn.SetReadDeadline(time.Now().Add(500 * time.Millisecond))
 	host, buffer, err := parseHost(conn)
 	if err != nil || host == "" {
 		writeResponse(conn, 400, "Bad Request", "Bad Request")
@@ -150,10 +151,10 @@ func (j *Jprq) serveEventConn(conn net.Conn) error {
 		t = tn
 	}
 
-	tunnelId := fmt.Sprintf("%s:%d", t.Hostname(), t.PublicServerPort())
 	if len(j.userTunnels[user.Login]) == 0 {
 		j.userTunnels[user.Login] = make(map[string]tunnel.Tunnel)
 	}
+	tunnelId := fmt.Sprintf("%s:%d", t.Hostname(), t.PublicServerPort())
 	j.userTunnels[user.Login][tunnelId] = t
 	defer delete(j.userTunnels[user.Login], tunnelId)
 
@@ -172,6 +173,8 @@ func (j *Jprq) serveEventConn(conn net.Conn) error {
 	}
 
 	fmt.Printf("%s [tunnel-opened] %s: %s\n", time.Now().Format(dateFormat), user.Login, tunnelId)
+	defer fmt.Printf("%s [tunnel-closed] %s: %s\n", time.Now().Format(dateFormat), user.Login, tunnelId)
+
 	buffer := make([]byte, 8) // wait until connection is closed
 	for {
 		_ = conn.SetReadDeadline(time.Now().Add(time.Minute))
@@ -182,7 +185,6 @@ func (j *Jprq) serveEventConn(conn net.Conn) error {
 			break
 		}
 	}
-	fmt.Printf("%s [tunnel-closed] %s: %s\n", time.Now().Format(dateFormat), user.Login, tunnelId)
 	return nil
 }
 
@@ -215,5 +217,4 @@ func (j *Jprq) loadBlockedUsers() {
 	}
 
 	j.blockedLastMod = stat.ModTime()
-	log.Println("new blocked users list loaded")
 }

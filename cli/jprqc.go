@@ -3,10 +3,12 @@ package main
 import (
 	"encoding/binary"
 	"fmt"
+	"github.com/azimjohn/jprq/cli/web"
 	"github.com/azimjohn/jprq/server/events"
 	"github.com/azimjohn/jprq/server/tunnel"
 	"log"
 	"net"
+	"strings"
 )
 
 type jprqClient struct {
@@ -15,6 +17,8 @@ type jprqClient struct {
 	subdomain    string
 	localServer  string
 	remoteServer string
+	publicServer string
+	webInterface web.WebServer
 }
 
 func (j *jprqClient) Start(port int) {
@@ -46,8 +50,16 @@ func (j *jprqClient) Start(port int) {
 
 	j.localServer = fmt.Sprintf("127.0.0.1:%d", port)
 	j.remoteServer = fmt.Sprintf("jprq.%s:%d", j.config.Remote.Domain, tunnel.Data.PrivateServer)
+	j.publicServer = fmt.Sprintf("%s:%d", tunnel.Data.Hostname, tunnel.Data.PublicServer)
 
-	// todo: display tunnel info
+	if j.protocol == "http" {
+		go j.runWebInterface(4444)
+		j.publicServer = fmt.Sprintf("https://%s", tunnel.Data.Hostname)
+	}
+
+	fmt.Printf("Status: \t Online \n")
+	fmt.Printf("Protocol: \t %s \n", strings.ToUpper(j.protocol))
+	fmt.Printf("Forwarded: \t %s -> %s \n", j.publicServer, j.localServer)
 
 	var event events.Event[events.ConnectionReceived]
 	for {
@@ -79,4 +91,12 @@ func (j *jprqClient) handleEvent(event events.ConnectionReceived) {
 
 	go tunnel.Bind(localCon, remoteCon)
 	tunnel.Bind(remoteCon, localCon)
+}
+
+func (j *jprqClient) runWebInterface(port uint16) {
+	j.webInterface = web.NewWebServer()
+	fmt.Printf("Web Interface: \t http://127.0.0.1:%d (for debugging)\n", port)
+	if err := j.webInterface.Run(port); err != nil {
+		fmt.Printf("Web Interface: \t failed to run on port %d\n", port)
+	}
 }
