@@ -173,7 +173,6 @@ func (j *Jprq) serveEventConn(conn net.Conn) error {
 	}
 
 	fmt.Printf("%s [tunnel-opened] %s: %s\n", time.Now().Format(dateFormat), user.Login, tunnelId)
-	defer fmt.Printf("%s [tunnel-closed] %s: %s\n", time.Now().Format(dateFormat), user.Login, tunnelId)
 
 	buffer := make([]byte, 8) // wait until connection is closed
 	for {
@@ -185,6 +184,7 @@ func (j *Jprq) serveEventConn(conn net.Conn) error {
 			break
 		}
 	}
+	fmt.Printf("%s [tunnel-closed] %s: %s\n", time.Now().Format(dateFormat), user.Login, tunnelId)
 	return nil
 }
 
