@@ -4,29 +4,34 @@
 </p>
 
 ## What's JPRQ?
-- JPRQ is a free and open tool for exposing local servers to public network
-- it can expose TCP protocols, such as HTTP, SSH, major databases (MySQL, Postgres, Redis) 
+
+- JPRQ is a free and open tool for exposing local servers to public network (the internet)
+- it can expose TCP protocols, such as HTTP, SSH, major databases (MySQL, Postgres, Redis)
+
 ---
 
 ## How to install
 
 ```bash
-$ curl -fsSL https://jprq.io/install.sh
+$ curl -fsSL https://jprq.io/install.sh | sudo bash
 ```
 
 ## How to use
 
 First obtain auth token from https://jprq.io/auth, then
+
 ```bash
 $ jprq auth <your-auth-token>
 ```
 
 Replace 8000 with the port you want to expose
+
 ```bash
 $ jprq http 8000
 ```
 
-For exposing SSH, WebSocket, Postgresql or any TCP servers
+For exposing any TCP servers, such as SSH
+
 ```bash
 $ jprq tcp 22
 ```
