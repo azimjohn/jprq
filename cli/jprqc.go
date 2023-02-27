@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/binary"
 	"fmt"
-	"github.com/azimjohn/jprq/cli/web"
 	"github.com/azimjohn/jprq/server/events"
 	"github.com/azimjohn/jprq/server/tunnel"
 	"log"
@@ -18,7 +17,6 @@ type jprqClient struct {
 	localServer  string
 	remoteServer string
 	publicServer string
-	webInterface web.WebServer
 }
 
 func (j *jprqClient) Start(port int) {
@@ -53,7 +51,6 @@ func (j *jprqClient) Start(port int) {
 	j.publicServer = fmt.Sprintf("%s:%d", tunnel.Data.Hostname, tunnel.Data.PublicServer)
 
 	if j.protocol == "http" {
-		go j.runWebInterface(4444)
 		j.publicServer = fmt.Sprintf("https://%s", tunnel.Data.Hostname)
 	}
 
@@ -91,12 +88,4 @@ func (j *jprqClient) handleEvent(event events.ConnectionReceived) {
 
 	go tunnel.Bind(localCon, remoteCon)
 	tunnel.Bind(remoteCon, localCon)
-}
-
-func (j *jprqClient) runWebInterface(port uint16) {
-	j.webInterface = web.NewWebServer()
-	fmt.Printf("Web Interface: \t http://127.0.0.1:%d (for debugging)\n", port)
-	if err := j.webInterface.Run(port); err != nil {
-		fmt.Printf("Web Interface: \t failed to run on port %d\n", port)
-	}
 }

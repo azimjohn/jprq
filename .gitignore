@@ -5,6 +5,7 @@ go.sum
 package.json
 
 # binaries
+bin/
 cli/jprq
 server/jprq-server
 website/jprq-website

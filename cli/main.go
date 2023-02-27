@@ -68,7 +68,7 @@ func main() {
 		log.Fatalf("error: cannot reach server on port: %d\n", port)
 	}
 
-	fmt.Printf("jprq: \t%s\n\n", version)
+	fmt.Printf("jprq %s \t press Ctrl+C to quit\n\n", version)
 	defer log.Println("jprq tunnel closed")
 
 	client := jprqClient{
