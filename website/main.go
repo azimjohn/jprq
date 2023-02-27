@@ -20,6 +20,9 @@ var config string
 //go:embed static/install.sh
 var installer string
 
+//go:embed static/token.html
+var tokenHtml string
+
 func main() {
 	clientId := os.Getenv("GITHUB_CLIENT_ID")
 	clientSecret := os.Getenv("GITHUB_CLIENT_SECRET")
@@ -60,5 +63,6 @@ func oauthCallback(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/auth", http.StatusTemporaryRedirect)
 		return
 	}
-	w.Write([]byte(fmt.Sprintf("auth was successful: run <code>jprq auth %s</code>", token)))
+	w.Header().Set("Content-Type", "text/html")
+	w.Write([]byte(fmt.Sprintf(tokenHtml, token)))
 }
