@@ -81,7 +81,7 @@ func (j *Jprq) Stop() error {
 }
 
 func (j *Jprq) servePublicConn(conn net.Conn) error {
-	conn.SetReadDeadline(time.Now().Add(500 * time.Millisecond))
+	conn.SetReadDeadline(time.Now().Add(time.Second))
 	host, buffer, err := parseHost(conn)
 	if err != nil || host == "" {
 		writeResponse(conn, 400, "Bad Request", "Bad Request")
