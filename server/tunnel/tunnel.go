@@ -133,6 +133,7 @@ func Bind(src net.Conn, dst net.Conn) error {
 		if err != nil {
 			return err
 		}
+		time.Sleep(10 * time.Millisecond)
 	}
 	return nil
 }
