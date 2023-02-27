@@ -1,38 +1,36 @@
-# JPRQ - Ngrok Alternative 
-
 <p align="center">
-    <img height="140" src="https://user-images.githubusercontent.com/35038240/160110182-f38a29f8-1058-48af-8a80-b97b0103c71f.jpg">
+    <img height="140" src="https://user-images.githubusercontent.com/35038240/221522083-1011e567-e2b7-424c-a018-15e965cf8df9.png#gh-light-mode-only">
+    <img height="140" src="https://user-images.githubusercontent.com/35038240/221522077-5b1e3eca-ca85-4c9f-93a9-afd39cc93c88.png#gh-dark-mode-only">
 </p>
 
-## How JPRQ is different from Ngrok?
-
-- JPRQ is a free and open-source Ngrok alternative to expose local servers online easily.
-- It allows developers to serve unlimited requests to the local server compared to Ngrok's **40 requests/minute** limit.
-- It can expose multiple ports at the same time compared to Ngrok with **1 port** limit.
-- [NEW] it can now expose any TCP protocol, like SSH, MySQL, Redis, etc.
+## What's JPRQ?
+- JPRQ is a free and open tool for exposing local servers to public network
+- it can expose TCP protocols, such as HTTP, SSH, major databases (MySQL, Postgres, Redis) 
 ---
 
 ## How to install
 
 ```bash
-$ //TODO
+$ curl -fsSL https://jprq.io/install.sh
 ```
 
 ## How to use
 
-Replace 8000 with the port you want to expose
+First obtain auth token from https://jprq.io/auth, then
+```bash
+$ jprq auth <your-auth-token>
 ```
+
+Replace 8000 with the port you want to expose
+```bash
 $ jprq http 8000
 ```
 
 For exposing SSH, WebSocket, Postgresql or any TCP servers
-```
+```bash
 $ jprq tcp 22
 ```
 
 Press Ctrl+C to stop it
 
-## How JPRQ Works
-
-<img width="100%" src="https://i.imgur.com/1kXPzyd.png">
----
+<a href="https://www.buymeacoffee.com/azimjon" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>
