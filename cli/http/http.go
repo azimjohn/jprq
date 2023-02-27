@@ -2,76 +2,61 @@ package http
 
 import (
 	"bufio"
-	"io"
 	"net/http"
 	"strconv"
 )
 
 type Request struct {
-	Id      string            `json:"id"`
-	Method  string            `json:"method"`
-	URL     string            `json:"url"`
-	Body    string            `json:"body"`
-	Headers map[string]string `json:"headers"`
+	Id      string              `json:"id"`
+	Method  string              `json:"method"`
+	URL     string              `json:"url"`
+	Body    string              `json:"body"`
+	Headers map[string][]string `json:"headers"`
 }
 
 type Response struct {
-	RequestId string            `json:"request_id"`
-	Status    int               `json:"status"`
-	Headers   map[string]string `json:"headers"`
-	Body      string            `json:"body"`
+	RequestId string              `json:"request_id"`
+	Status    int                 `json:"status"`
+	Headers   map[string][]string `json:"headers"`
+	Body      string              `json:"body"`
 }
 
-func ParseRequests(conn io.Reader, connID string) <-chan Request {
-	i := 0
+func ParseRequests(r *bufio.Reader, connID string) <-chan Request {
 	ch := make(chan Request)
-	reader := bufio.NewReader(conn)
 	go func() {
-		for {
-			req, err := http.ReadRequest(reader)
+		for i := 0; ; i++ {
+			req, err := http.ReadRequest(r)
 			if err != nil {
 				close(ch)
 				break
 			}
-			r := Request{
-				Id:     connID + strconv.Itoa(i),
-				Method: req.Method,
-				URL:    req.URL.String(),
-				Body:   "<todo>",
+			ch <- Request{
+				Id:      connID + strconv.Itoa(i),
+				Method:  req.Method,
+				URL:     req.URL.String(),
+				Body:    "<todo>",
+				Headers: req.Header,
 			}
-			r.Headers = make(map[string]string)
-			for key, value := range req.Header {
-				r.Headers[key] = value[0]
-			}
-			ch <- r
-			i++
 		}
 	}()
 	return ch
 }
 
-func ParseResponses(conn io.Reader, connID string) <-chan Response {
-	i := 0
+func ParseResponses(r *bufio.Reader, connID string) <-chan Response {
 	ch := make(chan Response)
-	reader := bufio.NewReader(conn)
 	go func() {
-		for {
-			resp, err := http.ReadResponse(reader, nil)
+		for i := 0; ; i++ {
+			resp, err := http.ReadResponse(r, nil)
 			if err != nil {
 				close(ch)
 				break
 			}
-			r := Response{
+			ch <- Response{
 				RequestId: connID + strconv.Itoa(i),
 				Status:    resp.StatusCode,
 				Body:      "<todo>",
+				Headers:   resp.Header,
 			}
-			r.Headers = make(map[string]string)
-			for key, value := range resp.Header {
-				r.Headers[key] = value[0]
-			}
-			ch <- r
-			i++
 		}
 	}()
 	return ch

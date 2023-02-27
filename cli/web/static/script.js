@@ -1,7 +1,8 @@
 const requestsEl = document.getElementById("requests");
 const infoSections = document.getElementsByClassName("card-info");
 let requests = [];
-var active_request_id = -1
+let active_request_id = -1
+
 for (let infoSection of infoSections) {
     let title = infoSection.getElementsByClassName("header-title")[0];
 
@@ -28,7 +29,7 @@ function createElementFromHTML(htmlString) {
 }
 
 const getMethodColor = (method) => {
-    colors = {
+    const colors = {
         GET: "sky-500",
         POST: "green-500",
         PUT: "orange-500",
@@ -43,7 +44,7 @@ const getMethodColor = (method) => {
 
 const getStatusColor = (status) => {
     let first_digit = Math.floor(status / 100);
-    colors = {
+    const colors = {
         1: "gray-500",
         2: "green-500",
         3: "yellow-500",
@@ -58,7 +59,7 @@ const addRequest = (request) => {
     let methodColor = getMethodColor(request.method);
     const requestElHTML = `
     <div class="card cursor-pointer request border-l border-t" onclick="selectRequest(${request.id
-        })" data-is-active="false" data-id=${request.id}>
+    })" data-is-active="false" data-id=${request.id}>
         <div class="method w-20 text-${methodColor}">${request.method}</div>
         <div class="path flex-1 text-black/60" title=${request.url}>
 		${request.url.slice(0, 20)}${request.url.length > 20 ? "..." : ""}
@@ -78,6 +79,7 @@ const update_request_status = (request_id, status) => {
     statusEl.classList.add(`text-${statusColor}`);
     statusEl.innerHTML = status;
 };
+
 const prettifyJson = (json_str) => {
     return JSON.stringify(json_str, null, 2);
 };
@@ -93,8 +95,6 @@ const selectRequest = (request_id) => {
             requestEl.dataset.isActive = false;
         }
     }
-
-    // console.log(requestEl);
 };
 
 const makeHeaderItem = (key, val) => {
@@ -105,12 +105,14 @@ const makeHeaderItem = (key, val) => {
                 </div>
     `
 }
+
 const updateRequestTitle = (method, url) => {
     const requestMethodEl = document.querySelector('#requestMethod')
     const requestUrlEl = document.querySelector('#requestUrl')
     requestMethodEl.innerText = method
     requestUrlEl.innerText = url
 }
+
 const updateRequestHeaders = (requestHeaders) => {
     let requestHeadersEl = document.getElementById("info")
         .querySelector('[data-title="requestHeaders"]')
@@ -121,6 +123,7 @@ const updateRequestHeaders = (requestHeaders) => {
     })
     requestHeadersEl.replaceChildren(createElementFromHTML(requestHeadersHtml))
 }
+
 const updateResponseHeaders = (responseHeaders) => {
     let responseHeadersEl = document.getElementById("info")
         .querySelector('[data-title="responseHeaders"]')
@@ -134,6 +137,7 @@ const updateResponseHeaders = (responseHeaders) => {
     })
     responseHeadersEl.replaceChildren(createElementFromHTML(responseHeadersHtml))
 }
+
 const updateResponseBody = (responseBody) => {
     console.log(responseBody);
     let responseBodyEl = document.getElementById("info")
@@ -145,6 +149,7 @@ const updateResponseBody = (responseBody) => {
     responseBodyEl.innerHTML = `
     <pre><code class="language-json text-normal">${prettifyJson(responseBody)}</code></pre>`;
 }
+
 const updateRequestBody = (requestBody) => {
     console.log(requestBody);
     let requestBodyEl = document.getElementById("info")
@@ -156,6 +161,7 @@ const updateRequestBody = (requestBody) => {
     requestBodyEl.innerHTML = `
     <pre><code class="language-json text-normal">${prettifyJson(requestBody)}</code></pre>`;
 }
+
 const highlight_code = () => {
     hljs.highlightAll();
 }
@@ -171,38 +177,19 @@ const changeRequestInfo = (request) => {
     highlight_code()
 };
 
-
-const handleEvents = async () => {
-    for (let i = 0; i < 10; i++) {
-        await new Promise((r) => setTimeout(r, Math.random() * 1000));
-
-        handleEvent(
-            `{"data": {"id": ${i}, "method":"GET","url":"https://google.com","body":"","headers":{"keep-alive":"true"}}}`
-        );
-        await new Promise((r) => setTimeout(r, 1500));
-
-        setTimeout(() => { }, 3000);
-        handleEvent(
-            `{"data": {"request_id": ${i}, "status":200,"headers":{"accept":"Json"},"body":[1,2,3]}}`
-        );
-    }
-};
-
-const handleEvent = (event_str) => {
-    let event = JSON.parse(event_str)["data"];
+const handleEvent = (e) => {
+    let event = JSON.parse(e.data);
     if ("request_id" in event) {
         // Event is response
-        request = requests.find((request) => request.id === event.request_id);
+        const request = requests.find((request) => request.id === event.request_id);
         if (request) {
             request.response = event;
             update_request_status(request.id, event.status);
             if (request.id === active_request_id) {
-
                 updateResponseHeaders(request.response.headers)
                 updateResponseBody(request.response.body)
                 highlight_code()
             }
-
         }
     } else {
         try {
@@ -216,7 +203,8 @@ const handleEvent = (event_str) => {
 };
 
 function main() {
-    handleEvents();
+    let sse = new EventSource("/events");
+    sse.onmessage = handleEvent
 }
 
 main();
