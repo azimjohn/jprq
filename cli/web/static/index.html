@@ -1,481 +1,767 @@
 <!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/html">
-  <head>
-    <meta charset="UTF-8" />
-    <title>JPRQ Dashboard</title>
-    <link rel="stylesheet" href="style.css" />
-    <!-- Highlight.js -->
-    <style>
-      pre code.hljs {
-        display: block;
-        overflow-x: auto;
-        padding-left: 1em;
-        padding-right: 1em;
-      }
-      code.hljs {
-        padding: 3px 5px;
-      }
-      .hljs {
-        color: #24292e;
-        background: #fff;
-      }
-      .hljs-doctag,
-      .hljs-keyword,
-      .hljs-meta .hljs-keyword,
-      .hljs-template-tag,
-      .hljs-template-variable,
-      .hljs-type,
-      .hljs-variable.language_ {
-        color: #d73a49;
-      }
-      .hljs-title,
-      .hljs-title.class_,
-      .hljs-title.class_.inherited__,
-      .hljs-title.function_ {
-        color: #6f42c1;
-      }
-      .hljs-attr,
-      .hljs-attribute,
-      .hljs-literal,
-      .hljs-meta,
-      .hljs-number,
-      .hljs-operator,
-      .hljs-selector-attr,
-      .hljs-selector-class,
-      .hljs-selector-id,
-      .hljs-variable {
-        color: #005cc5;
-      }
-      .hljs-meta .hljs-string,
-      .hljs-regexp,
-      .hljs-string {
-        color: #032f62;
-      }
-      .hljs-built_in,
-      .hljs-symbol {
-        color: #e36209;
-      }
-      .hljs-code,
-      .hljs-comment,
-      .hljs-formula {
-        color: #6a737d;
-      }
-      .hljs-name,
-      .hljs-quote,
-      .hljs-selector-pseudo,
-      .hljs-selector-tag {
-        color: #22863a;
-      }
-      .hljs-subst {
-        color: #24292e;
-      }
-      .hljs-section {
-        color: #005cc5;
-        font-weight: 700;
-      }
-      .hljs-bullet {
-        color: #735c0f;
-      }
-      .hljs-emphasis {
-        color: #24292e;
-        font-style: italic;
-      }
-      .hljs-strong {
-        color: #24292e;
-        font-weight: 700;
-      }
-      .hljs-addition {
-        color: #22863a;
-        background-color: #f0fff4;
-      }
-      .hljs-deletion {
-        color: #b31d28;
-        background-color: #ffeef0;
-      }
-    </style>
-    <!-- [CLOSE] Highlight.js -->
+    <head>
+        <meta charset="UTF-8" />
+        <title>JPRQ Dashboard</title>
+        <link rel="stylesheet" href="style.css" />
+        <!-- Highlight.js -->
+        <style>
+            pre code.hljs {
+                display: block;
+                overflow-x: auto;
+                padding-left: 1em;
+                padding-right: 1em;
+            }
+            code.hljs {
+                padding: 3px 5px;
+            }
+            .hljs {
+                color: #24292e;
+                background: #fff;
+            }
+            .hljs-doctag,
+            .hljs-keyword,
+            .hljs-meta .hljs-keyword,
+            .hljs-template-tag,
+            .hljs-template-variable,
+            .hljs-type,
+            .hljs-variable.language_ {
+                color: #d73a49;
+            }
+            .hljs-title,
+            .hljs-title.class_,
+            .hljs-title.class_.inherited__,
+            .hljs-title.function_ {
+                color: #6f42c1;
+            }
+            .hljs-attr,
+            .hljs-attribute,
+            .hljs-literal,
+            .hljs-meta,
+            .hljs-number,
+            .hljs-operator,
+            .hljs-selector-attr,
+            .hljs-selector-class,
+            .hljs-selector-id,
+            .hljs-variable {
+                color: #005cc5;
+            }
+            .hljs-meta .hljs-string,
+            .hljs-regexp,
+            .hljs-string {
+                color: #032f62;
+            }
+            .hljs-built_in,
+            .hljs-symbol {
+                color: #e36209;
+            }
+            .hljs-code,
+            .hljs-comment,
+            .hljs-formula {
+                color: #6a737d;
+            }
+            .hljs-name,
+            .hljs-quote,
+            .hljs-selector-pseudo,
+            .hljs-selector-tag {
+                color: #22863a;
+            }
+            .hljs-subst {
+                color: #24292e;
+            }
+            .hljs-section {
+                color: #005cc5;
+                font-weight: 700;
+            }
+            .hljs-bullet {
+                color: #735c0f;
+            }
+            .hljs-emphasis {
+                color: #24292e;
+                font-style: italic;
+            }
+            .hljs-strong {
+                color: #24292e;
+                font-weight: 700;
+            }
+            .hljs-addition {
+                color: #22863a;
+                background-color: #f0fff4;
+            }
+            .hljs-deletion {
+                color: #b31d28;
+                background-color: #ffeef0;
+            }
+        </style>
+        <!-- [CLOSE] Highlight.js -->
 
-    <!-- Loader -->
+        <!-- Loader -->
 
-    <style>
-      .loader {
-        border: 2px solid #f3f3f3;
-        border-radius: 50%;
-        border-top: 2px solid #676767;
-        width: 18px;
-        height: 18px;
-        -webkit-animation: spin 2s linear infinite; /* Safari */
-        animation: spin 2s linear infinite;
-        display: inline-block;
-      }
+        <style>
+            .loader {
+                border: 2px solid #f3f3f3;
+                border-radius: 50%;
+                border-top: 2px solid #676767;
+                width: 18px;
+                height: 18px;
+                -webkit-animation: spin 2s linear infinite; /* Safari */
+                animation: spin 2s linear infinite;
+                display: inline-block;
+            }
 
-      /* Safari */
-      @-webkit-keyframes spin {
-        0% {
-          -webkit-transform: rotate(0deg);
-        }
-        100% {
-          -webkit-transform: rotate(360deg);
-        }
-      }
+            /* Safari */
+            @-webkit-keyframes spin {
+                0% {
+                    -webkit-transform: rotate(0deg);
+                }
+                100% {
+                    -webkit-transform: rotate(360deg);
+                }
+            }
 
-      @keyframes spin {
-        0% {
-          transform: rotate(0deg);
-        }
-        100% {
-          transform: rotate(360deg);
-        }
-      }
-    </style>
-    <!-- Loader -->
+            @keyframes spin {
+                0% {
+                    transform: rotate(0deg);
+                }
+                100% {
+                    transform: rotate(360deg);
+                }
+            }
+        </style>
+        <!-- Loader -->
 
-    <!-- FadeInRight Animation -->
-    <style>
-      @-webkit-keyframes fadeInRight {
-        0% {
-          opacity: 0;
-          -webkit-transform: translate3d(100%, 0, 0);
-          transform: translate3d(100%, 0, 0);
-        }
-        to {
-          opacity: 1;
-          -webkit-transform: translateZ(0);
-          transform: translateZ(0);
-        }
-      }
-      @keyframes fadeInRight {
-        0% {
-          opacity: 0;
-          -webkit-transform: translate3d(100%, 0, 0);
-          transform: translate3d(100%, 0, 0);
-        }
-        to {
-          opacity: 1;
-          -webkit-transform: translateZ(0);
-          transform: translateZ(0);
-        }
-      }
-      .animate__fadeInRight {
-        -webkit-animation-name: fadeInRight;
-        animation-name: fadeInRight;
-      }
-    </style>
-    <!-- [CLOSE] FadeInRight Animation -->
+        <!-- FadeInRight Animation -->
+        <style>
+            @-webkit-keyframes fadeInRight {
+                0% {
+                    opacity: 0;
+                    -webkit-transform: translate3d(100%, 0, 0);
+                    transform: translate3d(100%, 0, 0);
+                }
+                to {
+                    opacity: 1;
+                    -webkit-transform: translateZ(0);
+                    transform: translateZ(0);
+                }
+            }
+            @keyframes fadeInRight {
+                0% {
+                    opacity: 0;
+                    -webkit-transform: translate3d(100%, 0, 0);
+                    transform: translate3d(100%, 0, 0);
+                }
+                to {
+                    opacity: 1;
+                    -webkit-transform: translateZ(0);
+                    transform: translateZ(0);
+                }
+            }
+            .animate__fadeInRight {
+                -webkit-animation-name: fadeInRight;
+                animation-name: fadeInRight;
+            }
+        </style>
+        <!-- [CLOSE] FadeInRight Animation -->
 
-    <style>
-      /* For Webkit-based browsers (Chrome, Safari and Opera) */
-      .scrollbar-hide::-webkit-scrollbar {
-        display: none;
-      }
+        <style>
+            /* For Webkit-based browsers (Chrome, Safari and Opera) */
+            .scrollbar-hide::-webkit-scrollbar {
+                display: none;
+            }
 
-      /* For IE, Edge and Firefox */
-      .scrollbar-hide {
-        -ms-overflow-style: none; /* IE and Edge */
-        scrollbar-width: none; /* Firefox */
-      }
-      .card {
-        background-color: white;
-        padding-left: 1rem;
-        padding-right: 1rem;
-        padding-top: 1rem /* 20px */;
-        padding-bottom: 1rem /* 20px */;
-        display: flex;
-        transition-duration: 150ms;
-        transition-duration: 300ms;
-        user-select: none;
-      }
-      .online {
-        width: 0.425rem;
-        height: 0.425rem;
-        background: #34d399;
-        border-radius: 100%;
-        position: relative;
-        margin-right: 0.75rem;
-      }
+            /* For IE, Edge and Firefox */
+            .scrollbar-hide {
+                -ms-overflow-style: none; /* IE and Edge */
+                scrollbar-width: none; /* Firefox */
+            }
+            .card {
+                background-color: white;
+                padding-left: 1rem;
+                padding-right: 1rem;
+                padding-top: 1rem /* 20px */;
+                padding-bottom: 1rem /* 20px */;
+                display: flex;
+                transition-duration: 150ms;
+                transition-duration: 300ms;
+                user-select: none;
+            }
+            .online {
+                width: 0.425rem;
+                height: 0.425rem;
+                background: #34d399;
+                border-radius: 100%;
+                position: relative;
+                margin-right: 0.75rem;
+            }
 
-      .online::before {
-        content: " ";
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: #d1fae5;
-        border-radius: 100%;
-        z-index: -1;
-        animation: onlineOuterAnimation 2s linear infinite;
-      }
+            .online::before {
+                content: " ";
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: #d1fae5;
+                border-radius: 100%;
+                z-index: -1;
+                animation: onlineOuterAnimation 2s linear infinite;
+            }
 
-      @keyframes onlineOuterAnimation {
-        0%,
-        100% {
-          width: 0.625rem;
-          height: 0.625rem;
-        }
-        20%,
-        80% {
-          width: 1.25rem;
-          height: 1.25rem;
-        }
-      }
+            @keyframes onlineOuterAnimation {
+                0%,
+                100% {
+                    width: 0.625rem;
+                    height: 0.625rem;
+                }
+                20%,
+                80% {
+                    width: 1.25rem;
+                    height: 1.25rem;
+                }
+            }
 
-      .card:hover {
-        background: rgb(247, 247, 247);
-      }
-      .card-info {
-        padding-top: 0rem;
-        padding-bottom: 0rem;
-        padding-left: 0rem;
-        padding-right: 0rem;
-        user-select: auto;
-      }
-      .card-info:hover {
-        background: inherit;
-      }
-      .header-key {
-        margin-right: 0.375rem;
-        font-weight: 400;
-        color: rgb(90, 122, 238);
-        font-size: smaller;
-        padding-left: 1rem;
-      }
+            .card:hover {
+                background: rgb(247, 247, 247);
+            }
+            .card-info {
+                padding-top: 0rem;
+                padding-bottom: 0rem;
+                padding-left: 0rem;
+                padding-right: 0rem;
+                user-select: auto;
+            }
+            .card-info:hover {
+                background: inherit;
+            }
+            .header-key {
+                margin-right: 0.375rem;
+                font-weight: 400;
+                color: rgb(90, 122, 238);
+                font-size: smaller;
+                padding-left: 1rem;
+            }
 
-      .header-val {
-        font-weight: 400;
-        font-size: smaller;
-        color: rgba(0, 0, 0, 100);
-        flex: 1 1 0%;
-      }
-      .header-item {
-        padding-top: 0.125rem;
-        padding-bottom: 0.125rem;
-      }
-      .header-item:hover {
-        background: rgb(247, 247, 247);
-      }
-      .header-title {
-        padding: 0.25rem 1rem;
-        background: rgb(243, 243, 243);
-      }
-      .arrow {
-        transform: translateZ(0deg);
-        transition-duration: 400ms;
-      }
-      svg.open {
-        transform: rotateZ(90deg);
-      }
-      .request {
-        border: 1px solid transparent;
-        border-top: 1px solid #e5e5e5;
-        animation: fadeInRight 250ms ease-in-out;
-        transition: border 0ms;
-        transition: all 200ms;
-      }
-      .request[data-is-active="true"] {
-        position: relative;
-        z-index: 5;
-        background-color: #eeeeee;
-      }
-      .request:nth-child(1):not([data-is-active="true"]) {
-        border-top: 1px solid transparent;
-      }
+            .header-val {
+                font-weight: 400;
+                font-size: smaller;
+                color: rgba(0, 0, 0, 100);
+                flex: 1 1 0%;
+            }
+            .header-item {
+                padding-top: 0.125rem;
+                padding-bottom: 0.125rem;
+            }
+            .header-item:hover {
+                background: rgb(247, 247, 247);
+            }
+            .header-title {
+                padding: 0.25rem 1rem;
+                background: rgb(243, 243, 243);
+            }
+            .arrow {
+                transform: translateZ(0deg);
+                transition-duration: 400ms;
+            }
+            svg.open {
+                transform: rotateZ(90deg);
+            }
+            .request {
+                border: 1px solid transparent;
+                border-top: 1px solid #e5e5e5;
+                animation: fadeInRight 250ms ease-in-out;
+                transition: border 0ms;
+                transition: all 200ms;
+            }
+            .request[data-is-active="true"] {
+                position: relative;
+                z-index: 5;
+                background-color: #eeeeee;
+            }
+            .request:nth-child(1):not([data-is-active="true"]) {
+                border-top: 1px solid transparent;
+            }
 
-      .request:nth-last-child(1):not([data-is-active="true"]) {
-        border-bottom: 1px solid rgb(236, 236, 236);
-      }
-      @keyframes inFromRight {
-        0% {
-          transform: translateX(100%);
-          opacity: 0;
-        }
-        100% {
-          transform: translateX(0);
-          opacity: 100%;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <!-- TW Classes, Don't Touch -->
-    <div class="dont-touch used-classes hidden">
-      <div
-        class="border-l text-yellow-500 text-sky-500 text-red-500 text-indigo-500 text-blue-500 text-green-500 text-orange-500 text-emerald-500 text-gray-500"
-      ></div>
-    </div>
-    <!-- [CLOSE] TW Classes, Don't Touch -->
+            .request:nth-last-child(1):not([data-is-active="true"]) {
+                border-bottom: 1px solid rgb(236, 236, 236);
+            }
 
-    <!-- Main -->
-    <div class="screen h-screen w-full flex overflow-hidden font-semibold">
-      <!-- Navbar -->
-      <div class="navbar w-16 h-full bg-black flex flex-col justify-between pb-3">
-        <div class="upper space-y-1 flex flex-col">
-        <a href="https://jprq.io" target="_blank" class="nav-item opacity-50 hover:opacity-100 duration-200 w-full h-16 flex items-center justify-center p-3">
-          <svg viewBox="0 0 50 23" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M49.862 22.3428C48.7666 22.3478 47.7137 22.3478 46.5868 22.3478C46.5868 21.4218 46.5868 20.5132 46.5868 19.6047C46.5868 18.7082 46.5868 17.8118 46.5868 16.8382C46.3177 16.9738 46.1016 17.0756 45.8921 17.1894C42.2168 19.1859 37.2413 16.9167 36.4563 12.6999C35.7529 8.92083 38.2684 5.522 42.1147 5.03516C44.106 4.78312 45.8148 5.38647 47.3883 6.53342C47.5362 6.64118 47.6799 6.7546 47.8561 6.88869C48.1463 6.57366 48.4557 6.27971 48.7142 5.94631C49.03 5.53911 49.3824 5.28548 49.9999 5.49094C49.9999 5.59866 49.9999 5.75785 49.9999 5.91705C49.9999 11.2362 50.0008 16.5553 49.996 21.8744C49.9958 22.0289 49.9363 22.1834 49.862 22.3428ZM46.122 13.0363C47.1723 11.248 46.2328 9.44327 44.9754 8.63766C43.4383 7.65284 41.2776 8.06965 40.3402 9.53876C39.3304 11.1213 39.728 13.323 41.2412 14.2478C42.8126 15.2082 44.9646 14.9072 46.122 13.0363Z" fill="white"/>
-            <path d="M19.1307 17.8614C17.4763 18.117 16.014 17.6538 14.5717 16.8332C14.5717 18.7058 14.5717 20.5011 14.5717 22.3232C13.4245 22.3232 12.3166 22.3232 11.1806 22.3232C11.1806 16.7 11.1806 11.082 11.1806 5.44397C12.3941 5.19333 12.589 6.44336 13.3685 6.85314C14.3353 6.04095 15.4421 5.40423 16.7212 5.12624C20.5318 4.29806 25.2475 6.9569 24.7821 12.064C24.5039 15.1168 22.5682 17.173 19.4857 17.7947C19.3808 17.8159 19.2756 17.8358 19.1307 17.8614ZM20.9354 13.1827C21.4129 12.3805 21.5148 11.5123 21.3176 10.6195C20.9061 8.75683 19.0252 7.71204 17.0417 8.21902C15.1911 8.69203 14.1739 10.5028 14.725 12.3971C15.1136 13.7329 16.05 14.512 17.4012 14.7135C18.8384 14.9279 20.0583 14.5011 20.9354 13.1827Z" fill="white"/>
-            <path d="M5.08577 7.51498C5.08577 6.79887 5.08577 6.12865 5.08577 5.43918C6.251 5.43918 7.37545 5.43918 8.55288 5.43918C8.55288 5.61595 8.55287 5.78014 8.55288 5.94434C8.55308 9.20091 8.53767 12.4576 8.55739 15.714C8.58255 19.8693 5.25673 22.0886 2.40113 22.2884C1.61391 22.3435 0.819567 22.2968 0 22.2968C0 21.299 0 20.2813 0 19.2365C0.50557 19.2365 1.02145 19.2737 1.52948 19.2265C2.08502 19.1749 2.68083 19.151 3.1754 18.9288C4.40632 18.3758 5.07727 17.3808 5.08107 16.0004C5.08881 13.1873 5.08489 10.374 5.08577 7.51498Z" fill="white"/>
-            <path d="M30.1152 17.1291C30.1149 17.3226 30.1149 17.4733 30.1149 17.6533C28.9768 17.6533 27.8717 17.6533 26.7385 17.6533C26.7385 13.5821 26.7385 9.52464 26.7385 5.45687C27.2174 5.35713 27.6053 5.37862 27.8843 5.85743C28.0898 6.21011 28.3832 6.51154 28.6717 6.87942C30.7433 5.10812 33.2296 5.43507 35.6851 5.44466C35.6851 6.47548 35.6851 7.47857 35.6851 8.53497C34.7234 8.53497 33.7647 8.50244 32.8098 8.54904C32.35 8.57149 31.8639 8.67044 31.4483 8.86197C30.5275 9.28636 30.1131 10.0661 30.1153 11.0779C30.1195 13.0807 30.1159 15.0834 30.1152 17.1291Z" fill="white"/>
-            <path d="M30.6329 19.184C32.1431 19.184 33.6074 19.184 35.1081 19.184C35.1081 20.1369 35.1081 21.0735 35.1081 22.0457C32.3167 22.0457 29.5156 22.0457 26.6899 22.0457C26.6899 21.1094 26.6899 20.1691 26.6899 19.184C27.999 19.184 29.293 19.184 30.6329 19.184Z" fill="white"/>
-            <path d="M8.90888 2.93885C8.09247 4.29303 6.40439 4.56508 5.22585 3.56018C4.62446 3.04739 4.39333 2.17499 4.66379 1.43867C4.99587 0.534599 6.04628 -0.0955531 7.04203 0.0119326C8.15825 0.132418 9.00719 0.879965 9.09103 1.8882C9.11873 2.22137 8.98525 2.56794 8.90888 2.93885Z" fill="white"/>
-          </svg>
-        </a>
-        <a href="https://github.com/azimjohn/jprq" target="_blank" class="nav-item opacity-50 hover:opacity-100 duration-200 w-full h-16 flex items-center justify-center p-4">
-          <svg width="50" height="51" viewBox="0 0 50 51" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path fill-rule="evenodd" clip-rule="evenodd" d="M25.0207 0C11.1849 0 0 11.5021 0 25.7317C0 37.1063 7.16655 46.7345 17.1084 50.1423C18.3514 50.3985 18.8067 49.5886 18.8067 48.9074C18.8067 48.3109 18.7658 46.2661 18.7658 44.1356C11.8056 45.6696 10.3562 41.0682 10.3562 41.0682C9.23769 38.086 7.58037 37.3196 7.58037 37.3196C5.30231 35.7433 7.7463 35.7433 7.7463 35.7433C10.2733 35.9137 11.5992 38.3846 11.5992 38.3846C13.8358 42.3036 17.4398 41.1963 18.8897 40.5145C19.0966 38.853 19.7599 37.7028 20.4641 37.0639C14.9128 36.4674 9.07227 34.2522 9.07227 24.3682C9.07227 21.5565 10.0658 19.2561 11.6402 17.467C11.3918 16.8281 10.5217 14.1863 11.8891 10.6504C11.8891 10.6504 14.0017 9.96865 18.7653 13.2917C20.8047 12.7285 22.9079 12.4419 25.0207 12.4395C27.1333 12.4395 29.2869 12.738 31.2756 13.2917C36.0396 9.96865 38.1523 10.6504 38.1523 10.6504C39.5197 14.1863 38.6491 16.8281 38.4007 17.467C40.0165 19.2561 40.9691 21.5565 40.9691 24.3682C40.9691 34.2522 35.1285 36.4245 29.5358 37.0639C30.4475 37.8732 31.2341 39.4067 31.2341 41.8352C31.2341 45.2858 31.1931 48.0552 31.1931 48.9069C31.1931 49.5886 31.649 50.3985 32.8914 50.1428C42.8333 46.734 49.9999 37.1063 49.9999 25.7317C50.0409 11.5021 38.815 0 25.0207 0Z" fill="white"/>
-          </svg>
-        </a>
-        </div>
-        <div class="lower space-y-1 flex flex-col">
-          <a href="https://github.com/azimjohn/jprq/issues/new" target="_blank" class="nav-item opacity-50 hover:opacity-100 duration-200 w-full h-16 flex items-center justify-center p-4">
-            <svg width="50" height="50" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M50 26.4242C50 26.7517 50 27.0791 49.9662 27.4601C49.6707 28.1923 49.1573 28.4729 48.4481 28.4717C45.78 28.4675 43.112 28.47 40.4439 28.47C40.2866 28.47 40.1292 28.47 39.9602 28.47C39.9602 29.4674 39.9602 30.4186 39.9602 31.2721C40.8018 31.5685 41.6163 31.8019 42.3856 32.1381C43.7177 32.7204 44.8172 33.6249 45.7136 34.7676C46.4865 35.753 47.0372 36.8592 47.3544 38.064C47.7256 39.4739 47.6967 40.925 47.6489 42.367C47.6104 43.5295 46.5823 44.006 45.573 43.6826C44.8189 43.441 44.6737 42.7925 44.6394 42.1357C44.5955 41.294 44.7282 40.4335 44.6055 39.6077C44.3794 38.0866 43.6912 36.7608 42.4951 35.7497C41.7558 35.1248 40.9395 34.6268 40.0173 34.4684C39.9251 35.4709 39.8632 36.4457 39.7407 37.4128C39.4685 39.5625 38.6803 41.5293 37.4887 43.329C36.2835 45.1491 34.7594 46.6663 32.8943 47.8109C31.4029 48.7262 29.8023 49.397 28.0658 49.7106C27.5952 49.7956 27.1286 49.9029 26.6602 50C25.5839 50 24.5076 50 23.371 49.9615C21.8371 49.8077 20.4347 49.4083 19.0833 48.8316C16.7971 47.8559 14.889 46.3785 13.3309 44.4481C12.2873 43.1551 11.4922 41.7255 10.933 40.161C10.2734 38.3156 9.9996 36.4136 10.0625 34.4434C9.87672 34.4911 9.70858 34.5239 9.54732 34.5773C7.15454 35.3701 5.37588 37.7492 5.36648 40.2707C5.36349 41.0724 5.34896 41.8786 5.26015 42.6739C5.18831 43.3173 4.68977 43.736 4.12992 43.7651C3.17775 43.8146 2.62214 43.538 2.45565 42.7871C2.33279 42.2329 2.36184 41.6427 2.34618 41.068C2.29532 39.2015 2.64286 37.4353 3.60291 35.7988C4.23382 34.7234 5.02016 33.7941 6.01966 33.0656C7.22055 32.1902 8.56236 31.6021 10.0312 31.3673C10.0312 30.3908 10.0312 29.4415 10.0312 28.47C7.19182 28.47 4.37972 28.4713 1.56762 28.4671C1.39628 28.4668 1.22566 28.4139 1.05356 28.4022C0.519902 28.3657 0.336522 27.8814 0 27.5933C0 27.2012 0 26.8091 0.0335291 26.3641C0.344426 26.0653 0.589473 25.7565 0.909172 25.5928C1.17508 25.4567 1.52859 25.4566 1.84352 25.4555C4.41458 25.4458 6.98569 25.45 9.55678 25.45C9.71409 25.45 9.8714 25.45 10.0586 25.45C10.0586 24.5629 10.0718 23.7216 10.0438 22.8817C10.0397 22.7603 9.85486 22.5696 9.72391 22.5394C8.66224 22.2947 7.64644 21.9409 6.72369 21.3555C4.89653 20.1963 3.60651 18.6112 2.86275 16.5705C2.26028 14.9175 2.3159 13.2076 2.35597 11.5009C2.37299 10.7763 3.0216 10.1881 3.6895 10.155C4.52034 10.1138 5.13475 10.5213 5.26106 11.3417C5.37262 12.0662 5.36395 12.8127 5.36647 13.5497C5.37316 15.5088 6.17686 17.0837 7.66089 18.3247C8.34895 18.9001 9.11943 19.3398 10.0586 19.5204C10.0586 19.0928 10.0685 18.7045 10.0568 18.3169C10.018 17.0328 11.1177 15.9019 12.4607 15.9024C16.0407 15.9036 19.6207 15.9025 23.2007 15.9038C23.3403 15.9038 23.4798 15.9182 23.6328 15.9266C23.6328 16.1413 23.6328 16.3184 23.6328 16.4956C23.6328 21.8851 23.6327 27.2746 23.6329 32.6642C23.633 33.4831 24.2362 34.1231 25.0038 34.1204C25.7727 34.1178 26.3671 33.4803 26.3671 32.6566C26.3673 27.2508 26.3672 21.8451 26.3672 16.4393C26.3672 16.2674 26.3672 16.0954 26.3672 15.9028C26.5834 15.9028 26.744 15.9028 26.9046 15.9028C30.3869 15.9028 33.8697 15.9318 37.3515 15.8892C38.8488 15.8709 40.0617 17.063 39.9455 18.4709C39.9177 18.8077 39.9414 19.1487 39.9414 19.5073C40.0538 19.4948 40.1357 19.499 40.2087 19.4755C41.3066 19.1232 42.2318 18.522 43.0186 17.6682C44.0514 16.5475 44.583 15.2448 44.6257 13.7368C44.6446 13.0718 44.6203 12.4056 44.6311 11.7402C44.6439 10.9593 45.2664 10.1997 45.9277 10.1569C46.8999 10.0941 47.4541 10.4805 47.6261 11.4159C47.7503 12.0913 47.651 12.8072 47.6569 13.505C47.6686 14.8852 47.3742 16.2076 46.7708 17.4379C45.4217 20.1885 43.2453 21.9112 40.2182 22.5341C40.1165 22.555 39.9565 22.6695 39.9551 22.743C39.9368 23.6433 39.9432 24.5442 39.9432 25.45C42.7131 25.45 45.4142 25.4473 48.1153 25.4517C48.9058 25.453 49.6158 25.6297 50 26.4242Z" fill="white"/>
-              <path d="M31.2843 0C32.3899 0.717911 32.3995 1.42558 31.9099 2.52179C31.6829 3.03024 31.4665 3.54371 31.2253 4.04548C31.1178 4.26906 31.1206 4.37395 31.3979 4.43765C32.3257 4.65084 33.1712 5.07849 33.866 5.7006C34.6849 6.43375 35.3295 7.31776 35.7034 8.37886C36.2073 9.80903 36.0681 11.2838 36.084 12.782C28.7191 12.782 21.3656 12.782 13.9098 12.782C13.9541 11.8019 13.9949 10.807 14.0451 9.81255C14.1025 8.67416 14.5348 7.67338 15.21 6.76734C16.0255 5.67313 17.0565 4.87641 18.4027 4.52734C18.9405 4.38791 18.9599 4.34763 18.7172 3.80627C18.4643 3.24229 18.2095 2.67889 17.971 2.10891C17.6442 1.32828 17.8095 0.491878 18.6982 0.0331629C19.0654 0 19.424 2.87117e-09 19.8356 0.032815C20.139 0.319565 20.4731 0.532296 20.6245 0.834991C21.122 1.83015 21.557 2.85633 22.0075 3.87432C22.1209 4.13057 22.2644 4.25159 22.5773 4.24792C24.2108 4.22877 25.8447 4.23337 27.4783 4.24479C27.7353 4.24659 27.8888 4.18639 27.9933 3.93879C28.3175 3.17028 28.6564 2.40762 29.0024 1.64843C29.2849 1.02854 29.5517 0.393165 30.1639 0C30.5224 0 30.881 0 31.2843 0Z" fill="white"/>
-            </svg>
-          </a>
-          <a href="https://buymeacoffee.com/azimjon" target="_blank" class="nav-item opacity-50 hover:opacity-100 duration-200 w-full h-16 flex items-center justify-center p-4">
-            <svg width="50" height="73" viewBox="0 0 50 73" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M26.732 33.2674C24.1336 34.3748 21.1847 35.6303 17.3629 35.6303C15.7641 35.6272 14.173 35.4088 12.6331 34.9812L15.2763 61.997C15.3699 63.1259 15.8866 64.1789 16.7239 64.9463C17.5612 65.7138 18.6578 66.1394 19.7959 66.1394C19.7959 66.1394 23.5437 66.3331 24.7944 66.3331C26.1403 66.3331 30.1762 66.1394 30.1762 66.1394C31.3142 66.1394 32.4105 65.7132 33.2476 64.9457C34.0848 64.1783 34.6013 63.1259 34.6949 61.997L37.5259 32.1435C36.2608 31.7134 34.9839 31.4276 33.5445 31.4276C31.0551 31.4267 29.0492 32.2802 26.732 33.2674Z" fill="white"/>
-              <path d="M49.7493 19.248L49.3512 17.2493C48.9941 15.4561 48.1834 13.7616 46.3343 13.1135C45.7416 12.9061 45.0691 12.817 44.6146 12.3878C44.1601 11.9586 44.0258 11.2921 43.9207 10.674C43.726 9.53947 43.5431 8.40401 43.3436 7.27148C43.1713 6.29779 43.0351 5.20401 42.5864 4.31076C42.0025 3.11136 40.7908 2.40993 39.586 1.94587C38.9686 1.71644 38.3386 1.52236 37.6989 1.36458C34.6887 0.574019 31.5239 0.283373 28.4271 0.117705C24.7101 -0.0864725 20.9832 -0.0249565 17.275 0.30178C14.515 0.551736 11.608 0.85401 8.98518 1.80442C8.02658 2.15223 7.03874 2.56978 6.30984 3.30706C5.41543 4.21291 5.12347 5.61382 5.77647 6.74345C6.24072 7.54563 7.02709 8.1124 7.86114 8.48734C8.94751 8.97045 10.0821 9.33807 11.246 9.58407C14.4868 10.2971 17.8434 10.5771 21.1542 10.6963C24.8239 10.8437 28.4994 10.7242 32.1516 10.3387C33.0547 10.2399 33.9563 10.1214 34.8562 9.98322C35.916 9.82139 36.5963 8.44179 36.2839 7.48071C35.9101 6.33174 34.9058 5.88608 33.7701 6.0595C33.6027 6.08563 33.4363 6.10984 33.2688 6.13405L33.1482 6.1515C32.7634 6.19998 32.3787 6.24514 31.9939 6.28715C31.1992 6.37239 30.4024 6.44215 29.6037 6.49643C27.8149 6.62042 26.0213 6.67757 24.2287 6.6805C22.4671 6.6805 20.7046 6.63106 18.947 6.5158C18.1451 6.46349 17.3451 6.39694 16.5471 6.3162C16.184 6.27842 15.822 6.23872 15.46 6.19413L15.1154 6.15055L15.0406 6.13991L14.6834 6.08855C13.9534 5.97904 13.2235 5.85314 12.5014 5.701C12.4286 5.6849 12.3633 5.64458 12.3166 5.58661C12.2699 5.52866 12.2445 5.45657 12.2445 5.38227C12.2445 5.30797 12.2699 5.23588 12.3166 5.17793C12.3633 5.11998 12.4286 5.07963 12.5014 5.06353H12.515C13.1408 4.9308 13.7714 4.81745 14.404 4.71863C14.6149 4.68569 14.8264 4.6534 15.0386 4.62175H15.0444C15.4405 4.59559 15.8386 4.52486 16.2327 4.47836C19.662 4.12327 23.1116 4.00221 26.5576 4.11602C28.2305 4.16447 29.9025 4.26231 31.5676 4.43089C31.9258 4.46771 32.282 4.50646 32.6382 4.55005C32.7744 4.56653 32.9116 4.5859 33.0489 4.60237L33.3253 4.64209C34.1311 4.76158 34.9327 4.90658 35.7301 5.0771C36.9116 5.33287 38.4288 5.41618 38.9544 6.70471C39.1218 7.11354 39.1977 7.56793 39.2901 7.99709L39.4079 8.54449C39.411 8.55429 39.4132 8.56437 39.4147 8.57451C39.693 9.86627 39.9717 11.158 40.2507 12.4498C40.2712 12.5452 40.2716 12.6438 40.2521 12.7394C40.2326 12.8351 40.1935 12.9256 40.1372 13.0056C40.081 13.0855 40.0088 13.153 39.9252 13.2039C39.8415 13.2548 39.7483 13.288 39.6512 13.3014H39.6434L39.4731 13.3247L39.3047 13.3469C38.7714 13.4161 38.2374 13.4806 37.7028 13.5407C36.6498 13.6602 35.5951 13.7635 34.5389 13.8507C32.44 14.0244 30.3369 14.1385 28.2295 14.1927C27.1558 14.2211 26.0823 14.2344 25.0092 14.2324C20.7377 14.2291 16.47 13.9819 12.227 13.4922C11.7676 13.438 11.3083 13.3799 10.8489 13.3208C11.2051 13.3663 10.59 13.2859 10.4654 13.2685C10.1735 13.2278 9.8815 13.1855 9.58954 13.1416C8.6095 12.9952 7.63535 12.8151 6.65724 12.6571C5.4748 12.4634 4.34392 12.5603 3.27435 13.1416C2.39641 13.6198 1.68583 14.3532 1.23742 15.2439C0.776114 16.1933 0.638891 17.2271 0.432571 18.2473C0.226249 19.2674 -0.0949124 20.3651 0.0267392 21.4124C0.288534 23.6726 1.87585 25.5095 4.15901 25.9203C6.3069 26.3078 8.46646 26.6217 10.6318 26.8891C19.1381 27.9262 27.7316 28.0502 36.2644 27.2592C36.9593 27.1946 37.6532 27.1242 38.3461 27.048C38.5626 27.0243 38.7816 27.0491 38.9871 27.1206C39.1926 27.1921 39.3795 27.3085 39.534 27.4612C39.6886 27.6139 39.8068 27.7991 39.8801 28.0032C39.9534 28.2073 39.98 28.4251 39.9577 28.6407L39.7417 30.7315C39.3063 34.9561 38.871 39.1805 38.4356 43.4046C37.9815 47.8405 37.5244 52.2761 37.0644 56.711C36.9346 57.9605 36.8049 59.2093 36.6751 60.4576C36.5505 61.6873 36.533 62.9553 36.2985 64.1704C35.9286 66.0809 34.6294 67.2543 32.7336 67.6833C30.9967 68.0769 29.2224 68.2835 27.4412 68.2993C25.4666 68.31 23.4929 68.2227 21.5183 68.2334C19.4102 68.2453 16.8283 68.0516 15.2011 66.4896C13.7714 65.118 13.5739 62.97 13.3792 61.1125C13.1197 58.6536 12.8625 56.1952 12.6075 53.737L11.1769 40.0679L10.2514 31.2236C10.2357 31.0773 10.2202 30.933 10.2056 30.7857C10.0946 29.7307 9.34429 28.6979 8.16182 28.7512C7.14972 28.7957 5.99938 29.6522 6.1181 30.7857L6.80418 37.3427L8.22313 50.9062C8.62737 54.7588 9.0306 58.6119 9.43286 62.466C9.51075 63.2042 9.58371 63.9446 9.66544 64.6828C10.1102 68.7171 13.205 70.8911 17.0376 71.5031C19.276 71.8618 21.5688 71.9355 23.8403 71.9721C26.7522 72.0189 29.6933 72.1303 32.5574 71.605C36.8016 70.8297 39.986 68.0088 40.4404 63.6327C40.5702 62.3692 40.7 61.1057 40.8297 59.8416C41.2612 55.6615 41.692 51.481 42.1222 47.3002L43.5295 33.6399L44.1747 27.3794C44.2068 27.0689 44.3385 26.777 44.5503 26.5469C44.762 26.3168 45.0425 26.1606 45.3503 26.1014C46.5639 25.866 47.724 25.4639 48.5873 24.5445C49.9614 23.0807 50.2349 21.1721 49.7493 19.248ZM4.09672 20.5986C4.11521 20.5898 4.08115 20.7477 4.06656 20.8214C4.06364 20.7099 4.06947 20.6111 4.09672 20.5986ZM4.21449 21.5054C4.22422 21.4986 4.25341 21.5374 4.28358 21.5839C4.23784 21.5412 4.20865 21.5093 4.21351 21.5054H4.21449ZM4.3303 21.6575C4.39453 21.7728 4.37215 21.7282 4.3303 21.6575ZM4.5629 21.8454H4.56873C4.56873 21.8522 4.57944 21.859 4.58333 21.8658C4.57688 21.8583 4.56971 21.8515 4.56192 21.8454H4.5629ZM45.2939 21.5644C44.8579 21.9772 44.201 22.169 43.5518 22.2649C36.2722 23.3403 28.8865 23.8848 21.527 23.6445C16.26 23.4653 11.0484 22.883 5.83394 22.1496C5.32297 22.078 4.76921 21.9849 4.41788 21.61C3.7561 20.9027 4.08115 19.4786 4.25341 18.6241C4.41107 17.8413 4.71277 16.7979 5.64803 16.6865C7.10786 16.516 8.80317 17.1292 10.2475 17.3472C11.9863 17.6113 13.7316 17.8229 15.4833 17.9818C22.9596 18.66 30.5614 18.5543 38.0045 17.5623C39.3611 17.3808 40.713 17.1699 42.0599 16.9296C43.2599 16.7155 44.5903 16.3135 45.3153 17.5506C45.8126 18.3935 45.8788 19.5212 45.8019 20.4736C45.7782 20.8885 45.5961 21.2787 45.2929 21.5644H45.2939Z" fill="white"/>
-            </svg>
-          </a>
-        </div>
-      </div>
-      <!-- [CLOSE] Navbar -->
-
-      <!-- Requests -->
-      <div
-        class="requests-wrapper w-52 lg:w-80 xl:w-96 h-full flex flex-col border-r"
-      >
-        <div
-          class="flex items-center justify-between text-black/60 px-5 py-6 border-b"
-        >
-          <h6 class="hover:text-blue-700 cursor-pointer text-xl">
-            jasurbek.jprq.live
-          </h6>
-          <h6 class="inline-flex items-center justify-center">
-            <div class="online"></div>
-            Online
-          </h6>
-        </div>
-
-        <div id="requests" class="flex-1 overflow-y-auto scrollbar-hide"></div>
-      </div>
-      <!-- [CLOSE] Requests -->
-
-      <!-- Single Requst -->
-      <div id="info" class="flex-1 h-full flex flex-col">
-        <div class="flex items-center text-black/60 px-10 py-6 border-b">
-          <h6 class="mr-3 font-bold text-xl" id="requestMethod"></h6>
-          <h6 class="text-gray-500 font-normal" id="requestUrl"></h6>
-        </div>
-        <div class="flex-1 overflow-x-auto">
-          <div>
+            @keyframes inFromRight {
+                0% {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                100% {
+                    transform: translateX(0);
+                    opacity: 100%;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <!-- TW Classes, Don't Touch -->
+        <div class="dont-touch used-classes hidden">
             <div
-              class="card card-info flex-col"
-              data-is-open="true"
-              data-title="requestHeaders"
-            >
-              <div class="header-title border-b flex items-center">
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 16 16"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="#aaaaaa"
-                  class="arrow open mr-1 cursor-pointer"
-                >
-                  <path
-                    d="M5.56 14L5 13.587V2.393L5.54 2 11 7.627v.827L5.56 14z"
-                  />
-                </svg>
-                Request Headers
-              </div>
-              <div class="details"></div>
-            </div>
-          </div>
-          <div
-            class="card card-info flex-col"
-            data-is-open="true"
-            data-title="responseHeaders"
-          >
-            <div class="header-title border-b flex items-center">
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 16 16"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="#aaaaaa"
-                class="arrow open mr-1 cursor-pointer"
-              >
-                <path
-                  d="M5.56 14L5 13.587V2.393L5.54 2 11 7.627v.827L5.56 14z"
-                />
-              </svg>
-              Response Headers
-            </div>
-            <div class="details"></div>
-          </div>
+                class="border-l text-yellow-500 text-sky-500 text-red-500 text-indigo-500 text-blue-500 text-green-500 text-orange-500 text-emerald-500 text-gray-500"
+            ></div>
+        </div>
+        <!-- [CLOSE] TW Classes, Don't Touch -->
 
-          <div>
+        <!-- Main -->
+        <div class="screen h-screen w-full flex overflow-hidden font-semibold">
+            <!-- Navbar -->
             <div
-              class="body card card-info flex-col"
-              data-is-open="true"
-              data-title="requestBody"
+                class="navbar w-16 h-full bg-black flex flex-col justify-between pb-3"
             >
-              <div class="header-title border-b flex items-center">
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 16 16"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="#aaaaaa"
-                  class="arrow open mr-1 cursor-pointer"
-                >
-                  <path
-                    d="M5.56 14L5 13.587V2.393L5.54 2 11 7.627v.827L5.56 14z"
-                  />
-                </svg>
-
-                Request Body
-              </div>
-              <div class="details font-normal px-4"></div>
+                <div class="upper space-y-1 flex flex-col">
+                    <a
+                        href="https://jprq.io"
+                        target="_blank"
+                        class="nav-item opacity-50 hover:opacity-100 duration-200 w-full h-16 flex items-center justify-center p-3"
+                    >
+                        <svg
+                            viewBox="0 0 50 23"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path
+                                d="M49.862 22.3428C48.7666 22.3478 47.7137 22.3478 46.5868 22.3478C46.5868 21.4218 46.5868 20.5132 46.5868 19.6047C46.5868 18.7082 46.5868 17.8118 46.5868 16.8382C46.3177 16.9738 46.1016 17.0756 45.8921 17.1894C42.2168 19.1859 37.2413 16.9167 36.4563 12.6999C35.7529 8.92083 38.2684 5.522 42.1147 5.03516C44.106 4.78312 45.8148 5.38647 47.3883 6.53342C47.5362 6.64118 47.6799 6.7546 47.8561 6.88869C48.1463 6.57366 48.4557 6.27971 48.7142 5.94631C49.03 5.53911 49.3824 5.28548 49.9999 5.49094C49.9999 5.59866 49.9999 5.75785 49.9999 5.91705C49.9999 11.2362 50.0008 16.5553 49.996 21.8744C49.9958 22.0289 49.9363 22.1834 49.862 22.3428ZM46.122 13.0363C47.1723 11.248 46.2328 9.44327 44.9754 8.63766C43.4383 7.65284 41.2776 8.06965 40.3402 9.53876C39.3304 11.1213 39.728 13.323 41.2412 14.2478C42.8126 15.2082 44.9646 14.9072 46.122 13.0363Z"
+                                fill="white"
+                            />
+                            <path
+                                d="M19.1307 17.8614C17.4763 18.117 16.014 17.6538 14.5717 16.8332C14.5717 18.7058 14.5717 20.5011 14.5717 22.3232C13.4245 22.3232 12.3166 22.3232 11.1806 22.3232C11.1806 16.7 11.1806 11.082 11.1806 5.44397C12.3941 5.19333 12.589 6.44336 13.3685 6.85314C14.3353 6.04095 15.4421 5.40423 16.7212 5.12624C20.5318 4.29806 25.2475 6.9569 24.7821 12.064C24.5039 15.1168 22.5682 17.173 19.4857 17.7947C19.3808 17.8159 19.2756 17.8358 19.1307 17.8614ZM20.9354 13.1827C21.4129 12.3805 21.5148 11.5123 21.3176 10.6195C20.9061 8.75683 19.0252 7.71204 17.0417 8.21902C15.1911 8.69203 14.1739 10.5028 14.725 12.3971C15.1136 13.7329 16.05 14.512 17.4012 14.7135C18.8384 14.9279 20.0583 14.5011 20.9354 13.1827Z"
+                                fill="white"
+                            />
+                            <path
+                                d="M5.08577 7.51498C5.08577 6.79887 5.08577 6.12865 5.08577 5.43918C6.251 5.43918 7.37545 5.43918 8.55288 5.43918C8.55288 5.61595 8.55287 5.78014 8.55288 5.94434C8.55308 9.20091 8.53767 12.4576 8.55739 15.714C8.58255 19.8693 5.25673 22.0886 2.40113 22.2884C1.61391 22.3435 0.819567 22.2968 0 22.2968C0 21.299 0 20.2813 0 19.2365C0.50557 19.2365 1.02145 19.2737 1.52948 19.2265C2.08502 19.1749 2.68083 19.151 3.1754 18.9288C4.40632 18.3758 5.07727 17.3808 5.08107 16.0004C5.08881 13.1873 5.08489 10.374 5.08577 7.51498Z"
+                                fill="white"
+                            />
+                            <path
+                                d="M30.1152 17.1291C30.1149 17.3226 30.1149 17.4733 30.1149 17.6533C28.9768 17.6533 27.8717 17.6533 26.7385 17.6533C26.7385 13.5821 26.7385 9.52464 26.7385 5.45687C27.2174 5.35713 27.6053 5.37862 27.8843 5.85743C28.0898 6.21011 28.3832 6.51154 28.6717 6.87942C30.7433 5.10812 33.2296 5.43507 35.6851 5.44466C35.6851 6.47548 35.6851 7.47857 35.6851 8.53497C34.7234 8.53497 33.7647 8.50244 32.8098 8.54904C32.35 8.57149 31.8639 8.67044 31.4483 8.86197C30.5275 9.28636 30.1131 10.0661 30.1153 11.0779C30.1195 13.0807 30.1159 15.0834 30.1152 17.1291Z"
+                                fill="white"
+                            />
+                            <path
+                                d="M30.6329 19.184C32.1431 19.184 33.6074 19.184 35.1081 19.184C35.1081 20.1369 35.1081 21.0735 35.1081 22.0457C32.3167 22.0457 29.5156 22.0457 26.6899 22.0457C26.6899 21.1094 26.6899 20.1691 26.6899 19.184C27.999 19.184 29.293 19.184 30.6329 19.184Z"
+                                fill="white"
+                            />
+                            <path
+                                d="M8.90888 2.93885C8.09247 4.29303 6.40439 4.56508 5.22585 3.56018C4.62446 3.04739 4.39333 2.17499 4.66379 1.43867C4.99587 0.534599 6.04628 -0.0955531 7.04203 0.0119326C8.15825 0.132418 9.00719 0.879965 9.09103 1.8882C9.11873 2.22137 8.98525 2.56794 8.90888 2.93885Z"
+                                fill="white"
+                            />
+                        </svg>
+                    </a>
+                    <a
+                        href="https://github.com/azimjohn/jprq"
+                        target="_blank"
+                        class="nav-item opacity-50 hover:opacity-100 duration-200 w-full h-16 flex items-center justify-center p-4"
+                    >
+                        <svg
+                            width="50"
+                            height="51"
+                            viewBox="0 0 50 51"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path
+                                fill-rule="evenodd"
+                                clip-rule="evenodd"
+                                d="M25.0207 0C11.1849 0 0 11.5021 0 25.7317C0 37.1063 7.16655 46.7345 17.1084 50.1423C18.3514 50.3985 18.8067 49.5886 18.8067 48.9074C18.8067 48.3109 18.7658 46.2661 18.7658 44.1356C11.8056 45.6696 10.3562 41.0682 10.3562 41.0682C9.23769 38.086 7.58037 37.3196 7.58037 37.3196C5.30231 35.7433 7.7463 35.7433 7.7463 35.7433C10.2733 35.9137 11.5992 38.3846 11.5992 38.3846C13.8358 42.3036 17.4398 41.1963 18.8897 40.5145C19.0966 38.853 19.7599 37.7028 20.4641 37.0639C14.9128 36.4674 9.07227 34.2522 9.07227 24.3682C9.07227 21.5565 10.0658 19.2561 11.6402 17.467C11.3918 16.8281 10.5217 14.1863 11.8891 10.6504C11.8891 10.6504 14.0017 9.96865 18.7653 13.2917C20.8047 12.7285 22.9079 12.4419 25.0207 12.4395C27.1333 12.4395 29.2869 12.738 31.2756 13.2917C36.0396 9.96865 38.1523 10.6504 38.1523 10.6504C39.5197 14.1863 38.6491 16.8281 38.4007 17.467C40.0165 19.2561 40.9691 21.5565 40.9691 24.3682C40.9691 34.2522 35.1285 36.4245 29.5358 37.0639C30.4475 37.8732 31.2341 39.4067 31.2341 41.8352C31.2341 45.2858 31.1931 48.0552 31.1931 48.9069C31.1931 49.5886 31.649 50.3985 32.8914 50.1428C42.8333 46.734 49.9999 37.1063 49.9999 25.7317C50.0409 11.5021 38.815 0 25.0207 0Z"
+                                fill="white"
+                            />
+                        </svg>
+                    </a>
+                </div>
+                <div class="lower space-y-1 flex flex-col">
+                    <a
+                        href="https://github.com/azimjohn/jprq/issues/new"
+                        target="_blank"
+                        class="nav-item opacity-50 hover:opacity-100 duration-200 w-full h-16 flex items-center justify-center p-4"
+                    >
+                        <svg
+                            width="50"
+                            height="50"
+                            viewBox="0 0 50 50"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path
+                                d="M50 26.4242C50 26.7517 50 27.0791 49.9662 27.4601C49.6707 28.1923 49.1573 28.4729 48.4481 28.4717C45.78 28.4675 43.112 28.47 40.4439 28.47C40.2866 28.47 40.1292 28.47 39.9602 28.47C39.9602 29.4674 39.9602 30.4186 39.9602 31.2721C40.8018 31.5685 41.6163 31.8019 42.3856 32.1381C43.7177 32.7204 44.8172 33.6249 45.7136 34.7676C46.4865 35.753 47.0372 36.8592 47.3544 38.064C47.7256 39.4739 47.6967 40.925 47.6489 42.367C47.6104 43.5295 46.5823 44.006 45.573 43.6826C44.8189 43.441 44.6737 42.7925 44.6394 42.1357C44.5955 41.294 44.7282 40.4335 44.6055 39.6077C44.3794 38.0866 43.6912 36.7608 42.4951 35.7497C41.7558 35.1248 40.9395 34.6268 40.0173 34.4684C39.9251 35.4709 39.8632 36.4457 39.7407 37.4128C39.4685 39.5625 38.6803 41.5293 37.4887 43.329C36.2835 45.1491 34.7594 46.6663 32.8943 47.8109C31.4029 48.7262 29.8023 49.397 28.0658 49.7106C27.5952 49.7956 27.1286 49.9029 26.6602 50C25.5839 50 24.5076 50 23.371 49.9615C21.8371 49.8077 20.4347 49.4083 19.0833 48.8316C16.7971 47.8559 14.889 46.3785 13.3309 44.4481C12.2873 43.1551 11.4922 41.7255 10.933 40.161C10.2734 38.3156 9.9996 36.4136 10.0625 34.4434C9.87672 34.4911 9.70858 34.5239 9.54732 34.5773C7.15454 35.3701 5.37588 37.7492 5.36648 40.2707C5.36349 41.0724 5.34896 41.8786 5.26015 42.6739C5.18831 43.3173 4.68977 43.736 4.12992 43.7651C3.17775 43.8146 2.62214 43.538 2.45565 42.7871C2.33279 42.2329 2.36184 41.6427 2.34618 41.068C2.29532 39.2015 2.64286 37.4353 3.60291 35.7988C4.23382 34.7234 5.02016 33.7941 6.01966 33.0656C7.22055 32.1902 8.56236 31.6021 10.0312 31.3673C10.0312 30.3908 10.0312 29.4415 10.0312 28.47C7.19182 28.47 4.37972 28.4713 1.56762 28.4671C1.39628 28.4668 1.22566 28.4139 1.05356 28.4022C0.519902 28.3657 0.336522 27.8814 0 27.5933C0 27.2012 0 26.8091 0.0335291 26.3641C0.344426 26.0653 0.589473 25.7565 0.909172 25.5928C1.17508 25.4567 1.52859 25.4566 1.84352 25.4555C4.41458 25.4458 6.98569 25.45 9.55678 25.45C9.71409 25.45 9.8714 25.45 10.0586 25.45C10.0586 24.5629 10.0718 23.7216 10.0438 22.8817C10.0397 22.7603 9.85486 22.5696 9.72391 22.5394C8.66224 22.2947 7.64644 21.9409 6.72369 21.3555C4.89653 20.1963 3.60651 18.6112 2.86275 16.5705C2.26028 14.9175 2.3159 13.2076 2.35597 11.5009C2.37299 10.7763 3.0216 10.1881 3.6895 10.155C4.52034 10.1138 5.13475 10.5213 5.26106 11.3417C5.37262 12.0662 5.36395 12.8127 5.36647 13.5497C5.37316 15.5088 6.17686 17.0837 7.66089 18.3247C8.34895 18.9001 9.11943 19.3398 10.0586 19.5204C10.0586 19.0928 10.0685 18.7045 10.0568 18.3169C10.018 17.0328 11.1177 15.9019 12.4607 15.9024C16.0407 15.9036 19.6207 15.9025 23.2007 15.9038C23.3403 15.9038 23.4798 15.9182 23.6328 15.9266C23.6328 16.1413 23.6328 16.3184 23.6328 16.4956C23.6328 21.8851 23.6327 27.2746 23.6329 32.6642C23.633 33.4831 24.2362 34.1231 25.0038 34.1204C25.7727 34.1178 26.3671 33.4803 26.3671 32.6566C26.3673 27.2508 26.3672 21.8451 26.3672 16.4393C26.3672 16.2674 26.3672 16.0954 26.3672 15.9028C26.5834 15.9028 26.744 15.9028 26.9046 15.9028C30.3869 15.9028 33.8697 15.9318 37.3515 15.8892C38.8488 15.8709 40.0617 17.063 39.9455 18.4709C39.9177 18.8077 39.9414 19.1487 39.9414 19.5073C40.0538 19.4948 40.1357 19.499 40.2087 19.4755C41.3066 19.1232 42.2318 18.522 43.0186 17.6682C44.0514 16.5475 44.583 15.2448 44.6257 13.7368C44.6446 13.0718 44.6203 12.4056 44.6311 11.7402C44.6439 10.9593 45.2664 10.1997 45.9277 10.1569C46.8999 10.0941 47.4541 10.4805 47.6261 11.4159C47.7503 12.0913 47.651 12.8072 47.6569 13.505C47.6686 14.8852 47.3742 16.2076 46.7708 17.4379C45.4217 20.1885 43.2453 21.9112 40.2182 22.5341C40.1165 22.555 39.9565 22.6695 39.9551 22.743C39.9368 23.6433 39.9432 24.5442 39.9432 25.45C42.7131 25.45 45.4142 25.4473 48.1153 25.4517C48.9058 25.453 49.6158 25.6297 50 26.4242Z"
+                                fill="white"
+                            />
+                            <path
+                                d="M31.2843 0C32.3899 0.717911 32.3995 1.42558 31.9099 2.52179C31.6829 3.03024 31.4665 3.54371 31.2253 4.04548C31.1178 4.26906 31.1206 4.37395 31.3979 4.43765C32.3257 4.65084 33.1712 5.07849 33.866 5.7006C34.6849 6.43375 35.3295 7.31776 35.7034 8.37886C36.2073 9.80903 36.0681 11.2838 36.084 12.782C28.7191 12.782 21.3656 12.782 13.9098 12.782C13.9541 11.8019 13.9949 10.807 14.0451 9.81255C14.1025 8.67416 14.5348 7.67338 15.21 6.76734C16.0255 5.67313 17.0565 4.87641 18.4027 4.52734C18.9405 4.38791 18.9599 4.34763 18.7172 3.80627C18.4643 3.24229 18.2095 2.67889 17.971 2.10891C17.6442 1.32828 17.8095 0.491878 18.6982 0.0331629C19.0654 0 19.424 2.87117e-09 19.8356 0.032815C20.139 0.319565 20.4731 0.532296 20.6245 0.834991C21.122 1.83015 21.557 2.85633 22.0075 3.87432C22.1209 4.13057 22.2644 4.25159 22.5773 4.24792C24.2108 4.22877 25.8447 4.23337 27.4783 4.24479C27.7353 4.24659 27.8888 4.18639 27.9933 3.93879C28.3175 3.17028 28.6564 2.40762 29.0024 1.64843C29.2849 1.02854 29.5517 0.393165 30.1639 0C30.5224 0 30.881 0 31.2843 0Z"
+                                fill="white"
+                            />
+                        </svg>
+                    </a>
+                    <a
+                        href="https://buymeacoffee.com/azimjon"
+                        target="_blank"
+                        class="nav-item opacity-50 hover:opacity-100 duration-200 w-full h-16 flex items-center justify-center p-4"
+                    >
+                        <svg
+                            width="50"
+                            height="73"
+                            viewBox="0 0 50 73"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path
+                                d="M26.732 33.2674C24.1336 34.3748 21.1847 35.6303 17.3629 35.6303C15.7641 35.6272 14.173 35.4088 12.6331 34.9812L15.2763 61.997C15.3699 63.1259 15.8866 64.1789 16.7239 64.9463C17.5612 65.7138 18.6578 66.1394 19.7959 66.1394C19.7959 66.1394 23.5437 66.3331 24.7944 66.3331C26.1403 66.3331 30.1762 66.1394 30.1762 66.1394C31.3142 66.1394 32.4105 65.7132 33.2476 64.9457C34.0848 64.1783 34.6013 63.1259 34.6949 61.997L37.5259 32.1435C36.2608 31.7134 34.9839 31.4276 33.5445 31.4276C31.0551 31.4267 29.0492 32.2802 26.732 33.2674Z"
+                                fill="white"
+                            />
+                            <path
+                                d="M49.7493 19.248L49.3512 17.2493C48.9941 15.4561 48.1834 13.7616 46.3343 13.1135C45.7416 12.9061 45.0691 12.817 44.6146 12.3878C44.1601 11.9586 44.0258 11.2921 43.9207 10.674C43.726 9.53947 43.5431 8.40401 43.3436 7.27148C43.1713 6.29779 43.0351 5.20401 42.5864 4.31076C42.0025 3.11136 40.7908 2.40993 39.586 1.94587C38.9686 1.71644 38.3386 1.52236 37.6989 1.36458C34.6887 0.574019 31.5239 0.283373 28.4271 0.117705C24.7101 -0.0864725 20.9832 -0.0249565 17.275 0.30178C14.515 0.551736 11.608 0.85401 8.98518 1.80442C8.02658 2.15223 7.03874 2.56978 6.30984 3.30706C5.41543 4.21291 5.12347 5.61382 5.77647 6.74345C6.24072 7.54563 7.02709 8.1124 7.86114 8.48734C8.94751 8.97045 10.0821 9.33807 11.246 9.58407C14.4868 10.2971 17.8434 10.5771 21.1542 10.6963C24.8239 10.8437 28.4994 10.7242 32.1516 10.3387C33.0547 10.2399 33.9563 10.1214 34.8562 9.98322C35.916 9.82139 36.5963 8.44179 36.2839 7.48071C35.9101 6.33174 34.9058 5.88608 33.7701 6.0595C33.6027 6.08563 33.4363 6.10984 33.2688 6.13405L33.1482 6.1515C32.7634 6.19998 32.3787 6.24514 31.9939 6.28715C31.1992 6.37239 30.4024 6.44215 29.6037 6.49643C27.8149 6.62042 26.0213 6.67757 24.2287 6.6805C22.4671 6.6805 20.7046 6.63106 18.947 6.5158C18.1451 6.46349 17.3451 6.39694 16.5471 6.3162C16.184 6.27842 15.822 6.23872 15.46 6.19413L15.1154 6.15055L15.0406 6.13991L14.6834 6.08855C13.9534 5.97904 13.2235 5.85314 12.5014 5.701C12.4286 5.6849 12.3633 5.64458 12.3166 5.58661C12.2699 5.52866 12.2445 5.45657 12.2445 5.38227C12.2445 5.30797 12.2699 5.23588 12.3166 5.17793C12.3633 5.11998 12.4286 5.07963 12.5014 5.06353H12.515C13.1408 4.9308 13.7714 4.81745 14.404 4.71863C14.6149 4.68569 14.8264 4.6534 15.0386 4.62175H15.0444C15.4405 4.59559 15.8386 4.52486 16.2327 4.47836C19.662 4.12327 23.1116 4.00221 26.5576 4.11602C28.2305 4.16447 29.9025 4.26231 31.5676 4.43089C31.9258 4.46771 32.282 4.50646 32.6382 4.55005C32.7744 4.56653 32.9116 4.5859 33.0489 4.60237L33.3253 4.64209C34.1311 4.76158 34.9327 4.90658 35.7301 5.0771C36.9116 5.33287 38.4288 5.41618 38.9544 6.70471C39.1218 7.11354 39.1977 7.56793 39.2901 7.99709L39.4079 8.54449C39.411 8.55429 39.4132 8.56437 39.4147 8.57451C39.693 9.86627 39.9717 11.158 40.2507 12.4498C40.2712 12.5452 40.2716 12.6438 40.2521 12.7394C40.2326 12.8351 40.1935 12.9256 40.1372 13.0056C40.081 13.0855 40.0088 13.153 39.9252 13.2039C39.8415 13.2548 39.7483 13.288 39.6512 13.3014H39.6434L39.4731 13.3247L39.3047 13.3469C38.7714 13.4161 38.2374 13.4806 37.7028 13.5407C36.6498 13.6602 35.5951 13.7635 34.5389 13.8507C32.44 14.0244 30.3369 14.1385 28.2295 14.1927C27.1558 14.2211 26.0823 14.2344 25.0092 14.2324C20.7377 14.2291 16.47 13.9819 12.227 13.4922C11.7676 13.438 11.3083 13.3799 10.8489 13.3208C11.2051 13.3663 10.59 13.2859 10.4654 13.2685C10.1735 13.2278 9.8815 13.1855 9.58954 13.1416C8.6095 12.9952 7.63535 12.8151 6.65724 12.6571C5.4748 12.4634 4.34392 12.5603 3.27435 13.1416C2.39641 13.6198 1.68583 14.3532 1.23742 15.2439C0.776114 16.1933 0.638891 17.2271 0.432571 18.2473C0.226249 19.2674 -0.0949124 20.3651 0.0267392 21.4124C0.288534 23.6726 1.87585 25.5095 4.15901 25.9203C6.3069 26.3078 8.46646 26.6217 10.6318 26.8891C19.1381 27.9262 27.7316 28.0502 36.2644 27.2592C36.9593 27.1946 37.6532 27.1242 38.3461 27.048C38.5626 27.0243 38.7816 27.0491 38.9871 27.1206C39.1926 27.1921 39.3795 27.3085 39.534 27.4612C39.6886 27.6139 39.8068 27.7991 39.8801 28.0032C39.9534 28.2073 39.98 28.4251 39.9577 28.6407L39.7417 30.7315C39.3063 34.9561 38.871 39.1805 38.4356 43.4046C37.9815 47.8405 37.5244 52.2761 37.0644 56.711C36.9346 57.9605 36.8049 59.2093 36.6751 60.4576C36.5505 61.6873 36.533 62.9553 36.2985 64.1704C35.9286 66.0809 34.6294 67.2543 32.7336 67.6833C30.9967 68.0769 29.2224 68.2835 27.4412 68.2993C25.4666 68.31 23.4929 68.2227 21.5183 68.2334C19.4102 68.2453 16.8283 68.0516 15.2011 66.4896C13.7714 65.118 13.5739 62.97 13.3792 61.1125C13.1197 58.6536 12.8625 56.1952 12.6075 53.737L11.1769 40.0679L10.2514 31.2236C10.2357 31.0773 10.2202 30.933 10.2056 30.7857C10.0946 29.7307 9.34429 28.6979 8.16182 28.7512C7.14972 28.7957 5.99938 29.6522 6.1181 30.7857L6.80418 37.3427L8.22313 50.9062C8.62737 54.7588 9.0306 58.6119 9.43286 62.466C9.51075 63.2042 9.58371 63.9446 9.66544 64.6828C10.1102 68.7171 13.205 70.8911 17.0376 71.5031C19.276 71.8618 21.5688 71.9355 23.8403 71.9721C26.7522 72.0189 29.6933 72.1303 32.5574 71.605C36.8016 70.8297 39.986 68.0088 40.4404 63.6327C40.5702 62.3692 40.7 61.1057 40.8297 59.8416C41.2612 55.6615 41.692 51.481 42.1222 47.3002L43.5295 33.6399L44.1747 27.3794C44.2068 27.0689 44.3385 26.777 44.5503 26.5469C44.762 26.3168 45.0425 26.1606 45.3503 26.1014C46.5639 25.866 47.724 25.4639 48.5873 24.5445C49.9614 23.0807 50.2349 21.1721 49.7493 19.248ZM4.09672 20.5986C4.11521 20.5898 4.08115 20.7477 4.06656 20.8214C4.06364 20.7099 4.06947 20.6111 4.09672 20.5986ZM4.21449 21.5054C4.22422 21.4986 4.25341 21.5374 4.28358 21.5839C4.23784 21.5412 4.20865 21.5093 4.21351 21.5054H4.21449ZM4.3303 21.6575C4.39453 21.7728 4.37215 21.7282 4.3303 21.6575ZM4.5629 21.8454H4.56873C4.56873 21.8522 4.57944 21.859 4.58333 21.8658C4.57688 21.8583 4.56971 21.8515 4.56192 21.8454H4.5629ZM45.2939 21.5644C44.8579 21.9772 44.201 22.169 43.5518 22.2649C36.2722 23.3403 28.8865 23.8848 21.527 23.6445C16.26 23.4653 11.0484 22.883 5.83394 22.1496C5.32297 22.078 4.76921 21.9849 4.41788 21.61C3.7561 20.9027 4.08115 19.4786 4.25341 18.6241C4.41107 17.8413 4.71277 16.7979 5.64803 16.6865C7.10786 16.516 8.80317 17.1292 10.2475 17.3472C11.9863 17.6113 13.7316 17.8229 15.4833 17.9818C22.9596 18.66 30.5614 18.5543 38.0045 17.5623C39.3611 17.3808 40.713 17.1699 42.0599 16.9296C43.2599 16.7155 44.5903 16.3135 45.3153 17.5506C45.8126 18.3935 45.8788 19.5212 45.8019 20.4736C45.7782 20.8885 45.5961 21.2787 45.2929 21.5644H45.2939Z"
+                                fill="white"
+                            />
+                        </svg>
+                    </a>
+                </div>
             </div>
-          </div>
-          <div>
-            <div
-              class="body card card-info flex-col"
-              data-is-open="true"
-              data-title="responseBody"
-            >
-              <div class="header-title border-b flex items-center">
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 16 16"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="#aaaaaa"
-                  class="arrow open mr-1 cursor-pointer"
-                >
-                  <path
-                    d="M5.56 14L5 13.587V2.393L5.54 2 11 7.627v.827L5.56 14z"
-                  />
-                </svg>
+            <!-- [CLOSE] Navbar -->
 
-                Response Body
-              </div>
-              <div class="details">
+            <!-- Requests -->
+            <div
+                class="requests-wrapper w-52 lg:w-80 xl:w-96 h-full flex flex-col border-r"
+            >
                 <div
-                  class="px-4 font-normal py-2 text-black/70"
-                  style="font-size: smaller"
-                ></div>
-              </div>
+                    class="flex items-center justify-between text-black/60 px-5 py-6 border-b"
+                >
+                    <h6 class="hover:text-blue-700 cursor-pointer text-xl">
+                        jasurbek.jprq.live
+                    </h6>
+                    <h6 class="inline-flex items-center justify-center">
+                        <div class="online"></div>
+                        Online
+                    </h6>
+                </div>
+
+                <div
+                    id="requests"
+                    class="flex-1 overflow-y-auto scrollbar-hide"
+                >
+                    <div id="empty-requests-svg" class="text-center pt-8 px-12">
+                        <svg
+                            class="mx-auto"
+                            viewBox="0 0 211 93"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <g filter="url(#filter0_d_8_18)">
+                                <rect
+                                    x="13"
+                                    y="11"
+                                    width="164.35"
+                                    height="37.7949"
+                                    rx="4"
+                                    fill="white"
+                                />
+                            </g>
+                            <rect
+                                x="48.5043"
+                                y="24.171"
+                                width="92.7692"
+                                height="11.453"
+                                rx="2"
+                                fill="#EFEFEF"
+                            />
+                            <rect
+                                x="148.145"
+                                y="24.171"
+                                width="17.7521"
+                                height="11.453"
+                                rx="2"
+                                fill="#EF4444"
+                            />
+                            <rect
+                                x="23.8803"
+                                y="24.171"
+                                width="17.7521"
+                                height="11.453"
+                                rx="2"
+                                fill="#0EA5E9"
+                            />
+                            <g filter="url(#filter1_d_8_18)">
+                                <rect
+                                    x="33"
+                                    y="40.2051"
+                                    width="164.35"
+                                    height="37.7949"
+                                    rx="4"
+                                    fill="white"
+                                />
+                            </g>
+                            <rect
+                                x="68.5043"
+                                y="53.3761"
+                                width="92.7692"
+                                height="11.453"
+                                rx="2"
+                                fill="#EFEFEF"
+                            />
+                            <rect
+                                x="168.145"
+                                y="53.3761"
+                                width="17.7521"
+                                height="11.453"
+                                rx="2"
+                                fill="#22C55E"
+                            />
+                            <rect
+                                x="43.8803"
+                                y="53.3761"
+                                width="17.7521"
+                                height="11.453"
+                                rx="2"
+                                fill="#0EA5E9"
+                            />
+                            <defs>
+                                <filter
+                                    id="filter0_d_8_18"
+                                    x="0"
+                                    y="0"
+                                    width="190.35"
+                                    height="63.7949"
+                                    filterUnits="userSpaceOnUse"
+                                    color-interpolation-filters="sRGB"
+                                >
+                                    <feFlood
+                                        flood-opacity="0"
+                                        result="BackgroundImageFix"
+                                    />
+                                    <feColorMatrix
+                                        in="SourceAlpha"
+                                        type="matrix"
+                                        values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+                                        result="hardAlpha"
+                                    />
+                                    <feMorphology
+                                        radius="4"
+                                        operator="dilate"
+                                        in="SourceAlpha"
+                                        result="effect1_dropShadow_8_18"
+                                    />
+                                    <feOffset dy="2" />
+                                    <feGaussianBlur stdDeviation="4.5" />
+                                    <feComposite
+                                        in2="hardAlpha"
+                                        operator="out"
+                                    />
+                                    <feColorMatrix
+                                        type="matrix"
+                                        values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.08 0"
+                                    />
+                                    <feBlend
+                                        mode="normal"
+                                        in2="BackgroundImageFix"
+                                        result="effect1_dropShadow_8_18"
+                                    />
+                                    <feBlend
+                                        mode="normal"
+                                        in="SourceGraphic"
+                                        in2="effect1_dropShadow_8_18"
+                                        result="shape"
+                                    />
+                                </filter>
+                                <filter
+                                    id="filter1_d_8_18"
+                                    x="20"
+                                    y="29.2051"
+                                    width="190.35"
+                                    height="63.7949"
+                                    filterUnits="userSpaceOnUse"
+                                    color-interpolation-filters="sRGB"
+                                >
+                                    <feFlood
+                                        flood-opacity="0"
+                                        result="BackgroundImageFix"
+                                    />
+                                    <feColorMatrix
+                                        in="SourceAlpha"
+                                        type="matrix"
+                                        values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+                                        result="hardAlpha"
+                                    />
+                                    <feMorphology
+                                        radius="4"
+                                        operator="dilate"
+                                        in="SourceAlpha"
+                                        result="effect1_dropShadow_8_18"
+                                    />
+                                    <feOffset dy="2" />
+                                    <feGaussianBlur stdDeviation="4.5" />
+                                    <feComposite
+                                        in2="hardAlpha"
+                                        operator="out"
+                                    />
+                                    <feColorMatrix
+                                        type="matrix"
+                                        values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.08 0"
+                                    />
+                                    <feBlend
+                                        mode="normal"
+                                        in2="BackgroundImageFix"
+                                        result="effect1_dropShadow_8_18"
+                                    />
+                                    <feBlend
+                                        mode="normal"
+                                        in="SourceGraphic"
+                                        in2="effect1_dropShadow_8_18"
+                                        result="shape"
+                                    />
+                                </filter>
+                            </defs>
+                        </svg>
+                        <h5 class="text-xl mt-5">No requests yet</h5>
+                    </div>
+                </div>
             </div>
-          </div>
+            <!-- [CLOSE] Requests -->
+
+            <!-- Single Requst -->
+
+            <div id="info" class="flex-1">
+                <div
+                    id="RequestNotSelectedSvg"
+                    class="w-full h-full flex items-center justify-center cursor-default select-none text-gray-600 flex-col"
+                >
+                    <div
+                        class="px-8 py-2 mt-4 bg-gray-100 inline-block rounded-md"
+                    >
+                        Select a request to view more details
+                    </div>
+                </div>
+                <div
+                    id="SelectedRequestInfo"
+                    class="hidden flex-1 h-full flex flex-col"
+                >
+                    <div
+                        class="flex items-center text-black/60 px-10 py-6 border-b"
+                    >
+                        <h6
+                            class="mr-3 font-bold text-xl"
+                            id="requestMethod"
+                        ></h6>
+                        <h6
+                            class="text-gray-500 font-normal"
+                            id="requestUrl"
+                        ></h6>
+                    </div>
+                    <div class="flex-1 overflow-x-auto">
+                        <div>
+                            <div
+                                class="card card-info flex-col"
+                                data-is-open="true"
+                                data-title="requestHeaders"
+                            >
+                                <div
+                                    class="header-title border-b flex items-center"
+                                >
+                                    <svg
+                                        width="16"
+                                        height="16"
+                                        viewBox="0 0 16 16"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="#aaaaaa"
+                                        class="arrow open mr-1 cursor-pointer"
+                                    >
+                                        <path
+                                            d="M5.56 14L5 13.587V2.393L5.54 2 11 7.627v.827L5.56 14z"
+                                        />
+                                    </svg>
+                                    Request Headers
+                                </div>
+                                <div class="details"></div>
+                            </div>
+                        </div>
+                        <div
+                            class="card card-info flex-col"
+                            data-is-open="true"
+                            data-title="responseHeaders"
+                        >
+                            <div
+                                class="header-title border-b flex items-center"
+                            >
+                                <svg
+                                    width="16"
+                                    height="16"
+                                    viewBox="0 0 16 16"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="#aaaaaa"
+                                    class="arrow open mr-1 cursor-pointer"
+                                >
+                                    <path
+                                        d="M5.56 14L5 13.587V2.393L5.54 2 11 7.627v.827L5.56 14z"
+                                    />
+                                </svg>
+                                Response Headers
+                            </div>
+                            <div class="details"></div>
+                        </div>
+
+                        <div>
+                            <div
+                                class="body card card-info flex-col"
+                                data-is-open="true"
+                                data-title="requestBody"
+                            >
+                                <div
+                                    class="header-title border-b flex items-center"
+                                >
+                                    <svg
+                                        width="16"
+                                        height="16"
+                                        viewBox="0 0 16 16"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="#aaaaaa"
+                                        class="arrow open mr-1 cursor-pointer"
+                                    >
+                                        <path
+                                            d="M5.56 14L5 13.587V2.393L5.54 2 11 7.627v.827L5.56 14z"
+                                        />
+                                    </svg>
+
+                                    Request Body
+                                </div>
+                                <div class="details font-normal px-4"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div
+                                class="body card card-info flex-col"
+                                data-is-open="true"
+                                data-title="responseBody"
+                            >
+                                <div
+                                    class="header-title border-b flex items-center"
+                                >
+                                    <svg
+                                        width="16"
+                                        height="16"
+                                        viewBox="0 0 16 16"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="#aaaaaa"
+                                        class="arrow open mr-1 cursor-pointer"
+                                    >
+                                        <path
+                                            d="M5.56 14L5 13.587V2.393L5.54 2 11 7.627v.827L5.56 14z"
+                                        />
+                                    </svg>
+
+                                    Response Body
+                                </div>
+                                <div class="details">
+                                    <div
+                                        class="px-4 font-normal py-2 text-black/70"
+                                        style="font-size: smaller"
+                                    ></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- [CLOSE] Single Requst -->
         </div>
-      </div>
-      <!-- [CLOSE] Single Requst -->
-    </div>
-    <script src="script.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
-  </body>
+        <script src="script.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    </body>
 </html>
