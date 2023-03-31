@@ -9,3 +9,4 @@ bin/
 cli/jprq
 server/jprq-server
 website/jprq-website
+website/ssh/jprq-ssh
