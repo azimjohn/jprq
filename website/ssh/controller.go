@@ -2,26 +2,39 @@ package main
 
 import (
 	"context"
+	_ "embed"
+	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"golang.org/x/crypto/ssh"
 	"io"
 	"log"
 	"net/http"
 	"nhooyr.io/websocket"
-	"sync"
 	"time"
 )
 
+//go:embed xterm.html
+var html string
+
 func main() {
 	app := &App{}
-	http.HandleFunc("/ws/ssh", app.HandleWebsocket)
+	http.HandleFunc("/", contentHandler([]byte(html), "text/html"))
+	http.HandleFunc("/ws/ssh", app.ConnectionHandler)
 	log.Fatal(http.ListenAndServe(":2222", nil))
 }
 
 type App struct {
 }
 
-func (a *App) HandleWebsocket(w http.ResponseWriter, r *http.Request) {
+func contentHandler(content []byte, contentType string) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", contentType)
+		w.Write(content)
+	}
+}
+
+func (a *App) ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 	conn, err := websocket.Accept(w, r, nil)
 	if err != nil {
 		http.Error(w, "error accepting webSocket connection", 400)
@@ -29,7 +42,19 @@ func (a *App) HandleWebsocket(w http.ResponseWriter, r *http.Request) {
 	}
 	defer conn.Close(websocket.StatusNormalClosure, "closed")
 
-	info := ConnectionInfo{} // todo read from query params
+	var info ConnectionInfo
+	connection := r.URL.Query().Get("connection")
+	connInfo, err := base64.StdEncoding.DecodeString(connection)
+	if err != nil {
+		http.Error(w, "error parsing connection info", 400)
+		return
+	}
+
+	if err := json.Unmarshal(connInfo, &info); err != nil {
+		http.Error(w, "error parsing connection info", 400)
+		return
+	}
+
 	if err := a.ShellOverWS(r.Context(), conn, info); err != nil {
 		http.Error(w, err.Error(), 500)
 	}
@@ -56,11 +81,11 @@ func (a *App) ShellOverWS(ctx context.Context, ws *websocket.Conn, info Connecti
 
 	defer wsBuff.Flush(ctx, websocket.MessageBinary, ws)
 
-	var wg sync.WaitGroup
-	wg.Add(1)
+	done := make(chan bool, 3)
+	setDone := func() { done <- true }
 
 	go func(wc io.WriteCloser) {
-		defer wg.Done()
+		defer setDone()
 		for {
 			_, data, err := ws.Read(ctx)
 			if err != nil {
@@ -76,7 +101,7 @@ func (a *App) ShellOverWS(ctx context.Context, ws *websocket.Conn, info Connecti
 
 	stopper := make(chan bool)
 	go func() {
-		defer wg.Done()
+		defer setDone()
 		tick := time.NewTicker(time.Millisecond * 120)
 		defer tick.Stop()
 		for {
@@ -93,13 +118,13 @@ func (a *App) ShellOverWS(ctx context.Context, ws *websocket.Conn, info Connecti
 	}()
 
 	go func() {
-		defer wg.Done()
+		defer setDone()
 		if err := sshSession.Wait(); err != nil {
-			log.Println("ssh exist from server", err)
+			log.Println("ssh session closed: ", err)
 		}
 	}()
 
-	wg.Wait()
+	<-done
 	stopper <- true
 	return nil
 }
