@@ -35,7 +35,9 @@ func contentHandler(content []byte, contentType string) func(w http.ResponseWrit
 }
 
 func (a *App) ConnectionHandler(w http.ResponseWriter, r *http.Request) {
-	conn, err := websocket.Accept(w, r, nil)
+	conn, err := websocket.Accept(w, r, &websocket.AcceptOptions{
+		CompressionMode: websocket.CompressionDisabled,
+	})
 	if err != nil {
 		http.Error(w, "error accepting webSocket connection", 400)
 		return
