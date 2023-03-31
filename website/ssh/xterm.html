@@ -1,0 +1,109 @@
+<!doctype html>
+<html>
+<head>
+    <link rel="stylesheet" href="https://unpkg.com/xterm@3.14.5/dist/xterm.css">
+    <link rel="stylesheet" href="https://unpkg.com/xterm@3.14.5/dist/addons/fullscreen/fullscreen.css">
+    <script src="https://unpkg.com/xterm@3.14.5/dist/xterm.js"></script>
+    <script src="https://unpkg.com/xterm@3.14.5/dist/addons/fit/fit.js"></script>
+    <script src="https://unpkg.com/xterm@3.14.5/dist/addons/attach/attach.js"></script>
+    <style>
+        html, body { margin: 0; padding: 0; background: #0e1017; }
+        #terminal { height: 100%; min-height: 100vh; }
+        #terminal .terminal { padding: 8px; height: 100%; }
+    </style>
+</head>
+<body>
+<div id="terminal"></div>
+<script>
+    Terminal.applyAddon(fit);
+    Terminal.applyAddon(attach);
+
+    var term = new Terminal({
+        fontSize: 15,
+        cursorBlink: true,
+        fontFamily: '"Menlo for Powerline", Menlo, Consolas, "Liberation Mono", Courier, monospace',
+        theme: { foreground: '#acb4c2', background: '#0e1017', cursor: '#9ca1aa', black: '#1d3b53', red: '#fc514e', green: '#a1cd5e', yellow: '#e3d18a', blue: '#82aaff', magenta: '#c792ea', cyan: '#7fdbca', white: '#a1aab8', brightBlack: '#7c8f8f', brightRed: '#ff5874', brightGreen: '#21c7a8', brightYellow: '#ecc48d', brightBlue: '#82aaff', brightMagenta: '#ae81ff', brightCyan: '#7fdbca', brightWhite: '#d6deebbb'}
+    });
+    term.open(document.getElementById('terminal'));
+    term.fit();
+    window.onresize = () => term.fit();
+
+    term.writeln("   |  __ \\    __|    _\`|");
+    term.writeln("   |  |   |  |     (   |");
+    term.writeln("   |  .__/  _|    \\__, |");
+    term.writeln("__/  _|               _|\n");
+
+    term.focus();
+    let current = 0;
+    let currLine = "";
+    let prompts = [
+        {text: "$ Enter hostname: ", isSensitive: false, response: ''},
+        {text: "$ Enter username: ", isSensitive: false, response: ''},
+        {text: "$ Enter password: ", isSensitive: true, response: ''},
+    ];
+
+    term.write(prompts[current].text);
+
+    term.onKey((e) => {
+        const ev = e.domEvent;
+        const printable = !ev.altKey && !ev.ctrlKey && !ev.metaKey;
+        let prompt = prompts[current];
+
+        if (ev.keyCode === 13) {
+            if (current >= prompts.length) {
+                return;
+            }
+
+            prompt.response = currLine;
+            term.writeln("");
+
+            if(currLine === '') {
+                term.write(prompt.text);
+                return;
+            }
+
+            current += 1;
+            currLine = '';
+            if (current === prompts.length) {
+                term.write("connecting, please wait ");
+                setTimeout(() => term.write('.'), 750);
+                setTimeout(() => term.write('.'), 1500);
+                setTimeout(() => term.write('.'), 2250);
+                return;
+            }
+
+            prompt = prompts[current];
+            term.write(prompt.text);
+        } else if (ev.keyCode === 8) {
+            // Do not delete the prompt
+            if (term._core.buffer.x > prompt.text.length) {
+                currLine = currLine.slice(0, -1);
+                term.write('\b \b');
+            }
+        } else if (printable) {
+            currLine += ev.key;
+            term.write(prompt.isSensitive ? '*' : e.key);
+        }
+    });
+
+    term.attachCustomKeyEventHandler((arg) => {
+        if ((arg.metaKey || arg.ctrlKey) && arg.code === "KeyV" && arg.type === "keydown") {
+            navigator.clipboard.readText()
+                .then(text => {
+                    if (prompts.length > current) {
+                        currLine += text.trim();
+                        term.write(prompts[current].isSensitive ? '*'.repeat(text.length) : text);
+                    }
+                })
+        }
+        return true;
+    });
+</script>
+</body>
+</html>
+
+<!--
+https://codepen.io/mwelgharb/pen/qBEpLEe
+https://github.com/billchurch/webssh2
+https://github.com/tsl0922/ttyd/blob/c8e981500bdce6eea9a768ba21c6030b6319ceb4/html/js/app.js#L251
+-->
