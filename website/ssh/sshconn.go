@@ -7,6 +7,7 @@ import (
 	"log"
 	"net"
 	"strconv"
+	"time"
 )
 
 type Node struct {
@@ -35,6 +36,7 @@ func (node *Node) Connect(username string, auth ssh.AuthMethod) error {
 		HostKeyCallback: func(hostname string, remote net.Addr, key ssh.PublicKey) error {
 			return nil
 		},
+		Timeout: 11 * time.Second,
 	}
 	client, err := ssh.Dial("tcp", net.JoinHostPort(node.Host, strconv.Itoa(node.Port)), config)
 	if err != nil {
