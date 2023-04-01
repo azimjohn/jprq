@@ -35,7 +35,8 @@
     let current = 0;
     let currLine = "";
     let prompts = [
-        {text: "$ Enter hostname: ", isSensitive: false, response: ''},
+        {text: "$ Enter host: ", isSensitive: false, response: ''},
+        {text: "$ Enter port: ", isSensitive: false, response: ''},
         {text: "$ Enter username: ", isSensitive: false, response: ''},
         {text: "$ Enter password: ", isSensitive: true, response: ''},
     ];
@@ -61,7 +62,7 @@
             current += 1;
             currLine = '';
             if (current === prompts.length) {
-                connect(prompts[0].response, 22, prompts[1].response, prompts[2].response);
+                connect(prompts[0].response, prompts[1].response, prompts[2].response, prompts[3].response);
                 term.write("connecting, please wait ...");
                 return;
             }
@@ -94,7 +95,7 @@
 
     function connect(host, port, username, password) {
         let connection = {
-            host, port, username, password,
+            host, port: parseInt(port), username, password,
             window: {cols: term.cols, rows: term.rows},
         }
         let ws = new WebSocket(
