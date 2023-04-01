@@ -1,27 +1,33 @@
 <!doctype html>
 <html>
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content">
     <link rel="stylesheet" href="https://unpkg.com/xterm@3.14.5/dist/xterm.css">
     <link rel="stylesheet" href="https://unpkg.com/xterm@3.14.5/dist/addons/fullscreen/fullscreen.css">
-    <script src="https://unpkg.com/xterm@3.14.5/dist/xterm.js"></script>
     <script src="https://unpkg.com/xterm@3.14.5/dist/addons/fit/fit.js"></script>
     <script src="https://unpkg.com/xterm@3.14.5/dist/addons/attach/attach.js"></script>
+    <script src="https://unpkg.com/xterm@3.14.5/dist/xterm.js"></script>
     <style>
         html, body { margin: 0; padding: 0; background: #0e1017; }
-        #terminal { height: 100%; min-height: 100vh; }
-        #terminal .terminal { padding: 8px; height: 100%; }
+        #terminal .terminal { padding: 8px; }
     </style>
 </head>
 <body>
-<div id="terminal"></div>
+    <div id="terminal"></div>
 <script>
     Terminal.applyAddon(fit);
     var term = new Terminal({
         fontSize: 15,
         cursorBlink: true,
+        rendererType: isMobile() ? 'dom': 'canvas',
         fontFamily: '"Menlo for Powerline", Menlo, Consolas, "Liberation Mono", Courier, monospace',
-        theme: { foreground: '#acb4c2', background: '#0e1017', cursor: '#9ca1aa', black: '#1d3b53', red: '#fc514e', green: '#a1cd5e', yellow: '#e3d18a', blue: '#82aaff', magenta: '#c792ea', cyan: '#7fdbca', white: '#a1aab8', brightBlack: '#7c8f8f', brightRed: '#ff5874', brightGreen: '#21c7a8', brightYellow: '#ecc48d', brightBlue: '#82aaff', brightMagenta: '#ae81ff', brightCyan: '#7fdbca', brightWhite: '#d6deebbb'}
+        theme: { foreground: '#acb4c2', background: '#0e1017', cursor: '#9ca1aa', black: '#1d3b53', red: '#fc514e', green: '#a1cd5e', yellow: '#e3d18a', blue: '#82aaff', magenta: '#c792ea', cyan: '#7fdbca', white: '#a1aab8', brightBlack: '#7c8f8f', brightRed: '#ff5874', brightGreen: '#21c7a8', brightYellow: '#ecc48d', brightBlue: '#82aaff', brightMagenta: '#ae81ff', brightCyan: '#7fdbca', brightWhite: '#d6deeb'}
     });
+
+    if (!isMobile()) {
+        document.querySelector("#terminal").style.height = window.innerHeight+'px';
+    }
+
     term.open(document.getElementById('terminal'));
     term.fit();
     window.onresize = () => term.fit();
@@ -145,6 +151,12 @@
                 })
             );
         }
+    }
+
+    function isMobile () {
+        return /Mobile|iP(hone|od)|Android|BlackBerry|IEMobile|Kindle|Silk-Accelerated|(hpw|web)OS|Opera M(obi|ini)|(tablet|ipad|playbook|silk)|(android(?!.*mobi))/.test(
+            navigator.userAgent
+        );
     }
 </script>
 </body>
