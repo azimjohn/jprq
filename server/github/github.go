@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
-	"time"
 )
 
 const tokenPrefix = "gho_"
@@ -99,14 +98,6 @@ func (g github) Authenticate(token string) (User, error) {
 	err = json.NewDecoder(resp.Body).Decode(&user)
 	if err != nil {
 		return user, fmt.Errorf("failed to decode user data: %v", err)
-	}
-	date, err := time.Parse(time.RFC3339, user.JoinedDate)
-	if err != nil {
-		return user, fmt.Errorf("failed to parse joined date: %v", err)
-	}
-
-	if date.Year() > 2022 {
-		return user, fmt.Errorf("user joined github after 2022")
 	}
 	user.Login = strings.ToLower(user.Login)
 	return user, nil
