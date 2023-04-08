@@ -113,14 +113,7 @@ func (j *Jprq) serveEventConn(conn net.Conn) error {
 	if err != nil {
 		return events.WriteError(conn, "authentication failed")
 	}
-	date, err := time.Parse(time.RFC3339, user.JoinedDate)
-	if err != nil {
-		return events.WriteError(conn, "Could not parse joined date")
-	}
 
-	if date.Year() > 2022 {
-		return events.WriteError(conn, "Rejecting login request from user who joined github after 2023; user: %s", user.Login)
-	}
 	if reason, found := j.blockedUsers[user.ID]; found {
 		return events.WriteError(conn, "your account is blocked for %s", reason)
 	}
