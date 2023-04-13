@@ -109,9 +109,16 @@ func (j *Jprq) serveEventConn(conn net.Conn) error {
 	if request.Protocol != events.HTTP && request.Protocol != events.TCP {
 		return events.WriteError(conn, "invalid protocol %s", request.Protocol)
 	}
-	user, err := j.authenticator.Authenticate(request.AuthToken)
-	if err != nil {
-		return events.WriteError(conn, "authentication failed")
+
+	//user, err := j.authenticator.Authenticate(request.AuthToken)
+	//if err != nil {
+	//	return events.WriteError(conn, "authentication failed")
+	//}
+
+	user := github.User{
+		ID:    0,
+		Name:  "custom",
+		Login: "custom",
 	}
 
 	if reason, found := j.blockedUsers[user.ID]; found {

@@ -60,9 +60,19 @@ func main() {
 		subdomain = validate(args[2])
 	}
 
-	var conf Config
-	if err := conf.Load(); err != nil {
-		log.Fatal(err)
+	conf := Config{
+		Remote: struct {
+			Domain string `json:"domain"`
+			Events string `json:"events"`
+		}{
+			Domain: os.Getenv("DOMAIN"),
+			Events: os.Getenv("EVENTS"),
+		},
+		Local: struct {
+			AuthToken string `json:"auth_token"`
+		}{
+			AuthToken: "",
+		},
 	}
 	if !canReachServer(port) {
 		log.Fatalf("error: cannot reach server on port: %d\n", port)
