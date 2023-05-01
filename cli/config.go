@@ -22,11 +22,11 @@ type Config struct {
 }
 
 func (c *Config) Load() error {
-	homeDir, err := os.UserHomeDir()
+	configDir, err := os.UserConfigDir()
 	if err != nil {
-		return fmt.Errorf("error getting user home directory: %s", err)
+		return fmt.Errorf("error getting user config directory: %s", err)
 	}
-	filePath := filepath.Join(homeDir, localConfig)
+	filePath := filepath.Join(configDir, "jprq", localConfig)
 	data, err := os.ReadFile(filePath)
 	if err != nil {
 		return fmt.Errorf("error: no auth token, obtain at https://jprq.io/auth")
@@ -51,11 +51,15 @@ func (c *Config) Write() error {
 	if err != nil {
 		return fmt.Errorf("error marshaling config: %s", err)
 	}
-	homeDir, err := os.UserHomeDir()
+	configDir, err := os.UserConfigDir()
 	if err != nil {
-		return fmt.Errorf("error getting user home directory: %s", err)
+		return fmt.Errorf("error getting user config directory: %s", err)
 	}
-	filePath := filepath.Join(homeDir, localConfig)
+	dirPath := filepath.Join(configDir, "jprq")
+    if err := os.Mkdir(dirPath, 0700); err != nil && os.IsNotExist(err) {
+		return fmt.Errorf("error creating config directory: %s", err)
+    }
+    filePath := filepath.Join(dirPath, localConfig)
 	file, err := os.OpenFile(filePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
 		return fmt.Errorf("error creating config file: %s", err)
