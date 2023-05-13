@@ -20,6 +20,7 @@ func printHelp() {
 	fmt.Println("  tcp <port>                 Start a TCP tunnel on the specified port")
 	fmt.Println("  http <port>                Start an HTTP tunnel on the specified port")
 	fmt.Println("  http <port> -s <subdomain> Start an HTTP tunnel with a custom subdomain")
+	fmt.Println("  http <port> --debug        Debug an HTTP tunnel with Jprq Debugger")
 	fmt.Println("  --help                     Show this help message")
 	fmt.Println("  --version                  Show the version number")
 	os.Exit(0)
@@ -56,9 +57,10 @@ func main() {
 		log.Fatalf("port number must be an integer")
 	}
 	subdomain := ""
-	if len(args) == 3 && args[1] == "-s" {
+	if len(args) > 3 && args[1] == "-s" {
 		subdomain = validate(args[2])
 	}
+	debug := args[len(args)-1] == "--debug"
 
 	var conf Config
 	if err := conf.Load(); err != nil {
@@ -77,7 +79,7 @@ func main() {
 		subdomain: subdomain,
 	}
 
-	go client.Start(port)
+	go client.Start(port, debug)
 
 	signalChan := make(chan os.Signal, 1)
 	signal.Notify(signalChan, os.Interrupt)
@@ -109,7 +111,7 @@ func handleAuth(args []string) {
 }
 
 func canReachServer(port int) bool {
-	address := fmt.Sprintf("127.0.0.1:%d", port)
+	address := fmt.Sprintf("10.0.8.15:%d", port)
 	conn, err := net.DialTimeout("tcp", address, 512*time.Millisecond)
 	if err != nil {
 		return false

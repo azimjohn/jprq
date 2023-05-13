@@ -264,8 +264,12 @@ const populate_fake_requests = async () => {
 };
 function main() {
     populate_fake_requests();
-    // let sse = new EventSource("/events");
-    // sse.onmessage = handleEvent;
+    let sse = new EventSource("/events");
+    sse.onmessage = handleEvent;
+    sse.onerror = function () {
+        sse.close();
+        document.querySelector("#connection-status").innerHTML = '<div class="offline"></div> Offline';
+    }
 }
 
 main();

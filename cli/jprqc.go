@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/binary"
 	"fmt"
+	"github.com/azimjohn/jprq/cli/debugger"
 	"github.com/azimjohn/jprq/server/events"
 	"github.com/azimjohn/jprq/server/tunnel"
 	"log"
@@ -17,9 +18,10 @@ type jprqClient struct {
 	localServer  string
 	remoteServer string
 	publicServer string
+	httpDebugger debugger.Debugger
 }
 
-func (j *jprqClient) Start(port int) {
+func (j *jprqClient) Start(port int, debug bool) {
 	eventCon, err := net.Dial("tcp", j.config.Remote.Events)
 	if err != nil {
 		log.Fatalf("error connecting to event server: %s\n", err)
@@ -50,13 +52,20 @@ func (j *jprqClient) Start(port int) {
 	j.remoteServer = fmt.Sprintf("jprq.%s:%d", j.config.Remote.Domain, tunnel.Data.PrivateServer)
 	j.publicServer = fmt.Sprintf("%s:%d", tunnel.Data.Hostname, tunnel.Data.PublicServer)
 
+	fmt.Printf("Status: \t Online \n")
+	fmt.Printf("Protocol: \t %s \n", strings.ToUpper(j.protocol))
+	fmt.Printf("Forwarded: \t %s -> %s \n", j.publicServer, j.localServer)
+
 	if j.protocol == "http" {
 		j.publicServer = fmt.Sprintf("https://%s", tunnel.Data.Hostname)
 	}
 
-	fmt.Printf("Status: \t Online \n")
-	fmt.Printf("Protocol: \t %s \n", strings.ToUpper(j.protocol))
-	fmt.Printf("Forwarded: \t %s -> %s \n", j.publicServer, j.localServer)
+	if j.protocol == "http" && debug {
+		j.httpDebugger = debugger.New()
+		if port, err := j.httpDebugger.Run(0); err == nil {
+			fmt.Printf("Http Debugger: \t http://127.0.0.1:%d \n", port)
+		}
+	}
 
 	var event events.Event[events.ConnectionReceived]
 	for {

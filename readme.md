@@ -39,6 +39,16 @@ For exposing any TCP servers, such as SSH
 $ jprq tcp 22
 ```
 
+For using custom subdomains
+```bash
+$ jprq http 3000 -s custom
+```
+
+For using jprq debugger (with v2.1 or higher)
+```bash
+jprq http 3000 --debug
+```
+
 Press Ctrl+C to stop it
 
 <a href="https://www.buymeacoffee.com/azimjon" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>
