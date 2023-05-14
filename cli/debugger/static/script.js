@@ -230,19 +230,22 @@ const changeRequestInfo = (request) => {
 const handleEvent = (e) => {
     let event = JSON.parse(e.data);
     if ("request_id" in event) {
-        // Event is response
-        const request = requests.find(
-            (request) => request.id == event.request_id
-        );
-        if (request) {
-            request.response = event;
-            update_request_status(request.id, event.status);
-            if (request.id == active_request_id) {
-                updateResponseHeaders(request.response.headers);
-                updateResponseBody(request.response.body);
-                highlight_code();
+        // Event is response, add latency for race condition
+        setTimeout(function () {
+            const request = requests.find(
+                (request) => request.id == event.request_id
+            );
+            if (request) {
+                request.response = event;
+                update_request_status(request.id, event.status);
+                if (request.id == active_request_id) {
+                    updateResponseHeaders(request.response.headers);
+                    updateResponseBody(request.response.body);
+                    highlight_code();
+                }
             }
-        }
+        }, 250);
+
     } else {
         try {
             event["response"] = {};

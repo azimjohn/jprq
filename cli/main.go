@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-var version = "2.0"
+var version = "2.1"
 
 func printHelp() {
 	fmt.Println("Usage: jprq <command> [arguments]\n")
