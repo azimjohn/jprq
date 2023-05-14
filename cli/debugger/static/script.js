@@ -107,11 +107,16 @@ const update_request_status = (request_id, status) => {
 
 const prettifyJson = (json_str) => {
     try {
-        JSON.parse(json_str);
+        return JSON.stringify(JSON.parse(json_str.replace(/\\/g, '')), null, 2)
     } catch {
-        return json_str;
+        return json_str
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
     }
-    return JSON.stringify(json_str, null, 2);
+    return json_str;
 };
 
 const selectRequest = (request_id) => {
@@ -185,7 +190,7 @@ const updateResponseBody = (responseBody) => {
             createElementFromHTML("<div class='ml-12 block loader'></div>")
         );
     }
-    responseBodyEl.innerText = `
+    responseBodyEl.innerHTML = `
     <pre><code class="language-json text-normal">${prettifyJson(
         responseBody
     )}</code></pre>`;
@@ -201,7 +206,7 @@ const updateRequestBody = (requestBody) => {
             createElementFromHTML("<div class='ml-12 block loader'></div>")
         );
     }
-    requestBodyEl.innerText = `
+    requestBodyEl.innerHTML = `
     <pre><code class="language-json text-normal">${prettifyJson(
         requestBody
     )}</code></pre>`;

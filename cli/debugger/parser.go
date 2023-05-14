@@ -34,7 +34,6 @@ func parseRequests(r io.Reader, conId string, process func(interface{})) {
 			Id:      conId + strconv.Itoa(i),
 			Method:  req.Method,
 			URL:     req.URL.String(),
-			Body:    "<todo>",
 			Headers: req.Header,
 		}
 
@@ -58,7 +57,6 @@ func parseResponses(r io.Reader, conId string, process func(interface{})) {
 		r := response{
 			RequestId: conId + strconv.Itoa(i),
 			Status:    resp.StatusCode,
-			Body:      "<todo>",
 			Headers:   resp.Header,
 		}
 
