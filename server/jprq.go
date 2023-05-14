@@ -4,11 +4,6 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
-	"github.com/azimjohn/jprq/server/config"
-	"github.com/azimjohn/jprq/server/events"
-	"github.com/azimjohn/jprq/server/github"
-	"github.com/azimjohn/jprq/server/server"
-	"github.com/azimjohn/jprq/server/tunnel"
 	"io"
 	"log"
 	"net"
@@ -16,6 +11,12 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/azimjohn/jprq/server/config"
+	"github.com/azimjohn/jprq/server/events"
+	"github.com/azimjohn/jprq/server/github"
+	"github.com/azimjohn/jprq/server/server"
+	"github.com/azimjohn/jprq/server/tunnel"
 )
 
 const dateFormat = "2006/01/02 15:04:05"
@@ -112,6 +113,7 @@ func (j *Jprq) serveEventConn(conn net.Conn) error {
 	if err != nil {
 		return events.WriteError(conn, "authentication failed")
 	}
+
 	if reason, found := j.blockedUsers[user.ID]; found {
 		return events.WriteError(conn, "your account is blocked for %s", reason)
 	}

@@ -12,6 +12,9 @@
 
 ## How to install
 
+Installing on Windows: [youtube.com/watch?v=frgVQPi-GlY](https://youtube.com/watch?v=frgVQPi-GlY)
+
+Installing on MacOs and Linux
 ```bash
 $ curl -fsSL https://jprq.io/install.sh | sudo bash
 ```

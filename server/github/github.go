@@ -11,9 +11,10 @@ import (
 const tokenPrefix = "gho_"
 
 type User struct {
-	ID    int    `json:"id"`
-	Name  string `json:"name"`
-	Login string `json:"login"`
+	ID         int    `json:"id"`
+	Name       string `json:"name"`
+	Login      string `json:"login"`
+	JoinedDate string `json:"created_at"`
 }
 
 type Authenticator interface {

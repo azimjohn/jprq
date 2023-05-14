@@ -10,3 +10,4 @@ cli/jprq
 server/jprq-server
 website/jprq-website
 cli/web/static/jsconfig.json
+website/ssh/jprq-ssh
