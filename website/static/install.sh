@@ -2,7 +2,7 @@
 
 set -e
 
-URL_PREFIX="https://github.com/azimjohn/jprq/releases/download/2.0"
+URL_PREFIX="https://github.com/azimjohn/jprq/releases/download/2.1"
 INSTALL_DIR="/usr/local/bin"
 
 case "$(uname -sm)" in
