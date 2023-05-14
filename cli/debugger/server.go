@@ -40,7 +40,6 @@ func New() Debugger {
 		listeners:   make(map[int64]chan<- interface{}),
 		connections: make(map[uint16]*conn),
 	}
-
 	http.HandleFunc("/", contentHandler(html, "text/html"))
 	http.HandleFunc("/script.js", contentHandler(js, "text/javascript"))
 	http.HandleFunc("/style.css", contentHandler(css, "text/css"))
@@ -67,16 +66,11 @@ func (c *conn) Response() io.Writer {
 
 func (d *debugger) Connection(id uint16) Conn {
 	c := &conn{}
+	d.connections[id] = c
 	c.requestReader, c.requestWriter = nio.Pipe(buffer.New(1 << 18))
 	c.responseReader, c.responseWriter = nio.Pipe(buffer.New(1 << 18))
-
-	d.connections[id] = c
-	go parseRequests(c.requestReader, strconv.Itoa(int(id)), func(event interface{}) {
-		d.dispatchEvent(event)
-	})
-	go parseResponses(c.responseReader, strconv.Itoa(int(id)), func(event interface{}) {
-		d.dispatchEvent(event)
-	})
+	go parseRequests(c.requestReader, strconv.Itoa(int(id)), d.dispatchEvent)
+	go parseResponses(c.responseReader, strconv.Itoa(int(id)), d.dispatchEvent)
 	return c
 }
 
