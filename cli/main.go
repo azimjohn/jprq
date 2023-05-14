@@ -111,7 +111,7 @@ func handleAuth(args []string) {
 }
 
 func canReachServer(port int) bool {
-	address := fmt.Sprintf("10.0.8.15:%d", port)
+	address := fmt.Sprintf("127.0.0.1:%d", port)
 	conn, err := net.DialTimeout("tcp", address, 512*time.Millisecond)
 	if err != nil {
 		return false

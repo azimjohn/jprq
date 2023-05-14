@@ -1,25 +1,43 @@
 package debugger
 
 import (
+	"bytes"
 	_ "embed"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net"
 	"net/http"
+	"strconv"
 	"time"
 )
 
-type debugger struct {
-	listeners map[int64]chan<- interface{}
+type Conn interface {
+	Request() io.Writer
+	Response() io.Writer
 }
 
 type Debugger interface {
 	Run(port int) (int, error)
+	Connection(id uint16) Conn
+}
+
+type conn struct {
+	request  bytes.Buffer
+	response bytes.Buffer
+}
+
+type debugger struct {
+	listeners   map[int64]chan<- interface{}
+	connections map[uint16]*conn
 }
 
 func New() Debugger {
-	listeners := make(map[int64]chan<- interface{})
-	d := &debugger{listeners: listeners}
+	d := &debugger{
+		listeners:   make(map[int64]chan<- interface{}),
+		connections: make(map[uint16]*conn),
+	}
+
 	http.HandleFunc("/", contentHandler(html, "text/html"))
 	http.HandleFunc("/script.js", contentHandler(js, "text/javascript"))
 	http.HandleFunc("/style.css", contentHandler(css, "text/css"))
@@ -34,6 +52,29 @@ func (d *debugger) Run(port int) (int, error) {
 	}
 	go http.Serve(listener, nil)
 	return listener.Addr().(*net.TCPAddr).Port, nil
+}
+
+func (c *conn) Request() io.Writer {
+	return &c.request
+}
+
+func (c *conn) Response() io.Writer {
+	return &c.response
+}
+
+func (d *debugger) Connection(id uint16) Conn {
+	c := &conn{
+		bytes.Buffer{},
+		bytes.Buffer{},
+	}
+	d.connections[id] = c
+	go parseRequests(&c.request, strconv.Itoa(int(id)), func(event interface{}) {
+		d.dispatchEvent(event)
+	})
+	go parseResponses(&c.response, strconv.Itoa(int(id)), func(event interface{}) {
+		d.dispatchEvent(event)
+	})
+	return c
 }
 
 func (d *debugger) dispatchEvent(event interface{}) {
