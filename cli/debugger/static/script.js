@@ -106,16 +106,26 @@ const update_request_status = (request_id, status) => {
 };
 
 const prettifyJson = (json_str) => {
-    return JSON.stringify(json_str, null, 2);
+    try {
+        return JSON.stringify(JSON.parse(json_str.replace(/\\/g, '')), null, 2)
+    } catch {
+        return json_str
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+    return json_str;
 };
 
 const selectRequest = (request_id) => {
-    request = requests.find((request) => request.id === request_id);
+    request = requests.find((request) => request.id == request_id);
     removeRequestNotSelectedIcon();
     changeRequestInfo(request);
     let requestEls = document.querySelector("#requests");
     for (let requestEl of requestEls.childNodes) {
-        if (parseInt(requestEl.dataset.id) === request_id) {
+        if (parseInt(requestEl.dataset.id) == request_id) {
             requestEl.dataset.isActive = true;
         } else {
             requestEl.dataset.isActive = false;
@@ -163,7 +173,7 @@ const updateResponseHeaders = (responseHeaders) => {
     }
     let responseHeadersHtml = "";
     Object.keys(responseHeaders).forEach((key) => {
-        responseHeadersHtml += makeHeaderItem(key, responseHeaders[key]);
+        responseHeadersHtml += makeHeaderItem(key, responseHeaders[key][0]);
     });
     responseHeadersEl.replaceChildren(
         createElementFromHTML(responseHeadersHtml)
@@ -171,7 +181,6 @@ const updateResponseHeaders = (responseHeaders) => {
 };
 
 const updateResponseBody = (responseBody) => {
-    console.log(responseBody);
     let responseBodyEl = document
         .getElementById("info")
         .querySelector('[data-title="responseBody"]')
@@ -188,7 +197,6 @@ const updateResponseBody = (responseBody) => {
 };
 
 const updateRequestBody = (requestBody) => {
-    console.log(requestBody);
     let requestBodyEl = document
         .getElementById("info")
         .querySelector('[data-title="requestBody"]')
@@ -220,16 +228,16 @@ const changeRequestInfo = (request) => {
 };
 
 const handleEvent = (e) => {
-    let event = JSON.parse(e)["data"];
+    let event = JSON.parse(e.data);
     if ("request_id" in event) {
         // Event is response
         const request = requests.find(
-            (request) => request.id === event.request_id
+            (request) => request.id == event.request_id
         );
         if (request) {
             request.response = event;
             update_request_status(request.id, event.status);
-            if (request.id === active_request_id) {
+            if (request.id == active_request_id) {
                 updateResponseHeaders(request.response.headers);
                 updateResponseBody(request.response.body);
                 highlight_code();
@@ -247,25 +255,13 @@ const handleEvent = (e) => {
     }
 };
 
-const populate_fake_requests = async () => {
-    for (let i = 0; i < 10; i++) {
-        await new Promise((r) => setTimeout(r, Math.random() * 1000));
-
-        handleEvent(
-            `{"data": {"id": ${i}, "method":"GET","url":"https://google.com","body":"","headers":{"keep-alive":"true"}}}`
-        );
-        await new Promise((r) => setTimeout(r, 1500));
-
-        setTimeout(() => {}, 3000);
-        handleEvent(
-            `{"data": {"request_id": ${i}, "status":200,"headers":{"accept":"Json"},"body":[1,2,3]}}`
-        );
-    }
-};
 function main() {
-    populate_fake_requests();
-    // let sse = new EventSource("/events");
-    // sse.onmessage = handleEvent;
+    let sse = new EventSource("/events");
+    sse.onmessage = handleEvent;
+    sse.onerror = function () {
+        sse.close();
+        document.querySelector("#connection-status").innerHTML = '<div class="offline"></div> Offline';
+    }
 }
 
 main();

@@ -84,7 +84,7 @@
         <li>It can expose TCP protocols, such as HTTP, SSH, all major databases</li>
     </ul>
 
-    <h3>How to install</h3>
+    <h3>How to install/update</h3>
     <pre>$ <code class="language-sh">curl -fsSL https://jprq.io/install.sh | sudo bash</code></pre>
 
     <h3>Authenticate</h3>
@@ -98,6 +98,14 @@
     <h3>Start tcp tunnel</h3>
     <p>For exposing any TCP servers, such as SSH</p>
     <pre>$ <code class="language-sh">jprq tcp 22</code></pre>
+
+    <h3>Start http tunnel with custom subdomain</h3>
+    <p>Replace "custom" with the subdomain you want</p>
+    <pre>$ <code class="language-sh">jprq http 3000 -s custom</code></pre>
+
+    <h3>Debug http tunnels with jprq debugger</h3>
+    <p>Add --debug flag at the end of the command</p>
+    <pre>$ <code class="language-sh">jprq http 3000 --debug</code></pre>
 </main>
 
 <script>
