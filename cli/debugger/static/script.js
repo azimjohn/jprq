@@ -244,8 +244,7 @@ const handleEvent = (e) => {
                     highlight_code();
                 }
             }
-        }, 250);
-
+        }, 345);
     } else {
         try {
             event["response"] = {};
