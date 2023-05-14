@@ -6,12 +6,13 @@
         <link rel="stylesheet" href="style.css" />
         <!-- Highlight.js -->
         <style>
-            pre code.hljs {
+            code.hljs {
                 display: block;
                 overflow-x: auto;
                 padding-left: 1em;
                 padding-right: 1em;
             }
+
             code.hljs {
                 padding: 3px 5px;
             }
@@ -435,9 +436,9 @@
                     class="flex items-center justify-between text-black/60 px-5 py-6 border-b"
                 >
                     <h6 class="hover:text-blue-700 cursor-pointer text-xl">
-                        jasurbek.jprq.live
+                        Jprq Debugger
                     </h6>
-                    <h6 class="inline-flex items-center justify-center">
+                    <h6 id="connection-status" class="inline-flex items-center justify-center">
                         <div class="online"></div>
                         Online
                     </h6>
@@ -478,7 +479,7 @@
                                 width="17.7521"
                                 height="11.453"
                                 rx="2"
-                                fill="#EF4444"
+                                fill="#EFEFEF"
                             />
                             <rect
                                 x="23.8803"
@@ -486,7 +487,7 @@
                                 width="17.7521"
                                 height="11.453"
                                 rx="2"
-                                fill="#0EA5E9"
+                                fill="#EFEFEF"
                             />
                             <g filter="url(#filter1_d_8_18)">
                                 <rect
@@ -512,7 +513,7 @@
                                 width="17.7521"
                                 height="11.453"
                                 rx="2"
-                                fill="#22C55E"
+                                fill="#EFEFEF"
                             />
                             <rect
                                 x="43.8803"
@@ -520,7 +521,7 @@
                                 width="17.7521"
                                 height="11.453"
                                 rx="2"
-                                fill="#0EA5E9"
+                                fill="#EFEFEF"
                             />
                             <defs>
                                 <filter
@@ -681,30 +682,6 @@
                                 <div class="details"></div>
                             </div>
                         </div>
-                        <div
-                            class="card card-info flex-col"
-                            data-is-open="true"
-                            data-title="responseHeaders"
-                        >
-                            <div
-                                class="header-title border-b flex items-center"
-                            >
-                                <svg
-                                    width="16"
-                                    height="16"
-                                    viewBox="0 0 16 16"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="#aaaaaa"
-                                    class="arrow open mr-1 cursor-pointer"
-                                >
-                                    <path
-                                        d="M5.56 14L5 13.587V2.393L5.54 2 11 7.627v.827L5.56 14z"
-                                    />
-                                </svg>
-                                Response Headers
-                            </div>
-                            <div class="details"></div>
-                        </div>
 
                         <div>
                             <div
@@ -733,6 +710,32 @@
                                 <div class="details font-normal px-4"></div>
                             </div>
                         </div>
+
+                        <div
+                                class="card card-info flex-col"
+                                data-is-open="true"
+                                data-title="responseHeaders"
+                        >
+                            <div
+                                    class="header-title border-b flex items-center"
+                            >
+                                <svg
+                                        width="16"
+                                        height="16"
+                                        viewBox="0 0 16 16"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="#aaaaaa"
+                                        class="arrow open mr-1 cursor-pointer"
+                                >
+                                    <path
+                                            d="M5.56 14L5 13.587V2.393L5.54 2 11 7.627v.827L5.56 14z"
+                                    />
+                                </svg>
+                                Response Headers
+                            </div>
+                            <div class="details"></div>
+                        </div>
+
                         <div>
                             <div
                                 class="body card card-info flex-col"

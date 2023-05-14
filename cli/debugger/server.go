@@ -1,10 +1,11 @@
 package debugger
 
 import (
-	"bytes"
 	_ "embed"
 	"encoding/json"
 	"fmt"
+	"github.com/djherbis/buffer"
+	"github.com/djherbis/nio/v3"
 	"io"
 	"net"
 	"net/http"
@@ -23,8 +24,10 @@ type Debugger interface {
 }
 
 type conn struct {
-	request  bytes.Buffer
-	response bytes.Buffer
+	requestReader  io.Reader
+	requestWriter  io.Writer
+	responseReader io.Reader
+	responseWriter io.Writer
 }
 
 type debugger struct {
@@ -55,23 +58,23 @@ func (d *debugger) Run(port int) (int, error) {
 }
 
 func (c *conn) Request() io.Writer {
-	return &c.request
+	return c.requestWriter
 }
 
 func (c *conn) Response() io.Writer {
-	return &c.response
+	return c.responseWriter
 }
 
 func (d *debugger) Connection(id uint16) Conn {
-	c := &conn{
-		bytes.Buffer{},
-		bytes.Buffer{},
-	}
+	c := &conn{}
+	c.requestReader, c.requestWriter = nio.Pipe(buffer.New(1 << 18))
+	c.responseReader, c.responseWriter = nio.Pipe(buffer.New(1 << 18))
+
 	d.connections[id] = c
-	go parseRequests(&c.request, strconv.Itoa(int(id)), func(event interface{}) {
+	go parseRequests(c.requestReader, strconv.Itoa(int(id)), func(event interface{}) {
 		d.dispatchEvent(event)
 	})
-	go parseResponses(&c.response, strconv.Itoa(int(id)), func(event interface{}) {
+	go parseResponses(c.responseReader, strconv.Itoa(int(id)), func(event interface{}) {
 		d.dispatchEvent(event)
 	})
 	return c

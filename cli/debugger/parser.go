@@ -25,10 +25,9 @@ type response struct {
 
 func parseRequests(r io.Reader, conId string, process func(interface{})) {
 	for i := 0; ; i++ {
-		fmt.Println("parsing requests")
 		req, err := http.ReadRequest(bufio.NewReader(r))
-		fmt.Println("parsing requests finished")
 		if err != nil {
+			fmt.Println("[debugger] error parsing http request", err)
 			break
 		}
 		r := request{
@@ -38,6 +37,13 @@ func parseRequests(r io.Reader, conId string, process func(interface{})) {
 			Body:    "<todo>",
 			Headers: req.Header,
 		}
+
+		if length := parseContentLength(r.Headers); length > 0 && length < 65536 {
+			body, _ := io.ReadAll(req.Body)
+			r.Body = string(body)
+		} else {
+			io.Copy(io.Discard, req.Body)
+		}
 		process(r)
 	}
 }
@@ -46,6 +52,7 @@ func parseResponses(r io.Reader, conId string, process func(interface{})) {
 	for i := 0; ; i++ {
 		resp, err := http.ReadResponse(bufio.NewReader(r), nil)
 		if err != nil {
+			fmt.Println("[debugger] error parsing http response", err)
 			break
 		}
 		r := response{
@@ -54,6 +61,22 @@ func parseResponses(r io.Reader, conId string, process func(interface{})) {
 			Body:      "<todo>",
 			Headers:   resp.Header,
 		}
+
+		if length := parseContentLength(r.Headers); length > 0 && length < 65536 {
+			body, _ := io.ReadAll(resp.Body)
+			r.Body = string(body)
+		} else {
+			io.Copy(io.Discard, resp.Body)
+		}
 		process(r)
 	}
+}
+
+func parseContentLength(headers http.Header) int {
+	if header := headers["Content-Length"]; len(header) > 0 {
+		if length, err := strconv.Atoi(header[0]); err == nil {
+			return length
+		}
+	}
+	return 0
 }

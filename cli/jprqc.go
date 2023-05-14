@@ -104,8 +104,9 @@ func (j *jprqClient) handleEvent(event events.ConnectionReceived) {
 	}
 
 	debugCon := j.httpDebugger.Connection(event.ClientPort)
+
 	go bind(localCon, remoteCon, debugCon.Response())
-	bind(remoteCon, localCon, debugCon.Response())
+	bind(remoteCon, localCon, debugCon.Request())
 }
 
 func bind(src net.Conn, dst net.Conn, debugCon io.Writer) error {
