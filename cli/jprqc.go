@@ -110,6 +110,7 @@ func (j *jprqClient) handleEvent(event events.ConnectionReceived) {
 }
 
 func bind(src net.Conn, dst net.Conn, debugCon io.Writer) error {
+	defer src.Close()
 	defer dst.Close()
 	buf := make([]byte, 4096)
 	for {

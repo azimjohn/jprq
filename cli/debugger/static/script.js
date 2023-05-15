@@ -60,7 +60,7 @@ const addRequest = (request) => {
     const requestElHTML = `
     <div class="card cursor-pointer request border-l border-t" onclick="selectRequest(${
         request.id
-    })" data-is-active="false" data-id=${request.id}>
+    })" data-is-active="false" data-id="${request.id}">
         <div class="method w-20 text-${methodColor}">${request.method}</div>
         <div class="path flex-1 text-black/60" title=${request.url}>
 		${request.url.slice(0, 20)}${request.url.length > 20 ? "..." : ""}
@@ -69,7 +69,7 @@ const addRequest = (request) => {
     </div>
     `;
     const requestElJS = createElementFromHTML(requestElHTML);
-    requestsEl.prepend(requestElJS);
+    requestsEl.prepend(requestElJS.firstChild);
 };
 
 const removeEmptyRequestsIcon = () => {

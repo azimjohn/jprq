@@ -120,6 +120,7 @@ func (t *tunnel) privateConnectionHandler(privateCon net.Conn) error {
 }
 
 func Bind(src net.Conn, dst net.Conn) error {
+	defer src.Close()
 	defer dst.Close()
 	buf := make([]byte, 4096)
 	for {
