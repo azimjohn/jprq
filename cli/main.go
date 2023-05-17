@@ -56,11 +56,18 @@ func main() {
 	if err != nil {
 		log.Fatalf("port number must be an integer")
 	}
+
 	subdomain := ""
-	if len(args) > 3 && args[1] == "-s" {
+	var debug bool
+	if len(args) > 2 && args[1] == "-s" {
 		subdomain = validate(args[2])
+		debug = args[len(args)-1] == "--debug"
+	} else if len(args) > 2 && args[2] == "-s" {
+		subdomain = validate(args[3])
+		debug = args[1] == "--debug"
+	} else {
+		debug = args[len(args)-1] == "--debug"
 	}
-	debug := args[len(args)-1] == "--debug"
 
 	var conf Config
 	if err := conf.Load(); err != nil {
