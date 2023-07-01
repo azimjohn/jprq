@@ -14,11 +14,10 @@ const (
 )
 
 type ConnectionInfo struct {
-	Host       string       `json:"host"`
-	Port       int          `json:"port"`
-	Username   string       `json:"username"`
-	Password   string       `json:"password"`
-	WindowSize WindowResize `json:"window"`
+	Host     string `json:"host"`
+	Port     int    `json:"port"`
+	Username string `json:"username"`
+	Password string `json:"password"`
 }
 
 type SSHWebSocketMessage struct {
@@ -30,7 +29,7 @@ type TerminalMessage struct {
 	DataBase64 string `json:"base64"`
 }
 
-type WindowResize struct {
+type WindowSize struct {
 	Cols int `json:"cols"`
 	Rows int `json:"rows"`
 }
@@ -49,9 +48,9 @@ func DispatchMessage(sshSession *ssh.Session, data []byte, wc io.WriteCloser) er
 	case SSHWebSocketMessageTypeHeartbeat:
 		return nil
 	case SSHWebSocketMessageTypeResize:
-		var resize WindowResize
+		var resize WindowSize
 		if err := json.Unmarshal(socketData, &resize); err != nil {
-			return nil // skip error
+			return nil
 		}
 		sshSession.WindowChange(resize.Rows, resize.Cols)
 	case SSHWebSocketMessageTypeTerminal:

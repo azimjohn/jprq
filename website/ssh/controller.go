@@ -11,6 +11,7 @@ import (
 	"log"
 	"net/http"
 	"nhooyr.io/websocket"
+	"strconv"
 	"time"
 )
 
@@ -34,7 +35,7 @@ func contentHandler(content []byte, contentType string) func(w http.ResponseWrit
 	}
 }
 
-func (a *App) ConnectionHandler(w http.ResponseWriter, r *http.Request) {
+func (app *App) ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 	conn, err := websocket.Accept(w, r, &websocket.AcceptOptions{
 		CompressionMode: websocket.CompressionDisabled,
 	})
@@ -44,25 +45,30 @@ func (a *App) ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer conn.Close(websocket.StatusNormalClosure, "closed")
 
-	var info ConnectionInfo
-	connection := r.URL.Query().Get("connection")
-	connInfo, err := base64.StdEncoding.DecodeString(connection)
+	params := r.URL.Query()
+	connBase64 := params.Get("connection")
+	connInfo, err := base64.StdEncoding.DecodeString(connBase64)
 	if err != nil {
-		http.Error(w, "error parsing connection info", 400)
+		log.Println("could not decode base64 connection string: ", connBase64)
 		return
 	}
 
+	var info ConnectionInfo
 	if err := json.Unmarshal(connInfo, &info); err != nil {
-		http.Error(w, "error parsing connection info", 400)
+		log.Println("error parsing connection info: ", connBase64)
 		return
 	}
 
-	if err := a.ShellOverWS(r.Context(), conn, info); err != nil {
-		http.Error(w, err.Error(), 500)
+	window := WindowSize{}
+	window.Cols, _ = strconv.Atoi(params.Get("cols"))
+	window.Rows, _ = strconv.Atoi(params.Get("rows"))
+
+	if err := app.ShellOverWS(r.Context(), conn, info, window); err != nil {
+		log.Println("could not establish ssh connection: ", err.Error())
 	}
 }
 
-func (a *App) ShellOverWS(ctx context.Context, ws *websocket.Conn, info ConnectionInfo) error {
+func (app *App) ShellOverWS(ctx context.Context, ws *websocket.Conn, info ConnectionInfo, window WindowSize) error {
 	auth := ssh.Password(info.Password)
 	session := SSHShellSession{
 		Node: NewSSHNode(info.Host, info.Port),
@@ -76,7 +82,7 @@ func (a *App) ShellOverWS(ctx context.Context, ws *websocket.Conn, info Connecti
 	}
 	defer session.Close()
 
-	sshSession, err := session.Config(info.WindowSize.Cols, info.WindowSize.Rows)
+	sshSession, err := session.Config(window.Cols, window.Rows)
 	if err != nil {
 		return fmt.Errorf("configure ssh error: %w", err)
 	}

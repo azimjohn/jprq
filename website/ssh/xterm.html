@@ -47,7 +47,13 @@
         {text: "$ Enter password: ", isSensitive: true, response: ''},
     ];
 
-    term.write(prompts[current].text);
+    const urlParams = new URLSearchParams(window.location.search);
+    const connection = urlParams.get('c');
+    if (connection){
+        connect(connection);
+    } else {
+        term.write(prompts[current].text);
+    }
 
     let disposable = term.onKey((e) => {
         const ev = e.domEvent;
@@ -68,9 +74,13 @@
             current += 1;
             currLine = '';
             if (current === prompts.length) {
-                connect(prompts[0].response, prompts[1].response, prompts[2].response, prompts[3].response);
-                term.write("connecting, please wait ...");
-                return;
+                let connection = {
+                    host: prompts[0].response,
+                    port: parseInt(prompts[1].response),
+                    username:prompts[2].response,
+                    password:prompts[3].response
+                }
+                return connect(btoa(JSON.stringify(connection)));
             }
             prompt = prompts[current];
             term.write(prompt.text);
@@ -99,20 +109,18 @@
         return true;
     });
 
-    function connect(host, port, username, password) {
-        let connection = {
-            host, port: parseInt(port), username, password,
-            window: {cols: term.cols, rows: term.rows},
-        }
+    function connect(connectionString) {
+        term.write("connecting, please wait ...");
         let ws = new WebSocket(
             ((window.location.protocol === "https:") ? "wss://" : "ws://") +
-            window.location.host + "/ws/ssh?connection=" + btoa(JSON.stringify(connection))
+            window.location.host + "/ws/ssh?connection=" + connectionString +
+            "&cols=" + term.cols + "&rows=" + term.rows
         );
         ws.binaryType = 'arraybuffer'
-
         ws.onopen = () => {
             term.writeln('');
             disposable.dispose();
+            term.attachCustomKeyEventHandler(function () {});
             attach.attach(term, ws);
 
             term.onData((data) => {
