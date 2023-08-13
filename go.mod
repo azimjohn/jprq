@@ -10,6 +10,8 @@ require (
 )
 
 require (
+	github.com/anmitsu/go-shlex v0.0.0-20200514113438-38f4b401e2be // indirect
+	github.com/gliderlabs/ssh v0.3.5 // indirect
 	github.com/klauspost/compress v1.10.3 // indirect
 	golang.org/x/sys v0.6.0 // indirect
 )

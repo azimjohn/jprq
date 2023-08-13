@@ -1,30 +1,30 @@
-package main
+package jprqc
 
 import (
-	"encoding/binary"
 	"fmt"
 	"github.com/azimjohn/jprq/cli/debugger"
 	"github.com/azimjohn/jprq/server/events"
-	"github.com/azimjohn/jprq/server/tunnel"
-	"io"
 	"log"
 	"net"
+	"os/user"
 	"strings"
-	"time"
 )
 
-type jprqClient struct {
-	config       Config
-	protocol     string
-	subdomain    string
+var Version = "2.2"
+
+type JprqClient struct {
+	Config       Config
+	Server       string
+	Protocol     string
+	Subdomain    string
 	localServer  string
 	remoteServer string
 	publicServer string
 	httpDebugger debugger.Debugger
 }
 
-func (j *jprqClient) Start(port int, debug bool) {
-	eventCon, err := net.Dial("tcp", j.config.Remote.Events)
+func (j *JprqClient) Start(port int, debug bool) {
+	eventCon, err := net.Dial("tcp", j.Config.Remote.Events)
 	if err != nil {
 		log.Fatalf("error connecting to event server: %s\n", err)
 	}
@@ -32,10 +32,10 @@ func (j *jprqClient) Start(port int, debug bool) {
 
 	request := events.Event[events.TunnelRequested]{
 		Data: &events.TunnelRequested{
-			Protocol:   j.protocol,
-			Subdomain:  j.subdomain,
-			AuthToken:  j.config.Local.AuthToken,
-			CliVersion: version,
+			Protocol:   j.Protocol,
+			Subdomain:  j.Subdomain,
+			AuthToken:  j.Config.Local.AuthToken,
+			CliVersion: Version,
 		},
 	}
 	if err := request.Write(eventCon); err != nil {
@@ -51,22 +51,28 @@ func (j *jprqClient) Start(port int, debug bool) {
 	}
 
 	j.localServer = fmt.Sprintf("127.0.0.1:%d", port)
-	j.remoteServer = fmt.Sprintf("jprq.%s:%d", j.config.Remote.Domain, tunnel.Data.PrivateServer)
+	j.remoteServer = fmt.Sprintf("jprq.%s:%d", j.Config.Remote.Domain, tunnel.Data.PrivateServer)
 	j.publicServer = fmt.Sprintf("%s:%d", tunnel.Data.Hostname, tunnel.Data.PublicServer)
 
 	fmt.Printf("Status: \t Online \n")
-	fmt.Printf("Protocol: \t %s \n", strings.ToUpper(j.protocol))
+	fmt.Printf("Protocol: \t %s \n", strings.ToUpper(j.Protocol))
 	fmt.Printf("Forwarded: \t %s -> %s \n", j.publicServer, j.localServer)
 
-	if j.protocol == "http" {
+	if j.Protocol == "http" {
 		j.publicServer = fmt.Sprintf("https://%s", tunnel.Data.Hostname)
 	}
 
-	if j.protocol == "http" && debug {
+	if j.Protocol == "http" && debug {
 		j.httpDebugger = debugger.New()
 		if port, err := j.httpDebugger.Run(0); err == nil {
 			fmt.Printf("Http Debugger: \t http://127.0.0.1:%d \n", port)
 		}
+	}
+
+	if j.Server == "ssh" {
+		u, _ := user.Current()
+		conn := fmt.Sprintf("%s@%d", u.Username, tunnel.Data.PublicServer)
+		log.Printf("Web Console: \t https://ssh.jprq.io?c=%s", conn)
 	}
 
 	var event events.Event[events.ConnectionReceived]
@@ -76,55 +82,4 @@ func (j *jprqClient) Start(port int, debug bool) {
 		}
 		go j.handleEvent(*event.Data)
 	}
-}
-
-func (j *jprqClient) handleEvent(event events.ConnectionReceived) {
-	localCon, err := net.Dial("tcp", j.localServer)
-	if err != nil {
-		log.Printf("error connecting to local server: %s\n", err)
-		return
-	}
-	defer localCon.Close()
-
-	remoteCon, err := net.Dial("tcp", j.remoteServer)
-	if err != nil {
-		log.Printf("error connecting to remote server: %s\n", err)
-		return
-	}
-	defer remoteCon.Close()
-
-	buffer := make([]byte, 2)
-	binary.LittleEndian.PutUint16(buffer, event.ClientPort)
-	remoteCon.Write(buffer)
-
-	if j.httpDebugger == nil {
-		go tunnel.Bind(localCon, remoteCon)
-		tunnel.Bind(remoteCon, localCon)
-		return
-	}
-
-	debugCon := j.httpDebugger.Connection(event.ClientPort)
-
-	go bind(localCon, remoteCon, debugCon.Response())
-	bind(remoteCon, localCon, debugCon.Request())
-}
-
-func bind(src net.Conn, dst net.Conn, debugCon io.Writer) error {
-	defer src.Close()
-	defer dst.Close()
-	buf := make([]byte, 4096)
-	for {
-		_ = src.SetReadDeadline(time.Now().Add(time.Second))
-		n, err := src.Read(buf)
-		if err == io.EOF {
-			break
-		}
-		_ = dst.SetWriteDeadline(time.Now().Add(time.Second))
-		_, err = dst.Write(buf[:n])
-		if err != nil {
-			return err
-		}
-		_, err = debugCon.Write(buf[:n])
-	}
-	return nil
 }
