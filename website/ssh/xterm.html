@@ -8,24 +8,51 @@
     <script src="https://unpkg.com/xterm@3.14.5/dist/addons/attach/attach.js"></script>
     <script src="https://unpkg.com/xterm@3.14.5/dist/xterm.js"></script>
     <style>
-        html, body { margin: 0; padding: 0; background: #0e1017; }
-        #terminal .terminal { padding: 8px; }
+        html, body {
+            margin: 0;
+            padding: 0;
+            background: #0e1017;
+        }
+
+        #terminal .terminal {
+            padding: 8px;
+        }
     </style>
 </head>
 <body>
-    <div id="terminal"></div>
+<div id="terminal"></div>
 <script>
     Terminal.applyAddon(fit);
     var term = new Terminal({
         fontSize: 15,
         cursorBlink: true,
-        rendererType: isMobile() ? 'dom': 'canvas',
+        rendererType: isMobile() ? 'dom' : 'canvas',
         fontFamily: '"Menlo for Powerline", Menlo, Consolas, "Liberation Mono", Courier, monospace',
-        theme: { foreground: '#acb4c2', background: '#0e1017', cursor: '#9ca1aa', black: '#1d3b53', red: '#fc514e', green: '#a1cd5e', yellow: '#e3d18a', blue: '#82aaff', magenta: '#c792ea', cyan: '#7fdbca', white: '#a1aab8', brightBlack: '#7c8f8f', brightRed: '#ff5874', brightGreen: '#21c7a8', brightYellow: '#ecc48d', brightBlue: '#82aaff', brightMagenta: '#ae81ff', brightCyan: '#7fdbca', brightWhite: '#d6deeb'}
+        theme: {
+            foreground: '#acb4c2',
+            background: '#0e1017',
+            cursor: '#9ca1aa',
+            black: '#1d3b53',
+            red: '#fc514e',
+            green: '#a1cd5e',
+            yellow: '#e3d18a',
+            blue: '#82aaff',
+            magenta: '#c792ea',
+            cyan: '#7fdbca',
+            white: '#a1aab8',
+            brightBlack: '#7c8f8f',
+            brightRed: '#ff5874',
+            brightGreen: '#21c7a8',
+            brightYellow: '#ecc48d',
+            brightBlue: '#82aaff',
+            brightMagenta: '#ae81ff',
+            brightCyan: '#7fdbca',
+            brightWhite: '#d6deeb'
+        }
     });
 
     if (!isMobile()) {
-        document.querySelector("#terminal").style.height = window.innerHeight+'px';
+        document.querySelector("#terminal").style.height = window.innerHeight + 'px';
     }
 
     term.open(document.getElementById('terminal'));
@@ -49,11 +76,15 @@
 
     const urlParams = new URLSearchParams(window.location.search);
     const connection = urlParams.get('c');
-    if (connection){
-        connect(connection);
-    } else {
-        term.write(prompts[current].text);
+
+    if (connection) {
+        let [username, port] = connection.split('@');
+        prompts[0].response = 'ssh.jprq.live';
+        prompts[1].response = port;
+        prompts[2].response = username;
+        current = 3;
     }
+    term.write(prompts[current].text);
 
     let disposable = term.onKey((e) => {
         const ev = e.domEvent;
@@ -67,7 +98,7 @@
             prompt.response = currLine;
             term.writeln("");
 
-            if(currLine === '') {
+            if (currLine === '') {
                 term.write(prompt.text);
                 return;
             }
@@ -77,8 +108,8 @@
                 let connection = {
                     host: prompts[0].response,
                     port: parseInt(prompts[1].response),
-                    username:prompts[2].response,
-                    password:prompts[3].response
+                    username: prompts[2].response,
+                    password: prompts[3].response
                 }
                 return connect(btoa(JSON.stringify(connection)));
             }
@@ -120,7 +151,8 @@
         ws.onopen = () => {
             term.writeln('');
             disposable.dispose();
-            term.attachCustomKeyEventHandler(function () {});
+            term.attachCustomKeyEventHandler(function () {
+            });
             attach.attach(term, ws);
 
             term.onData((data) => {
@@ -134,7 +166,7 @@
         }
 
         const heartBeatTimer = setInterval(function () {
-            ws.send(JSON.stringify({ type: 'heartbeat', data: '' }))
+            ws.send(JSON.stringify({type: 'heartbeat', data: ''}))
         }, 10000);
 
         ws.onclose = () => {
@@ -161,7 +193,7 @@
         }
     }
 
-    function isMobile () {
+    function isMobile() {
         return /Mobile|iP(hone|od)|Android|BlackBerry|IEMobile|Kindle|Silk-Accelerated|(hpw|web)OS|Opera M(obi|ini)|(tablet|ipad|playbook|silk)|(android(?!.*mobi))/.test(
             navigator.userAgent
         );
