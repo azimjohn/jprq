@@ -34,6 +34,9 @@ func parseHost(r io.Reader) (string, []byte, error) {
 	text := string(buffer)
 	left := strings.Index(text, "Host: ")
 	if left < 0 {
+		left = strings.Index(text, "host: ")
+	}
+	if left < 0 {
 		return "", buffer, fmt.Errorf("no host detected")
 	}
 	text = text[left+6:] // drops chars "Host: "
