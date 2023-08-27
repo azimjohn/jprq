@@ -12,12 +12,33 @@
 
 ## How to install
 
-Installing on Windows: [youtube.com/watch?v=frgVQPi-GlY](https://youtube.com/watch?v=frgVQPi-GlY)
+<details>
+<summary>Windows</summary>
+<p align='center'><a href="https://youtube.com/watch?v=frgVQPi-GlY">📹Video tutorial</a><br></p>
 
-Installing on MacOs and Linux
+1. Install the latest <a href='https://github.com/azimjohn/jprq/releases'>release</a> of JPRQ<br>
+2. Place the file where it is convenient for you<br><br>
+<i>(At this point, you can use the program, but you will need to manually call the <code>.exe</code> file)</i><br>
+3. Create <b>jprq.bat</b> file so we can use the "jprq" keyword to call the <b>.exe</b> file<br>
+    
+    ```bash
+    @echo off
+    "C:\Exact\Path\To\File\jprq-windows-386.exe" %*
+    ```
+
+4. Awesome! Finally, we need to <a href="https://www.youtube.com/watch?v=gb9e3m98avk">add to the environment variable "PATH"</a>, the path to the folder where we created .bat file <i>(step 3)</i><br><br>
+<p align='center'><b>Congratulations!</b> You can check if everything is working with the jprq command in CMD</p>
+<hr>
+    
+</details>
+
+<details>
+    <summary> MacOs and Linux</summary>
+
 ```bash
 $ curl -fsSL https://jprq.io/install.sh | sudo bash
 ```
+</details>
 
 ## How to use
 
