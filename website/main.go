@@ -3,10 +3,11 @@ package main
 import (
 	_ "embed"
 	"fmt"
-	"github.com/azimjohn/jprq/server/github"
 	"log"
 	"net/http"
 	"os"
+
+	"github.com/azimjohn/jprq/server/github"
 )
 
 var oauth github.Authenticator

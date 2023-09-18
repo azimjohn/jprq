@@ -29,7 +29,9 @@ func printHelp() {
 func main() {
 	log.SetFlags(0)
 	if len(os.Args) < 2 {
-		log.Fatal("no command specified")
+		log.Println("no command specified")
+		printHelp()
+		os.Exit(1)
 	}
 
 	command := os.Args[1]
