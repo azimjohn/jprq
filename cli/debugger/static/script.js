@@ -1,7 +1,10 @@
 const requestsEl = document.getElementById("requests");
 const infoSections = document.getElementsByClassName("card-info");
 let requests = [];
+let responses_without_requests = []
 let active_request_id = -1;
+const DEBUG = false;
+
 
 for (let infoSection of infoSections) {
     let title = infoSection.getElementsByClassName("header-title")[0];
@@ -45,12 +48,7 @@ const getMethodColor = (method) => {
 const getStatusColor = (status) => {
     let first_digit = Math.floor(status / 100);
     const colors = {
-        1: "gray-500",
-        2: "green-500",
-        3: "yellow-500",
-        4: "red-500",
-        5: "rose-500",
-        DEFAULT: "gray-500",
+        1: "gray-500", 2: "green-500", 3: "yellow-500", 4: "red-500", 5: "rose-500", DEFAULT: "gray-500",
     };
     return first_digit in colors ? colors[first_digit] : colors["DEFAULT"];
 };
@@ -58,9 +56,7 @@ const getStatusColor = (status) => {
 const addRequest = (request) => {
     let methodColor = getMethodColor(request.method);
     const requestElHTML = `
-    <div class="card cursor-pointer request border-l border-t" onclick="selectRequest(${
-        request.id
-    })" data-is-active="false" data-id="${request.id}">
+    <div class="card cursor-pointer request border-l border-t" onclick="selectRequest(${request.id})" data-is-active="false" data-id="${request.id}">
         <div class="method w-20 text-${methodColor}">${request.method}</div>
         <div class="path flex-1 text-black/60" title=${request.url}>
 		${request.url.slice(0, 20)}${request.url.length > 20 ? "..." : ""}
@@ -81,9 +77,7 @@ const removeEmptyRequestsIcon = () => {
 };
 
 const removeRequestNotSelectedIcon = () => {
-    let requestNotSelectedIconEl = document.getElementById(
-        "RequestNotSelectedSvg"
-    );
+    let requestNotSelectedIconEl = document.getElementById("RequestNotSelectedSvg");
 
     // get element by id SelectedRequestInfo and remove its 'hidden' class
     let selectedRequestInfoEl = document.getElementById("SelectedRequestInfo");
@@ -116,20 +110,16 @@ const prettifyJson = (json_str) => {
             .replace(/"/g, "&quot;")
             .replace(/'/g, "&#039;");
     }
-    return json_str;
 };
 
 const selectRequest = (request_id) => {
-    request = requests.find((request) => request.id == request_id);
+    const request = requests.find((request) => request.id === request_id);
     removeRequestNotSelectedIcon();
     changeRequestInfo(request);
     let requestEls = document.querySelector("#requests");
     for (let requestEl of requestEls.childNodes) {
-        if (parseInt(requestEl.dataset.id) == request_id) {
-            requestEl.dataset.isActive = true;
-        } else {
-            requestEl.dataset.isActive = false;
-        }
+        if (requestEl?.dataset == null) return;
+        requestEl.dataset.isActive = parseInt(requestEl.dataset.id) === request_id;
     }
 };
 
@@ -167,17 +157,13 @@ const updateResponseHeaders = (responseHeaders) => {
         .querySelector('[data-title="responseHeaders"]')
         .querySelector(".details");
     if (responseHeaders === undefined) {
-        return responseHeadersEl.replaceChildren(
-            createElementFromHTML("<div class='ml-12 block loader'></div>")
-        );
+        return responseHeadersEl.replaceChildren(createElementFromHTML("<div class='ml-12 block loader'></div>"));
     }
     let responseHeadersHtml = "";
     Object.keys(responseHeaders).forEach((key) => {
         responseHeadersHtml += makeHeaderItem(key, responseHeaders[key][0]);
     });
-    responseHeadersEl.replaceChildren(
-        createElementFromHTML(responseHeadersHtml)
-    );
+    responseHeadersEl.replaceChildren(createElementFromHTML(responseHeadersHtml));
 };
 
 const updateResponseBody = (responseBody) => {
@@ -186,14 +172,10 @@ const updateResponseBody = (responseBody) => {
         .querySelector('[data-title="responseBody"]')
         .querySelector(".details");
     if (responseBody === undefined) {
-        return responseBodyEl.replaceChildren(
-            createElementFromHTML("<div class='ml-12 block loader'></div>")
-        );
+        return responseBodyEl.replaceChildren(createElementFromHTML("<div class='ml-12 block loader'></div>"));
     }
     responseBodyEl.innerHTML = `
-    <pre><code class="language-json text-normal">${prettifyJson(
-        responseBody
-    )}</code></pre>`;
+    <pre><code class="language-json text-normal">${prettifyJson(responseBody)}</code></pre>`;
 };
 
 const updateRequestBody = (requestBody) => {
@@ -202,14 +184,10 @@ const updateRequestBody = (requestBody) => {
         .querySelector('[data-title="requestBody"]')
         .querySelector(".details");
     if (requestBody === undefined) {
-        return requestBodyEl.replaceChildren(
-            createElementFromHTML("<div class='ml-12 block loader'></div>")
-        );
+        return requestBodyEl.replaceChildren(createElementFromHTML("<div class='ml-12 block loader'></div>"));
     }
     requestBodyEl.innerHTML = `
-    <pre><code class="language-json text-normal">${prettifyJson(
-        requestBody
-    )}</code></pre>`;
+    <pre><code class="language-json text-normal">${prettifyJson(requestBody)}</code></pre>`;
 };
 
 const highlight_code = () => {
@@ -227,37 +205,77 @@ const changeRequestInfo = (request) => {
     highlight_code();
 };
 
+const find_request_for_response = (response_event) => {
+    return requests.find((request) => request.id === response_event.request_id)
+}
+
+const find_response_for_request = (request_event) => {
+    return responses_without_requests.find((response) => response.request_id === request_event.id)
+}
+
 const handleEvent = (e) => {
+    if (e.data === undefined) return;
     let event = JSON.parse(e.data);
-    if ("request_id" in event) {
-        // Event is response, add latency for race condition
-        setTimeout(function () {
-            const request = requests.find(
-                (request) => request.id == event.request_id
-            );
-            if (request) {
-                request.response = event;
-                update_request_status(request.id, event.status);
-                if (request.id == active_request_id) {
-                    updateResponseHeaders(request.response.headers);
-                    updateResponseBody(request.response.body);
-                    highlight_code();
-                }
+    const is_response = "request_id" in event
+    if (is_response) {
+        const request = find_request_for_response(event);
+        if (request) {
+            request.response = event;
+            update_request_status(request.id, event.status);
+            if (request.id === active_request_id) {
+                updateResponseHeaders(request.response.headers);
+                updateResponseBody(request.response.body);
+                highlight_code();
             }
-        }, 345);
+        } else {
+            responses_without_requests.push(event)
+        }
     } else {
         try {
             event["response"] = {};
             requests.push(event);
+
             removeEmptyRequestsIcon();
             addRequest(event);
-        } catch {
+            handleEvent({data: JSON.stringify(find_response_for_request(event))});
+        } catch (e) {
             console.log("Could not load request");
         }
     }
 };
 
+const populate_fake_requests = async () => {
+    for (let i = 0; i < 10; i++) {
+        const fake_request = {
+            data: JSON.stringify({
+                id: i,
+                method: "GET",
+                url: "https://google.com",
+                body: "Request body",
+                headers: {"keep-alive": "true"}
+            })
+        }
+
+        const fake_response = {
+            data: JSON.stringify({
+                request_id: i,
+                status: 200,
+                headers: {
+                    accept: ["Json"],
+                },
+                body: JSON.stringify([Math.random(), 2, 3])
+            })
+        }
+
+        await new Promise((r) => setTimeout(r, Math.random() * 1000));
+        handleEvent(fake_request);
+        await new Promise((r) => setTimeout(r, 1500));
+        handleEvent(fake_response);
+    }
+};
+
 function main() {
+    DEBUG && populate_fake_requests().then()
     let sse = new EventSource("/events");
     sse.onmessage = handleEvent;
     sse.onerror = function () {
