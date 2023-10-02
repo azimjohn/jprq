@@ -1,0 +1,22 @@
+[Unit]
+Description=jprq-server
+After=network-online.target
+Wants=network-online.target systemd-networkd-wait-online.service
+
+[Service]
+Restart=on-failure
+RestartSec=1s
+
+Environment="GITHUB_CLIENT_ID=<todo-client-id>"
+Environment="GITHUB_CLIENT_SECRET=<todo-client-secret>"
+Environment="JPRQ_DOMAIN=jprq.site"
+Environment="JPRQ_TLS_CERT=/etc/letsencrypt/live/jprq.site/fullchain.pem"
+Environment="JPRQ_TLS_KEY=/etc/letsencrypt/live/jprq.site/privkey.pem"
+
+StandardOutput=append:/var/log/jprq/jprq.log
+StandardError=append:/var/log/jprq/error.log
+
+ExecStart=/root/jprq-server
+
+[Install]
+WantedBy=multi-user.target
