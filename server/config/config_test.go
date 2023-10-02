@@ -6,7 +6,7 @@ import (
 )
 
 func TestConfig_Load(t *testing.T) {
-	t.Setenv("JPRQ_DOMAIN", "jprq.live")
+	t.Setenv("JPRQ_DOMAIN", "jprq.site")
 	t.Setenv("JPRQ_TLS_KEY", "key.pem")
 	t.Setenv("JPRQ_TLS_CERT", "cert.pem")
 
@@ -26,7 +26,7 @@ func TestConfig_loadEmptyEnv(t *testing.T) {
 	}{
 		{
 			"JPRQ_DOMAIN",
-			"jprq.live",
+			"jprq.site",
 			"jprq domain env is not set",
 		},
 		{
