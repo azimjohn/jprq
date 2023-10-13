@@ -5,12 +5,9 @@ import (
 	"log"
 	"net"
 	"os"
-	"os/exec"
 	"os/signal"
 	"regexp"
-	"runtime"
 	"strconv"
-	"strings"
 	"time"
 )
 
@@ -24,32 +21,9 @@ func printHelp() {
 	fmt.Println("  http <port>                Start an HTTP tunnel on the specified port")
 	fmt.Println("  http <port> -s <subdomain> Start an HTTP tunnel with a custom subdomain")
 	fmt.Println("  http <port> --debug        Debug an HTTP tunnel with Jprq Debugger")
-	fmt.Println("  --free                     Free up the port when the client is running in the background")
 	fmt.Println("  --help                     Show this help message")
 	fmt.Println("  --version                  Show the version number")
 	os.Exit(0)
-}
-
-// freeClient function is called when jprq --free is called.
-// It kills the jprq processes running on the system.
-// It is called when the user wants to free up the port when the client is running in the background
-func freeClient() {
-	var cmd *exec.Cmd
-	// check the OS and run the appropriate command
-	if strings.Contains(runtime.GOOS, "windows") {
-		cmd = exec.Command("taskkill", "/IM", "jprq.exe", "/F")
-	} else if strings.Contains(runtime.GOOS, "darwin") || strings.Contains(runtime.GOOS, "linux") {
-		cmd = exec.Command("killall", "jprq")
-	} else {
-		log.Fatal("currently unsupported OS")
-	}
-
-	err := cmd.Run()
-	if err != nil {
-		log.Println("error killing jprq process")
-		os.Exit(1)
-	}
-
 }
 
 func main() {
@@ -73,8 +47,6 @@ func main() {
 		printHelp()
 	case "version", "--version":
 		printVersion()
-	case "free", "--free": // jprq --free if called
-		freeClient()
 	default:
 		log.Fatalf("unknown command: %s, jprq --help", command)
 	}

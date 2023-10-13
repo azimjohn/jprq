@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -91,7 +92,7 @@ func (j *Jprq) servePublicConn(conn net.Conn) error {
 	t, found := j.httpTunnels[host]
 	if !found {
 		writeResponse(conn, 404, "Not Found", "tunnel not found. create one at jprq.io")
-		return fmt.Errorf("unknown host requested %s", host)
+		return errors.New(fmt.Sprintf("unknown host requested %s", host))
 	}
 	return t.PublicConnectionHandler(conn, buffer)
 }
@@ -127,7 +128,7 @@ func (j *Jprq) serveEventConn(conn net.Conn) error {
 	}
 	hostname := fmt.Sprintf("%s.%s", request.Subdomain, j.config.DomainName)
 	if _, ok := j.httpTunnels[hostname]; ok {
-		return events.WriteError(conn, "subdomain is busy: %s, try another one \n or free using 'jrpq --free'", request.Subdomain)
+		return events.WriteError(conn, "subdomain is busy: %s, try another one", request.Subdomain)
 	}
 
 	var t tunnel.Tunnel
