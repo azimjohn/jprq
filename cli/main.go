@@ -3,12 +3,10 @@ package main
 import (
 	"fmt"
 	"log"
-	"net"
 	"os"
 	"os/signal"
 	"regexp"
 	"strconv"
-	"time"
 )
 
 var version = "2.1"
@@ -75,9 +73,6 @@ func main() {
 	if err := conf.Load(); err != nil {
 		log.Fatal(err)
 	}
-	if !canReachServer(port) {
-		log.Fatalf("error: cannot reach server on port: %d\n", port)
-	}
 
 	fmt.Printf("jprq %s \t press Ctrl+C to quit\n\n", version)
 	defer log.Println("jprq tunnel closed")
@@ -117,16 +112,6 @@ func handleAuth(args []string) {
 	}
 	log.Println("auth token has been set")
 	os.Exit(0)
-}
-
-func canReachServer(port int) bool {
-	address := fmt.Sprintf("127.0.0.1:%d", port)
-	conn, err := net.DialTimeout("tcp", address, 512*time.Millisecond)
-	if err != nil {
-		return false
-	}
-	conn.Close()
-	return true
 }
 
 func printVersion() {

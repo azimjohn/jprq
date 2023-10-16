@@ -26,7 +26,7 @@ type jprqClient struct {
 func (j *jprqClient) Start(port int, debug bool) {
 	eventCon, err := net.Dial("tcp", j.config.Remote.Events)
 	if err != nil {
-		log.Fatalf("error connecting to event server: %s\n", err)
+		log.Fatalf("failed to connect to event server: %s\n", err)
 	}
 	defer eventCon.Close()
 
@@ -39,12 +39,12 @@ func (j *jprqClient) Start(port int, debug bool) {
 		},
 	}
 	if err := request.Write(eventCon); err != nil {
-		log.Fatalf("error sendind request: %s\n", err)
+		log.Fatalf("failed to send request: %s\n", err)
 	}
 
 	var tunnel events.Event[events.TunnelOpened]
 	if err := tunnel.Read(eventCon); err != nil {
-		log.Fatalf("error receiving tunnel info: %s\n", err)
+		log.Fatalf("failed to receive tunnel info: %s\n", err)
 	}
 	if tunnel.Data.ErrorMessage != "" {
 		log.Fatalf(tunnel.Data.ErrorMessage)
@@ -72,7 +72,7 @@ func (j *jprqClient) Start(port int, debug bool) {
 	var event events.Event[events.ConnectionReceived]
 	for {
 		if err := event.Read(eventCon); err != nil {
-			log.Fatalf("error receiving connection received event: %s\n", err)
+			log.Fatalf("failed to receive connection-received event: %s\n", err)
 		}
 		go j.handleEvent(*event.Data)
 	}
@@ -81,14 +81,14 @@ func (j *jprqClient) Start(port int, debug bool) {
 func (j *jprqClient) handleEvent(event events.ConnectionReceived) {
 	localCon, err := net.Dial("tcp", j.localServer)
 	if err != nil {
-		log.Printf("error connecting to local server: %s\n", err)
+		log.Printf("failed to connect to local server: %s\n", err)
 		return
 	}
 	defer localCon.Close()
 
 	remoteCon, err := net.Dial("tcp", j.remoteServer)
 	if err != nil {
-		log.Printf("error connecting to remote server: %s\n", err)
+		log.Printf("failed to connect to remote server: %s\n", err)
 		return
 	}
 	defer remoteCon.Close()
