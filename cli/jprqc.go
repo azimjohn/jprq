@@ -56,7 +56,7 @@ func (j *jprqClient) Start(port int, debug bool) {
 
 	fmt.Printf("Status: \t Online \n")
 	fmt.Printf("Protocol: \t %s \n", strings.ToUpper(j.protocol))
-	fmt.Printf("Forwarded: \t %s -> %s \n", j.publicServer, j.localServer)
+	fmt.Printf("Forwarded: \t %s -> %s \n", strings.TrimSuffix(j.publicServer, ":80"), j.localServer)
 
 	if j.protocol == "http" {
 		j.publicServer = fmt.Sprintf("https://%s", tunnel.Data.Hostname)

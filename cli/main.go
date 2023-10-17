@@ -3,9 +3,13 @@ package main
 import (
 	"fmt"
 	"log"
+	"net"
+	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"strconv"
+	"time"
 )
 
 var version = "2.1"
@@ -15,16 +19,22 @@ type Flags struct {
 	subdomain string
 }
 
+func printVersion() {
+	log.Printf("v%s", version)
+	os.Exit(0)
+}
+
 func printHelp() {
 	fmt.Println("Usage: jprq <command> [arguments]\n")
 	fmt.Println("Commands:")
-	fmt.Println("  auth <token>               Set authentication token from jprq.io/auth")
-	fmt.Println("  tcp  <port>                Start a TCP tunnel on the specified port")
-	fmt.Println("  http <port>                Start an HTTP tunnel on the specified port")
-	fmt.Println("  http <port> -s <subdomain> Start an HTTP tunnel with a custom subdomain")
-	fmt.Println("  http <port> --debug        Debug an HTTP tunnel with Jprq Debugger")
-	fmt.Println("  --help                     Show this help message")
-	fmt.Println("  --version                  Show the version number")
+	fmt.Println("  auth  <token>               Set authentication token from jprq.io/auth")
+	fmt.Println("  tcp   <port>                Start a TCP tunnel on the specified port")
+	fmt.Println("  http  <port>                Start an HTTP tunnel on the specified port")
+	fmt.Println("  http  <port> -s <subdomain> Start an HTTP tunnel with a custom subdomain")
+	fmt.Println("  http  <port> --debug        Debug an HTTP tunnel with Jprq Debugger")
+	fmt.Println("  serve <dir>                 Serve files with built-in Http Server")
+	fmt.Println("  --help                      Show this help message")
+	fmt.Println("  --version                   Show the version number")
 	os.Exit(0)
 }
 
@@ -54,6 +64,8 @@ func main() {
 	switch command {
 	case "auth":
 		handleAuth(arg)
+	case "serve":
+		protocol, port = handleServe(arg)
 	case "tcp", "http":
 		protocol = command
 		port, _ = strconv.Atoi(arg)
@@ -112,7 +124,27 @@ func handleAuth(token string) {
 	os.Exit(0)
 }
 
-func printVersion() {
-	log.Printf("v%s", version)
-	os.Exit(0)
+func handleServe(dir string) (string, int) {
+	dir, err := filepath.Abs(dir)
+	if err != nil {
+		log.Fatalf("no such dir %s", dir)
+	}
+
+	handler := http.FileServer(http.Dir(dir))
+	listener, err := net.Listen("tcp", ":0")
+	if err != nil {
+		log.Fatalf("failed to start server: %s", err)
+	}
+
+	port := listener.Addr().(*net.TCPAddr).Port
+	go func() {
+		if err := http.Serve(listener, handler); err != nil {
+			log.Fatalf("cannot serve files on %s: %s", dir, err)
+		}
+	}()
+
+	time.AfterFunc(600*time.Millisecond, func() {
+		log.Println("Serving: \t", dir)
+	})
+	return "http", port
 }
