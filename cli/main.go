@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-var version = "2.1"
+var version = "2.2"
 
 type Flags struct {
 	debug     bool
