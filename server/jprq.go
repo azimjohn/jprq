@@ -8,7 +8,6 @@ import (
 	"log"
 	"net"
 	"os"
-	"strconv"
 	"strings"
 	"time"
 
@@ -26,8 +25,8 @@ type Jprq struct {
 	eventServer     server.TCPServer
 	publicServer    server.TCPServer
 	publicServerTLS server.TCPServer
-	blockedUsers    map[int]string
-	blockedLastMod  time.Time
+	allowedUsers    map[string]string
+	allowedLastMod  time.Time
 	authenticator   github.Authenticator
 	tcpTunnels      map[uint16]*tunnel.TCPTunnel
 	httpTunnels     map[string]*tunnel.HTTPTunnel
@@ -37,7 +36,7 @@ type Jprq struct {
 func (j *Jprq) Init(conf config.Config, oauth github.Authenticator) error {
 	j.config = conf
 	j.authenticator = oauth
-	j.blockedUsers = make(map[int]string)
+	j.allowedUsers = make(map[string]string)
 	j.tcpTunnels = make(map[uint16]*tunnel.TCPTunnel)
 	j.httpTunnels = make(map[string]*tunnel.HTTPTunnel)
 	j.userTunnels = make(map[string]map[string]tunnel.Tunnel)
@@ -114,8 +113,8 @@ func (j *Jprq) serveEventConn(conn net.Conn) error {
 		return events.WriteError(conn, "authentication failed")
 	}
 
-	if reason, found := j.blockedUsers[user.ID]; found {
-		return events.WriteError(conn, "your account is blocked for %s", reason)
+	if _, found := j.allowedUsers[user.Login]; !found {
+		return events.WriteError(conn, "jprq is now invite-only service %s\n", "\n\tbuy membership - https://buymeacoffee.com/azimjon \n")
 	}
 	if len(j.userTunnels[user.Login]) >= j.config.MaxTunnelsPerUser {
 		return events.WriteError(conn, "tunnels limit reached for %s", user.Login)
@@ -182,7 +181,7 @@ func (j *Jprq) serveEventConn(conn net.Conn) error {
 		if _, err := conn.Read(buffer); err == io.EOF {
 			break
 		}
-		if _, found := j.blockedUsers[user.ID]; found {
+		if _, found := j.allowedUsers[user.Login]; !found {
 			break
 		}
 	}
@@ -191,15 +190,15 @@ func (j *Jprq) serveEventConn(conn net.Conn) error {
 }
 
 func (j *Jprq) loadBlockedUsers() {
-	stat, err := os.Stat(j.config.BlockedUsersFile)
+	stat, err := os.Stat(j.config.AllowedUsersFile)
 	if err != nil {
 		log.Printf("failed to stat blocked users file: %s", err)
 		return
 	}
-	if !stat.ModTime().After(j.blockedLastMod) {
+	if !stat.ModTime().After(j.allowedLastMod) {
 		return
 	}
-	file, err := os.Open(j.config.BlockedUsersFile)
+	file, err := os.Open(j.config.AllowedUsersFile)
 	if err != nil {
 		log.Printf("failed to read blocked users file: %s", err)
 		return
@@ -207,16 +206,15 @@ func (j *Jprq) loadBlockedUsers() {
 	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
-	j.blockedUsers = make(map[int]string)
+	j.allowedUsers = make(map[string]string)
 
 	for scanner.Scan() {
 		fields := strings.Split(scanner.Text(), ",")
 		if len(fields) >= 2 {
-			id, _ := strconv.Atoi(fields[0])
-			reason := fields[1]
-			j.blockedUsers[id] = reason
+			login := strings.TrimSpace(fields[0])
+			j.allowedUsers[login] = strings.ToLower(fields[1])
 		}
 	}
-
-	j.blockedLastMod = stat.ModTime()
+	j.allowedLastMod = stat.ModTime()
+	log.Println("allow-list updated")
 }

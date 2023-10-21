@@ -16,7 +16,7 @@ type Config struct {
 	TLSKeyFile          string
 	GithubClientID      string
 	GithubClientSecret  string
-	BlockedUsersFile    string
+	AllowedUsersFile    string
 }
 
 func (c *Config) Load() error {
@@ -30,7 +30,7 @@ func (c *Config) Load() error {
 	c.TLSCertFile = os.Getenv("JPRQ_TLS_CERT")
 	c.GithubClientID = os.Getenv("GITHUB_CLIENT_ID")
 	c.GithubClientSecret = os.Getenv("GITHUB_CLIENT_SECRET")
-	c.BlockedUsersFile = "/etc/jprq/blocked-users.csv"
+	c.AllowedUsersFile = "/etc/jprq/allowed-users.csv"
 
 	if c.DomainName == "" {
 		return errors.New("jprq domain env is not set")

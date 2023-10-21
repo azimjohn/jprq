@@ -53,9 +53,3 @@ func writeResponse(conn io.WriteCloser, statusCode int, status string, message s
 	conn.Write([]byte(response))
 	conn.Close()
 }
-
-func writeRedirectResponse(conn io.WriteCloser, location string) {
-	response := fmt.Sprintf("HTTP/1.1 302 Found\r\nLocation: %s\r\n\r\n", location)
-	conn.Write([]byte(response))
-	conn.Close()
-}
