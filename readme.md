@@ -36,6 +36,12 @@
     <summary> MacOs and Linux</summary>
 
 ```bash
+$ brew install jprq
+```
+
+or
+
+```bash
 $ curl -fsSL https://jprq.io/install.sh | sudo bash
 ```
 </details>
