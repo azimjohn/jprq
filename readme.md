@@ -27,7 +27,7 @@
     ```
 
 4. Awesome! Finally, we need to <a href="https://www.youtube.com/watch?v=gb9e3m98avk">add to the environment variable "PATH"</a>, the path to the folder where we created .bat file <i>(step 3)</i><br><br>
-<p align='center'><b>Congratulations!</b> You can check if everything is working with the jprq command in CMD</p>
+<p align='center'><b>dCongratulations!</b> You can check if everything is working with the jprq command in CMD</p>
 <hr>
     
 </details>
