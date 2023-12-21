@@ -44,6 +44,24 @@ or
 ```bash
 $ curl -fsSL https://jprq.io/install.sh | sudo bash
 ```
+
+Arch-based distros
+
+1. JPRQ is available on the [AUR](https://aur.archlinux.org/packages/jprq/).
+
+   ```bash
+   git clone https://aur.archlinux.org/jprq.git
+   cd jprq
+   makepkg -si
+   ```
+
+2. You can use an AUR helper like `yay` to install it:
+
+   ```bash
+   yay -S jprq
+   ```
+
+
 </details>
 
 ## How to use
