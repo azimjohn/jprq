@@ -80,8 +80,8 @@
 
     <h3>What's JPRQ?</h3>
     <ul>
-        <li>JPRQ is a free and open tool for exposing local servers to public network</li>
-        <li>It can expose TCP protocols, such as HTTP, SSH, all major databases</li>
+        <li>JPRQ is a free and open tool for exposing local servers to public network (the internet)</li>
+        <li>It can expose TCP protocols, such as HTTP, SSH, etc. Any server!</li>
     </ul>
 
     <h3>How to install/update</h3>
@@ -103,12 +103,18 @@
     <p>Replace "custom" with the subdomain you want</p>
     <pre>$ <code class="language-sh">jprq http 3000 -s custom</code></pre>
 
-    <h3>Serve files with built-in HTTP Server</h3>
+    <h3>Serve static files with built-in HTTP Server</h3>
     <p>Replace "." with any directory to serve</p>
     <pre>$ <code class="language-sh">jprq serve .</code></pre>
 
     <h3>Debug http tunnels with jprq debugger</h3>
+    <p>Debug dashboard URL will show up in output</p>
     <pre>$ <code class="language-sh">jprq http 3000 --debug</code></pre>
+
+    <h3>Serve on a different domain using CNAME</h3>
+    <p>Replace example.com with your own domain
+        <br>Domain should have CNAME record pointing to your jprq.app to work</p>
+    <pre>$ <code class="language-sh">jprq http 3000 --cname example.com</code></pre>
 </main>
 
 <script>
