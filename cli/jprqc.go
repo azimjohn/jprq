@@ -17,6 +17,7 @@ type jprqClient struct {
 	config       Config
 	protocol     string
 	subdomain    string
+	cname        string
 	localServer  string
 	remoteServer string
 	publicServer string
@@ -34,6 +35,7 @@ func (j *jprqClient) Start(port int, debug bool) {
 		Data: &events.TunnelRequested{
 			Protocol:   j.protocol,
 			Subdomain:  j.subdomain,
+			CanonName:  j.cname,
 			AuthToken:  j.config.Local.AuthToken,
 			CliVersion: version,
 		},
@@ -42,24 +44,24 @@ func (j *jprqClient) Start(port int, debug bool) {
 		log.Fatalf("failed to send request: %s\n", err)
 	}
 
-	var tunnel events.Event[events.TunnelOpened]
-	if err := tunnel.Read(eventCon); err != nil {
+	var t events.Event[events.TunnelOpened]
+	if err := t.Read(eventCon); err != nil {
 		log.Fatalf("failed to receive tunnel info: %s\n", err)
 	}
-	if tunnel.Data.ErrorMessage != "" {
-		log.Fatalf(tunnel.Data.ErrorMessage)
+	if t.Data.ErrorMessage != "" {
+		log.Fatalf(t.Data.ErrorMessage)
 	}
 
 	j.localServer = fmt.Sprintf("127.0.0.1:%d", port)
-	j.remoteServer = fmt.Sprintf("jprq.%s:%d", j.config.Remote.Domain, tunnel.Data.PrivateServer)
-	j.publicServer = fmt.Sprintf("%s:%d", tunnel.Data.Hostname, tunnel.Data.PublicServer)
+	j.remoteServer = fmt.Sprintf("jprq.%s:%d", j.config.Remote.Domain, t.Data.PrivateServer)
+	j.publicServer = fmt.Sprintf("%s:%d", t.Data.Hostname, t.Data.PublicServer)
 
 	fmt.Printf("Status: \t Online \n")
 	fmt.Printf("Protocol: \t %s \n", strings.ToUpper(j.protocol))
 	fmt.Printf("Forwarded: \t %s -> %s \n", strings.TrimSuffix(j.publicServer, ":80"), j.localServer)
 
 	if j.protocol == "http" {
-		j.publicServer = fmt.Sprintf("https://%s", tunnel.Data.Hostname)
+		j.publicServer = fmt.Sprintf("https://%s", t.Data.Hostname)
 	}
 
 	if j.protocol == "http" && debug {

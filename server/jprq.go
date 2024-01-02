@@ -28,6 +28,7 @@ type Jprq struct {
 	allowedUsers    map[string]string
 	allowedLastMod  time.Time
 	authenticator   github.Authenticator
+	cnameMap        map[string]string
 	tcpTunnels      map[uint16]*tunnel.TCPTunnel
 	httpTunnels     map[string]*tunnel.HTTPTunnel
 	userTunnels     map[string]map[string]tunnel.Tunnel
@@ -37,6 +38,7 @@ func (j *Jprq) Init(conf config.Config, oauth github.Authenticator) error {
 	j.config = conf
 	j.authenticator = oauth
 	j.allowedUsers = make(map[string]string)
+	j.cnameMap = make(map[string]string)
 	j.tcpTunnels = make(map[uint16]*tunnel.TCPTunnel)
 	j.httpTunnels = make(map[string]*tunnel.HTTPTunnel)
 	j.userTunnels = make(map[string]map[string]tunnel.Tunnel)
@@ -87,6 +89,9 @@ func (j *Jprq) servePublicConn(conn net.Conn) error {
 		writeResponse(conn, 400, "Bad Request", "Bad Request")
 		return nil
 	}
+	if tunnelHost, ok := j.cnameMap[host]; ok && tunnelHost != "" {
+		host = tunnelHost
+	}
 	host = strings.ToLower(host)
 	t, found := j.httpTunnels[host]
 	if !found {
@@ -129,6 +134,10 @@ func (j *Jprq) serveEventConn(conn net.Conn) error {
 	if _, ok := j.httpTunnels[hostname]; ok {
 		return events.WriteError(conn, "subdomain is busy: %s, try another one", request.Subdomain)
 	}
+	cname := request.CanonName
+	if _, ok := j.cnameMap[cname]; ok && cname != "" {
+		return events.WriteError(conn, "cname is busy: %s, try another one", request.CanonName)
+	}
 
 	var t tunnel.Tunnel
 	var maxConsLimit = j.config.MaxConsPerTunnel
@@ -139,7 +148,9 @@ func (j *Jprq) serveEventConn(conn net.Conn) error {
 		if err != nil {
 			return events.WriteError(conn, "failed to create http tunnel", err.Error())
 		}
+		j.cnameMap[cname] = hostname
 		j.httpTunnels[hostname] = tn
+		defer delete(j.cnameMap, cname)
 		defer delete(j.httpTunnels, hostname)
 		t = tn
 	case events.TCP:

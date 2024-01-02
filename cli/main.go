@@ -16,6 +16,7 @@ var version = "2.2"
 
 type Flags struct {
 	debug     bool
+	cname     string
 	subdomain string
 }
 
@@ -89,6 +90,7 @@ func main() {
 		config:    conf,
 		protocol:  protocol,
 		subdomain: flags.subdomain,
+		cname:     flags.cname,
 	}
 
 	go client.Start(port, flags.debug)
@@ -102,10 +104,12 @@ func parseFlags(args []string) Flags {
 	var flags Flags
 	for i, arg := range args {
 		switch arg {
-		case "-debug", "--debug":
+		case "-d", "-debug", "--debug":
 			flags.debug = true
-		case "-s", "--subdomain":
+		case "-s", "-subdomain", "--subdomain":
 			flags.subdomain = args[i+1]
+		case "-c", "-cname", "--cname":
+			flags.cname = args[i+1]
 		}
 	}
 	return flags
