@@ -109,4 +109,8 @@ What does that mean?
  - to use the service I maintain, buy me a coffee and leave your github username
  - I will send you invite link to keep using jprq 
 
+
+
+# add some space for footer
+
 <a href="https://www.buymeacoffee.com/azimjon" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>
