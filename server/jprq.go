@@ -61,10 +61,10 @@ func (j *Jprq) Start() {
 	go j.publicServer.Start(j.servePublicConn)
 	go j.publicServerTLS.Start(j.servePublicConn)
 
-	go func() { // periodically load blocked users
-		j.loadBlockedUsers()
+	go func() { // periodically load allowed users
+		j.loadAllowedUsers()
 		for range time.Tick(time.Minute) {
-			j.loadBlockedUsers()
+			j.loadAllowedUsers()
 		}
 	}()
 }
@@ -200,7 +200,7 @@ func (j *Jprq) serveEventConn(conn net.Conn) error {
 	return nil
 }
 
-func (j *Jprq) loadBlockedUsers() {
+func (j *Jprq) loadAllowedUsers() {
 	stat, err := os.Stat(j.config.AllowedUsersFile)
 	if err != nil {
 		log.Printf("failed to stat blocked users file: %s", err)
