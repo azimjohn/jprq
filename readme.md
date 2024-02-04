@@ -3,7 +3,7 @@
     <img height="140" src="https://user-images.githubusercontent.com/35038240/221522077-5b1e3eca-ca85-4c9f-93a9-afd39cc93c88.png#gh-dark-mode-only">
 </p>
 
-## What's JPRQ?
+## what's JPRQ?
 
 - JPRQ is a free and open tool for exposing local servers to public network (the internet)
 - It can expose TCP protocols, such as HTTP, SSH, etc. Any server!
