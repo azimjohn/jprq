@@ -26,7 +26,7 @@ func printVersion() {
 }
 
 func printHelp() {
-	fmt.Println("Usage: jprq <command> [arguments]\n")
+	fmt.Printf("Usage: jprq <command> [arguments]\n\n")
 	fmt.Println("Commands:")
 	fmt.Println("  auth  <token>               Set authentication token from jprq.io/auth")
 	fmt.Println("  tcp   <port>                Start a TCP tunnel on the specified port")

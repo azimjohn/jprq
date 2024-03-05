@@ -3,14 +3,15 @@ package main
 import (
 	"encoding/binary"
 	"fmt"
-	"github.com/azimjohn/jprq/cli/debugger"
-	"github.com/azimjohn/jprq/server/events"
-	"github.com/azimjohn/jprq/server/tunnel"
 	"io"
 	"log"
 	"net"
 	"strings"
 	"time"
+
+	"github.com/azimjohn/jprq/cli/debugger"
+	"github.com/azimjohn/jprq/server/events"
+	"github.com/azimjohn/jprq/server/tunnel"
 )
 
 type jprqClient struct {
@@ -127,6 +128,9 @@ func bind(src net.Conn, dst net.Conn, debugCon io.Writer) error {
 			return err
 		}
 		_, err = debugCon.Write(buf[:n])
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
