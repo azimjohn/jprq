@@ -4,13 +4,14 @@ import (
 	_ "embed"
 	"encoding/json"
 	"fmt"
-	"github.com/djherbis/buffer"
-	"github.com/djherbis/nio/v3"
 	"io"
 	"net"
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/djherbis/buffer"
+	"github.com/djherbis/nio/v3"
 )
 
 type Conn interface {

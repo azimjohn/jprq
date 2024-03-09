@@ -3,14 +3,15 @@ package main
 import (
 	"encoding/binary"
 	"fmt"
-	"github.com/azimjohn/jprq/cli/debugger"
-	"github.com/azimjohn/jprq/server/events"
-	"github.com/azimjohn/jprq/server/tunnel"
 	"io"
 	"log"
 	"net"
 	"strings"
 	"time"
+
+	"github.com/azimjohn/jprq/cli/debugger"
+	"github.com/azimjohn/jprq/server/events"
+	"github.com/azimjohn/jprq/server/tunnel"
 )
 
 type jprqClient struct {
@@ -63,7 +64,6 @@ func (j *jprqClient) Start(port int, debug bool) {
 	if j.protocol == "http" {
 		j.publicServer = fmt.Sprintf("https://%s", t.Data.Hostname)
 	}
-
 	if j.protocol == "http" && debug {
 		j.httpDebugger = debugger.New()
 		if port, err := j.httpDebugger.Run(0); err == nil {
@@ -106,7 +106,6 @@ func (j *jprqClient) handleEvent(event events.ConnectionReceived) {
 	}
 
 	debugCon := j.httpDebugger.Connection(event.ClientPort)
-
 	go bind(localCon, remoteCon, debugCon.Response())
 	bind(remoteCon, localCon, debugCon.Request())
 }
@@ -127,6 +126,9 @@ func bind(src net.Conn, dst net.Conn, debugCon io.Writer) error {
 			return err
 		}
 		_, err = debugCon.Write(buf[:n])
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
