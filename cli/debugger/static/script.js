@@ -113,7 +113,7 @@ const prettifyJson = (json_str) => {
 };
 
 const selectRequest = (request_id) => {
-    const request = requests.find((request) => request.id === request_id);
+    const request = requests.find((request) => +request.id === request_id);
     removeRequestNotSelectedIcon();
     changeRequestInfo(request);
     let requestEls = document.querySelector("#requests");
@@ -195,8 +195,7 @@ const highlight_code = () => {
 };
 
 const changeRequestInfo = (request) => {
-    active_request_id = request.id;
-
+    active_request_id = parseInt(request.id);
     updateRequestTitle(request.method, request.url);
     updateRequestHeaders(request.headers);
     updateResponseHeaders(request.response?.headers);
