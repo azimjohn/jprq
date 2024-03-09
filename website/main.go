@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
 
 	"github.com/azimjohn/jprq/server/github"
 )
