@@ -111,7 +111,7 @@ jprq http 3000 --cname example.com
 
 Press Ctrl+C to stop it
 
-### Update as of Oct 21, 2023
+### Update as of March 3, 2024
 
 ** jprq is now members-only service **
 
