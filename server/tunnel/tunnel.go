@@ -114,12 +114,12 @@ func (t *tunnel) privateConnectionHandler(privateCon net.Conn) error {
 		}
 	}
 
-	go Bind(publicCon, privateCon)
-	Bind(privateCon, publicCon)
+	go Bind(publicCon, privateCon, nil)
+	Bind(privateCon, publicCon, nil)
 	return nil
 }
 
-func Bind(src net.Conn, dst net.Conn) error {
+func Bind(src net.Conn, dst net.Conn, debug io.Writer) error {
 	defer src.Close()
 	defer dst.Close()
 	buf := make([]byte, 4096)
@@ -133,6 +133,9 @@ func Bind(src net.Conn, dst net.Conn) error {
 		_, err = dst.Write(buf[:n])
 		if err != nil {
 			return err
+		}
+		if debug != nil {
+			debug.Write(buf[:n])
 		}
 		time.Sleep(10 * time.Millisecond)
 	}

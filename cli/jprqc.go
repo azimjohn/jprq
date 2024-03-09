@@ -3,15 +3,12 @@ package main
 import (
 	"encoding/binary"
 	"fmt"
-	"io"
-	"log"
-	"net"
-	"strings"
-	"time"
-
 	"github.com/azimjohn/jprq/cli/debugger"
 	"github.com/azimjohn/jprq/server/events"
 	"github.com/azimjohn/jprq/server/tunnel"
+	"log"
+	"net"
+	"strings"
 )
 
 type jprqClient struct {
@@ -100,35 +97,12 @@ func (j *jprqClient) handleEvent(event events.ConnectionReceived) {
 	remoteCon.Write(buffer)
 
 	if j.httpDebugger == nil {
-		go tunnel.Bind(localCon, remoteCon)
-		tunnel.Bind(remoteCon, localCon)
+		go tunnel.Bind(localCon, remoteCon, nil)
+		tunnel.Bind(remoteCon, localCon, nil)
 		return
 	}
 
 	debugCon := j.httpDebugger.Connection(event.ClientPort)
-	go bind(localCon, remoteCon, debugCon.Response())
-	bind(remoteCon, localCon, debugCon.Request())
-}
-
-func bind(src net.Conn, dst net.Conn, debugCon io.Writer) error {
-	defer src.Close()
-	defer dst.Close()
-	buf := make([]byte, 4096)
-	for {
-		_ = src.SetReadDeadline(time.Now().Add(time.Second))
-		n, err := src.Read(buf)
-		if err == io.EOF {
-			break
-		}
-		_ = dst.SetWriteDeadline(time.Now().Add(time.Second))
-		_, err = dst.Write(buf[:n])
-		if err != nil {
-			return err
-		}
-		_, err = debugCon.Write(buf[:n])
-		if err != nil {
-			return err
-		}
-	}
-	return nil
+	go tunnel.Bind(localCon, remoteCon, debugCon.Response())
+	tunnel.Bind(remoteCon, localCon, debugCon.Request())
 }
