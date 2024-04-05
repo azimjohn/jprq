@@ -1,0 +1,16 @@
+---
+name: Tests
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-go@v5
+        with:
+          go-version: 1.21
+      - uses: actions/checkout@v4
+      - name: tests
+        run: |
+          make test
