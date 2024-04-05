@@ -48,11 +48,8 @@ func (j *Jprq) Init(conf config.Config, oauth github.Authenticator) error {
 	if err := j.publicServer.Init(conf.PublicServerPort, "jprq_public_server"); err != nil {
 		return err
 	}
-	if err := j.publicServerTLS.InitTLS(conf.PublicServerTLSPort, "jprq_public_server_tls", conf.TLSCertFile,
-		conf.TLSKeyFile); err != nil {
-		return err
-	}
-	return nil
+	err := j.publicServerTLS.InitTLS(conf.PublicServerTLSPort, "jprq_public_server_tls", conf.TLSCertFile, conf.TLSKeyFile)
+	return err
 }
 
 func (j *Jprq) Start() {
@@ -75,10 +72,8 @@ func (j *Jprq) Stop() error {
 	if err := j.publicServer.Stop(); err != nil {
 		return err
 	}
-	if err := j.publicServerTLS.Stop(); err != nil {
-		return err
-	}
-	return nil
+	err := j.publicServerTLS.Stop()
+	return err
 }
 
 func (j *Jprq) servePublicConn(conn net.Conn) error {
