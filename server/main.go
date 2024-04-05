@@ -1,11 +1,12 @@
 package main
 
 import (
-	"github.com/azimjohn/jprq/server/config"
-	"github.com/azimjohn/jprq/server/github"
 	"log"
 	"os"
 	"os/signal"
+
+	"github.com/azimjohn/jprq/server/config"
+	"github.com/azimjohn/jprq/server/github"
 )
 
 func main() {

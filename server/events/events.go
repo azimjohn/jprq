@@ -68,10 +68,8 @@ func (e *Event[EventType]) encode() ([]byte, error) {
 func (e *Event[EventType]) decode(data []byte) error {
 	buf := bytes.NewBuffer(data)
 	dec := gob.NewDecoder(buf)
-	if err := dec.Decode(&e.Data); err != nil {
-		return err
-	}
-	return nil
+	err := dec.Decode(&e.Data)
+	return err
 }
 
 func (e *Event[EventType]) Read(conn io.Reader) error {
@@ -84,10 +82,8 @@ func (e *Event[EventType]) Read(conn io.Reader) error {
 	if _, err := conn.Read(buffer); err != nil {
 		return err
 	}
-	if err := e.decode(buffer); err != nil {
-		return err
-	}
-	return nil
+	err := e.decode(buffer)
+	return err
 }
 
 func (e *Event[EventType]) Write(conn io.Writer) error {
@@ -100,8 +96,6 @@ func (e *Event[EventType]) Write(conn io.Writer) error {
 	if _, err := conn.Write(length); err != nil {
 		return err
 	}
-	if _, err := conn.Write(data); err != nil {
-		return err
-	}
-	return nil
+	_, err = conn.Write(data)
+	return err
 }

@@ -3,12 +3,13 @@ package main
 import (
 	"encoding/binary"
 	"fmt"
-	"github.com/azimjohn/jprq/cli/debugger"
-	"github.com/azimjohn/jprq/server/events"
-	"github.com/azimjohn/jprq/server/tunnel"
 	"log"
 	"net"
 	"strings"
+
+	"github.com/azimjohn/jprq/cli/debugger"
+	"github.com/azimjohn/jprq/server/events"
+	"github.com/azimjohn/jprq/server/tunnel"
 )
 
 type jprqClient struct {

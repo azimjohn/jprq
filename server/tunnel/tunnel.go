@@ -4,12 +4,13 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
-	"github.com/azimjohn/jprq/server/events"
-	"github.com/azimjohn/jprq/server/server"
 	"io"
 	"net"
 	"sync"
 	"time"
+
+	"github.com/azimjohn/jprq/server/events"
+	"github.com/azimjohn/jprq/server/server"
 )
 
 type Tunnel interface {
@@ -74,7 +75,7 @@ func (t *tunnel) publicConnectionHandler(publicCon net.Conn) error {
 		}
 		publicCon.Close()
 		event.Write(t.eventWriter)
-		return errors.New(fmt.Sprintf("[connections-limit-reached]: %s", t.hostname))
+		return fmt.Errorf("[connections-limit-reached]: %s", t.hostname)
 	}
 
 	event := events.Event[events.ConnectionReceived]{

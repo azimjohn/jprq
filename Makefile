@@ -24,3 +24,4 @@ test:
 	go vet ./...
 	@echo Testing
 	go test ./... -skip TestConfig_Load
+  
