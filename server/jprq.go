@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -96,7 +95,7 @@ func (j *Jprq) servePublicConn(conn net.Conn) error {
 	t, found := j.httpTunnels[host]
 	if !found {
 		writeResponse(conn, 404, "Not Found", "tunnel not found. create one at jprq.io")
-		return errors.New(fmt.Sprintf("unknown host requested %s", host))
+		return fmt.Errorf("unknown host requested %s", host)
 	}
 	return t.PublicConnectionHandler(conn, buffer)
 }

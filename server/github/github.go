@@ -58,6 +58,9 @@ func (g github) ObtainToken(code string) (string, error) {
 		"POST",
 		"https://github.com/login/oauth/access_token",
 		strings.NewReader(payload.Encode()))
+	if err != nil {
+		return "", fmt.Errorf("failed to perform http request: %v", err)
+	}
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Add("Accept", "application/json")
 
