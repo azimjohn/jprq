@@ -1,0 +1,104 @@
+---
+run:
+  timeout: 30m
+issues:
+  max-same-issues: 0
+  # Excluding configuration per-path, per-linter, per-text and per-source
+  exclude-rules:
+    # exclude ineffassing linter for generated files for conversion
+    - path: conversion\.go
+      linters: [ineffassign]
+  exclude-files:
+    - ^zz_generated.*
+linters:
+  disable-all: true
+  enable: # please keep this alphabetized
+    # Don't use soon to deprecated[1] linters that lead to false
+    # https://github.com/golangci/golangci-lint/issues/1841
+    # - deadcode
+    # - structcheck
+    # - varcheck
+    - goimports
+    - ineffassign
+    - nakedret
+    - revive
+    - staticcheck
+    - stylecheck
+    - unconvert # Remove unnecessary type conversions
+    - unparam
+    - unused
+linters-settings: # please keep this alphabetized
+  goimports:
+    local-prefixes: go.etcd.io # Put imports beginning with prefix after 3rd-party packages.
+  nakedret:
+    # Align with https://github.com/alexkohler/nakedret/blob/v1.0.2/cmd/nakedret/main.go#L10
+    max-func-lines: 5
+  revive:
+    ignore-generated-header: false
+    severity: error
+    confidence: 0.8
+    enable-all-rules: false
+    rules:
+      - name: blank-imports
+        severity: error
+        disabled: false
+      - name: context-as-argument
+        severity: error
+        disabled: false
+      - name: dot-imports
+        severity: error
+        disabled: false
+      - name: error-return
+        severity: error
+        disabled: false
+      - name: error-naming
+        severity: error
+        disabled: false
+      - name: if-return
+        severity: error
+        disabled: false
+      - name: increment-decrement
+        severity: error
+        disabled: false
+      - name: var-declaration
+        severity: error
+        disabled: false
+      - name: package-comments
+        severity: error
+        disabled: false
+      - name: range
+        severity: error
+        disabled: false
+      - name: receiver-naming
+        severity: error
+        disabled: false
+      - name: time-naming
+        severity: error
+        disabled: false
+      - name: indent-error-flow
+        severity: error
+        disabled: false
+      - name: errorf
+        severity: error
+        disabled: false
+      - name: context-keys-type
+        severity: error
+        disabled: false
+      - name: error-strings
+        severity: error
+        disabled: false
+      # TODO: enable the following rules
+      - name: var-naming
+        disabled: true
+      - name: exported
+        disabled: true
+      - name: unexported-return
+        disabled: true
+  staticcheck:
+    checks:
+      - all
+      - -SA1019 # TODO(fix) Using a deprecated function, variable, constant or field
+      - -SA2002 # TODO(fix) Called testing.T.FailNow or SkipNow in a goroutine, which isn’t allowed
+  stylecheck:
+    checks:
+      - ST1019 # Importing the same package multiple times.
