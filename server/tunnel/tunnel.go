@@ -4,12 +4,13 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
-	"github.com/azimjohn/jprq/server/events"
-	"github.com/azimjohn/jprq/server/server"
 	"io"
 	"net"
 	"sync"
 	"time"
+
+	"github.com/azimjohn/jprq/server/events"
+	"github.com/azimjohn/jprq/server/server"
 )
 
 type Tunnel interface {

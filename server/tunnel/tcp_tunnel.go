@@ -2,8 +2,9 @@ package tunnel
 
 import (
 	"fmt"
-	"github.com/azimjohn/jprq/server/server"
 	"io"
+
+	"github.com/azimjohn/jprq/server/server"
 )
 
 type TCPTunnel struct {

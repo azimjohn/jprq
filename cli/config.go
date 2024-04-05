@@ -56,10 +56,10 @@ func (c *Config) Write() error {
 		return fmt.Errorf("error getting user config directory: %s", err)
 	}
 	dirPath := filepath.Join(configDir, "jprq")
-    if err := os.MkdirAll(dirPath, 0700); err != nil && os.IsNotExist(err) {
+	if err := os.MkdirAll(dirPath, 0700); err != nil && os.IsNotExist(err) {
 		return fmt.Errorf("error creating config directory: %s", err)
-    }
-    filePath := filepath.Join(dirPath, localConfig)
+	}
+	filePath := filepath.Join(dirPath, localConfig)
 	file, err := os.OpenFile(filePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
 		return fmt.Errorf("error creating config file: %s", err)
