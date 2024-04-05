@@ -1,6 +1,8 @@
 module github.com/azimjohn/jprq
 
-go 1.19
+go 1.21
+
+toolchain go1.21.9
 
 require (
 	github.com/djherbis/buffer v1.2.0
