@@ -109,7 +109,7 @@ func (j *Jprq) serveEventConn(conn net.Conn) error {
 	}
 	user, err := j.authenticator.Authenticate(request.AuthToken)
 	if err != nil {
-		return events.WriteError(conn, "authentication failed")
+		return events.WriteError(conn, "authentication failed %s", "\n\tobtain auth token from https://jprq.io/auth\n")
 	}
 
 	if _, found := j.allowedUsers[user.Login]; !found {
