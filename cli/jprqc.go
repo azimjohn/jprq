@@ -51,7 +51,7 @@ func (j *jprqClient) Start(port int, debug bool) {
 		log.Fatalf(t.Data.ErrorMessage)
 	}
 
-	j.localServer = fmt.Sprintf("127.0.0.1:%d", port)
+	j.localServer = fmt.Sprintf("localhost:%d", port)
 	j.remoteServer = fmt.Sprintf("jprq.%s:%d", j.config.Remote.Domain, t.Data.PrivateServer)
 	j.publicServer = fmt.Sprintf("%s:%d", t.Data.Hostname, t.Data.PublicServer)
 
