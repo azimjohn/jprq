@@ -26,16 +26,19 @@ func printVersion() {
 }
 
 func printHelp() {
-	fmt.Printf("Usage: jprq <command> [arguments]\n\n")
-	fmt.Println("Commands:")
-	fmt.Println("  auth  <token>               Set authentication token from jprq.io/auth")
-	fmt.Println("  tcp   <port>                Start a TCP tunnel on the specified port")
-	fmt.Println("  http  <port>                Start an HTTP tunnel on the specified port")
-	fmt.Println("  http  <port> -s <subdomain> Start an HTTP tunnel with a custom subdomain")
-	fmt.Println("  http  <port> --debug        Debug an HTTP tunnel with Jprq Debugger")
-	fmt.Println("  serve <dir>                 Serve files with built-in Http Server")
-	fmt.Println("  --help                      Show this help message")
-	fmt.Println("  --version                   Show the version number")
+	fmt.Printf(`
+Usage: jprq <command> [arguments]
+
+Commands:
+  auth  <token>               Set authentication token from jprq.io/auth
+  tcp   <port>                Start a TCP tunnel on the specified port
+  http  <port>                Start an HTTP tunnel on the specified port
+  http  <port> -s <subdomain> Start an HTTP tunnel with a custom subdomain
+  http  <port> --debug        Debug an HTTP tunnel with Jprq Debugger
+  serve <dir>                 Serve files with built-in Http Server
+  --help                      Show this help message
+  --version                   Show the version number
+`)
 	os.Exit(0)
 }
 
