@@ -11,7 +11,7 @@ jobs:
         with:
           go-version: 1.22
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v5
+        uses: golangci/golangci-lint-action@v6
         with:
           version: v1.57.1
           args: --config tools/.golangci.yaml
