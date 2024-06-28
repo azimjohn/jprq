@@ -87,9 +87,9 @@ func (g github) ObtainToken(code string) (string, error) {
 }
 
 func (g github) Authenticate(token string) (User, error) {
-	user, err := g.authenticate(g.userEndpoint, fmt.Sprintf("token %s%s", tokenPrefix, token))
+	user, err := g.authenticate(g.userEndpoint, token)
 	if err != nil {
-		user, err = g.authenticate(g.qir2Endpoint, fmt.Sprintf("Token %s", token))
+		user, err = g.authenticate(g.qir2Endpoint, token)
 	}
 	return user, err
 }
@@ -99,7 +99,7 @@ func (g github) authenticate(endpoint, token string) (User, error) {
 	client := &http.Client{}
 
 	req, _ := http.NewRequest("GET", endpoint, nil)
-	req.Header.Set("Authorization", token)
+	req.Header.Set("Authorization", fmt.Sprintf("token %s%s", tokenPrefix, token))
 	resp, err := client.Do(req)
 
 	if err != nil {
