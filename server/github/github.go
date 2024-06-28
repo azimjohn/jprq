@@ -14,6 +14,7 @@ type User struct {
 	ID         int    `json:"id"`
 	Name       string `json:"name"`
 	Login      string `json:"login"`
+	Allowed    bool   `json:"allowed"`
 	JoinedDate string `json:"created_at"`
 }
 
@@ -28,6 +29,7 @@ type github struct {
 	clientSecret string
 	defaultScope string
 	userEndpoint string
+	qir2Endpoint string
 	redirectUri  string
 }
 
@@ -38,6 +40,7 @@ func New(clientId, clientSecret string) Authenticator {
 		defaultScope: "user:email",
 		userEndpoint: "https://api.github.com/user",
 		redirectUri:  "https://jprq.io/oauth-callback",
+		qir2Endpoint: "https://api.42.uz/api/profile/jprq/",
 	}
 }
 
@@ -84,11 +87,19 @@ func (g github) ObtainToken(code string) (string, error) {
 }
 
 func (g github) Authenticate(token string) (User, error) {
+	user, err := g.authenticate(g.userEndpoint, fmt.Sprintf("token %s%s", tokenPrefix, token))
+	if err != nil {
+		user, err = g.authenticate(g.qir2Endpoint, fmt.Sprintf("Token %s", token))
+	}
+	return user, err
+}
+
+func (g github) authenticate(endpoint, token string) (User, error) {
 	user := User{}
 	client := &http.Client{}
 
-	req, _ := http.NewRequest("GET", g.userEndpoint, nil)
-	req.Header.Set("Authorization", fmt.Sprintf("token %s%s", tokenPrefix, token))
+	req, _ := http.NewRequest("GET", endpoint, nil)
+	req.Header.Set("Authorization", token)
 	resp, err := client.Do(req)
 
 	if err != nil {
