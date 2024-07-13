@@ -55,13 +55,14 @@ func (j *jprqClient) Start(port int, debug bool) {
 	j.remoteServer = fmt.Sprintf("jprq.%s:%d", j.config.Remote.Domain, t.Data.PrivateServer)
 	j.publicServer = fmt.Sprintf("%s:%d", t.Data.Hostname, t.Data.PublicServer)
 
+	if j.protocol == "http" {
+		j.publicServer = fmt.Sprintf("https://%s", t.Data.Hostname)
+	}
+
 	fmt.Printf("Status: \t Online \n")
 	fmt.Printf("Protocol: \t %s \n", strings.ToUpper(j.protocol))
 	fmt.Printf("Forwarded: \t %s -> %s \n", strings.TrimSuffix(j.publicServer, ":80"), j.localServer)
 
-	if j.protocol == "http" {
-		j.publicServer = fmt.Sprintf("https://%s", t.Data.Hostname)
-	}
 	if j.protocol == "http" && debug {
 		j.httpDebugger = debugger.New()
 		if port, err := j.httpDebugger.Run(0); err == nil {
