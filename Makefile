@@ -1,9 +1,3 @@
-NAME ?= jprq
-PKG ?= github.com/azimjohn/$(NAME)
-GO_VERSION ?= 1.22.2
-GOOS ?= linux
-GOARCH ?= amd64
-TEMP_DIR := $(shell mktemp -d)
 GOFILES = $(shell find . -name \*.go)
 
 .PHONY: fmt
