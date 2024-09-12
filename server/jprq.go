@@ -186,7 +186,7 @@ func (j *Jprq) serveEventConn(conn net.Conn) error {
 		if _, err := conn.Read(buffer); err == io.EOF {
 			break
 		}
-		if _, found := j.allowedUsers[user.Login]; !found {
+		if _, found := j.allowedUsers[user.Login]; !found && !user.Allowed {
 			break
 		}
 	}
