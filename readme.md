@@ -6,7 +6,7 @@
 ## What's JPRQ?
 
 - JPRQ is a free and open tool for exposing local servers to public network (the internet)
-- It can expose TCP protocols, such as HTTP, SSH, etc. Any server!
+- it can expose TCP protocols, such as HTTP, SSH, etc. Any server!
 
 ---
 
