@@ -2,7 +2,7 @@ const requestsEl = document.getElementById("requests");
 const infoSections = document.getElementsByClassName("card-info");
 let requests = [];
 let responses_without_requests = []
-let active_request_id = -1;
+let active_request_id = "-1";
 const DEBUG = false;
 
 
@@ -113,13 +113,13 @@ const prettifyJson = (json_str) => {
 };
 
 const selectRequest = (request_id) => {
-    const request = requests.find((request) => +request.id === request_id);
+    const request = requests.find((request) => request.id == request_id);
     removeRequestNotSelectedIcon();
     changeRequestInfo(request);
     let requestEls = document.querySelector("#requests");
     for (let requestEl of requestEls.childNodes) {
         if (requestEl?.dataset == null) return;
-        requestEl.dataset.isActive = parseInt(requestEl.dataset.id) === request_id;
+        requestEl.dataset.isActive = requestEl.dataset.id == request_id;
     }
 };
 
@@ -195,7 +195,7 @@ const highlight_code = () => {
 };
 
 const changeRequestInfo = (request) => {
-    active_request_id = parseInt(request.id);
+    active_request_id = request.id;
     updateRequestTitle(request.method, request.url);
     updateRequestHeaders(request.headers);
     updateResponseHeaders(request.response?.headers);
@@ -205,11 +205,11 @@ const changeRequestInfo = (request) => {
 };
 
 const find_request_for_response = (response_event) => {
-    return requests.find((request) => request.id === response_event.request_id)
+    return requests.find((request) => request.id == response_event.request_id)
 }
 
 const find_response_for_request = (request_event) => {
-    return responses_without_requests.find((response) => response.request_id === request_event.id)
+    return responses_without_requests.find((response) => response.request_id == request_event.id)
 }
 
 const handleEvent = (e) => {
@@ -221,7 +221,7 @@ const handleEvent = (e) => {
         if (request) {
             request.response = event;
             update_request_status(request.id, event.status);
-            if (request.id === active_request_id) {
+            if (request.id == active_request_id) {
                 updateResponseHeaders(request.response.headers);
                 updateResponseBody(request.response.body);
                 highlight_code();
@@ -236,7 +236,7 @@ const handleEvent = (e) => {
 
             removeEmptyRequestsIcon();
             addRequest(event);
-            handleEvent({data: JSON.stringify(find_response_for_request(event))});
+            handleEvent({ data: JSON.stringify(find_response_for_request(event)) });
         } catch (e) {
             console.log("Could not load request");
         }
@@ -247,17 +247,17 @@ const populate_fake_requests = async () => {
     for (let i = 0; i < 10; i++) {
         const fake_request = {
             data: JSON.stringify({
-                id: i,
+                id: new String(i),
                 method: "GET",
                 url: "https://google.com",
                 body: "Request body",
-                headers: {"keep-alive": "true"}
+                headers: { "keep-alive": "true" }
             })
         }
 
         const fake_response = {
             data: JSON.stringify({
-                request_id: i,
+                request_id: new String(i),
                 status: 200,
                 headers: {
                     accept: ["Json"],
