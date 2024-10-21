@@ -111,6 +111,13 @@ jprq http 3000 --cname example.com
 
 Press Ctrl+C to stop it
 
+## How to setup self hosted server
+
+* Compile the server [code](https://github.com/azimjohn/jprq/tree/master/server)
+* Set ENV variables listed [here](https://github.com/azimjohn/jprq/blob/master/jprq.service)
+* Compile the [CLI](https://github.com/azimjohn/jprq/blob/master/cli/config.go#L12) with your domain
+* Ready!
+
 ### Update as of Oct 21, 2023
 
 ** jprq is now members-only service **
