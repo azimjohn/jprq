@@ -117,7 +117,7 @@ Press Ctrl+C to stop it
 
 What does that mean?
 
-- it still stays open and free to self-host
+- it still stays open and free to self-host.
 - to use the service I maintain, buy me a coffee and leave your github username
 - I will send you invite link to keep using jprq
 
