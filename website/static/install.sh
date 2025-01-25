@@ -3,7 +3,7 @@
 set -e
 
 URL_PREFIX="https://github.com/azimjohn/jprq/releases/download/2.4"
-INSTALL_DIR="/usr/local/bin"
+INSTALL_DIR=${INSTALL_DIR:-/usr/local/bin}
 
 case "$(uname -sm)" in
   "Darwin x86_64") FILENAME="jprq-darwin-amd64" ;;
