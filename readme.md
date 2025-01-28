@@ -35,7 +35,7 @@
 </details>
 
 <details>
-    <summary> MacOs and Linux</summary>
+    <summary> MacOS and Linux</summary>
 
 ```bash
 $ brew install jprq
