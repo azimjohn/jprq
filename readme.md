@@ -14,6 +14,14 @@
 
 <details>
 <summary>Windows</summary>
+
+
+### Install via Scoop (Recommended)
+```bash
+scoop install jprq
+```
+
+### Manual Installation
 <p align='center'><a href="https://youtube.com/watch?v=frgVQPi-GlY">📹Video tutorial</a><br></p>
 
 1. Install the latest <a href='https://github.com/azimjohn/jprq/releases'>release</a> of JPRQ<br>
