@@ -10,7 +10,7 @@
 
 ---
 
-## How to install
+### How to install
 
 <details>
 <summary>Windows</summary>
