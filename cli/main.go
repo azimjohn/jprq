@@ -18,6 +18,7 @@ type Flags struct {
 	debug     bool
 	cname     string
 	subdomain string
+	qr        bool
 }
 
 func printVersion() {
@@ -26,7 +27,7 @@ func printVersion() {
 }
 
 func printHelp() {
-	fmt.Printf("Usage: jprq <command> [arguments]\n\n")
+	fmt.Printf("Usage: jprq <command> [arguments] [flags]\n\n")
 	fmt.Println("Commands:")
 	fmt.Println("  auth  <token>               Set authentication token from jprq.io/auth")
 	fmt.Println("  tcp   <port>                Start a TCP tunnel on the specified port")
@@ -36,6 +37,7 @@ func printHelp() {
 	fmt.Println("  serve <dir>                 Serve files with built-in Http Server")
 	fmt.Println("  --help                      Show this help message")
 	fmt.Println("  --version                   Show the version number")
+	fmt.Println("  --qr                        Generate QR code for public URL")
 	os.Exit(0)
 }
 
@@ -93,7 +95,7 @@ func main() {
 		cname:     flags.cname,
 	}
 
-	go client.Start(port, flags.debug)
+	go client.Start(port, flags.debug, flags.qr)
 
 	signalChan := make(chan os.Signal, 1)
 	signal.Notify(signalChan, os.Interrupt)
@@ -110,6 +112,8 @@ func parseFlags(args []string) Flags {
 			flags.subdomain = args[i+1]
 		case "-c", "-cname", "--cname":
 			flags.cname = args[i+1]
+		case "--qr", "--share-qr":
+			flags.qr = true
 		}
 	}
 	return flags
