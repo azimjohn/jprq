@@ -107,8 +107,14 @@ func parseFlags(args []string) Flags {
 		case "-d", "-debug", "--debug":
 			flags.debug = true
 		case "-s", "-subdomain", "--subdomain":
+			if i+1 >= len(args) {
+				log.Fatal("missing value for subdomain flag, jprq --help")
+			}
 			flags.subdomain = args[i+1]
 		case "-c", "-cname", "--cname":
+			if i+1 >= len(args) {
+				log.Fatal("missing value for cname flag, jprq --help")
+			}
 			flags.cname = args[i+1]
 		}
 	}
