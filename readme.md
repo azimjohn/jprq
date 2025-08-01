@@ -1,4 +1,4 @@
-<p align="center">
+ss align="center">
     <img height="140" src="https://user-images.githubusercontent.com/35038240/221522083-1011e567-e2b7-424c-a018-15e965cf8df9.png#gh-light-mode-only">
     <img height="140" src="https://user-images.githubusercontent.com/35038240/221522077-5b1e3eca-ca85-4c9f-93a9-afd39cc93c88.png#gh-dark-mode-only">
 </p>
