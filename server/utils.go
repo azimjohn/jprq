@@ -11,15 +11,34 @@ import (
 var regex = regexp.MustCompile(`^[a-z\d](?:[a-z\d]|-[a-z\d]){0,38}$`)
 var blockList = map[string]bool{"www": true, "jprq": true}
 
-func validate(subdomain string) error {
-	if len(subdomain) > 38 || len(subdomain) < 3 {
+func sanitize(subdomain string) string {
+	sanitized := strings.ToLower(subdomain)
+	reg := regexp.MustCompile(`[^a-z0-9-]+`)
+	sanitized = reg.ReplaceAllString(sanitized, "-")
+	reg2 := regexp.MustCompile(`-+`)
+	sanitized = reg2.ReplaceAllString(sanitized, "-")
+	sanitized = strings.Trim(sanitized, "-")
+	return sanitized
+}
+
+func validate(subdomain *string) error {
+	if len(*subdomain) > 38 || len(*subdomain) < 3 {
 		return errors.New("subdomain length must be between 3 and 42")
 	}
-	if blockList[subdomain] {
+	if blockList[*subdomain] {
 		return errors.New("subdomain is in deny list")
 	}
-	if !regex.MatchString(subdomain) {
-		return errors.New("subdomain must be lowercase & alphanumeric")
+	if !regex.MatchString(*subdomain) {
+		*subdomain = sanitize(*subdomain)
+		if len(*subdomain) > 38 || len(*subdomain) < 3 {
+			return errors.New("subdomain length must be between 3 and 42")
+		}
+		if blockList[*subdomain] {
+			return errors.New("subdomain is in deny list")
+		}
+		if !regex.MatchString(*subdomain) {
+			return errors.New("subdomain must be lowercase & alphanumeric")
+		}
 	}
 	return nil
 }
