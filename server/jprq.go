@@ -121,7 +121,7 @@ func (j *Jprq) serveEventConn(conn net.Conn) error {
 	if request.Subdomain == "" {
 		request.Subdomain = user.Login
 	}
-	if err := validate(request.Subdomain); err != nil {
+	if err := validate(&request.Subdomain); err != nil {
 		return events.WriteError(conn, "invalid subdomain %s: %s", request.Subdomain, err.Error())
 	}
 	hostname := fmt.Sprintf("%s.%s", request.Subdomain, j.config.DomainName)
