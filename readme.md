@@ -75,43 +75,43 @@ Arch-based distros
 
 ## How to use
 
-First obtain auth token from https://jprq.io/auth, then
+First obtain auth token from https://jprq.io/auth, then:
 
 ```bash
 jprq auth <your-auth-token>
 ```
 
-Replace 8000 with the port you want to expose
+Replace 8000 with the port you want to expose:
 
 ```bash
 jprq http 8000
 ```
 
-For exposing any TCP servers, such as SSH
+For exposing any TCP servers, such as SSH:
 
 ```bash
 jprq tcp 22
 ```
 
-For using custom subdomains
+For using custom subdomains:
 
 ```bash
 jprq http 3000 -s <custom-name>
 ```
 
-For using jprq debugger (with v2.1 or higher)
+For using jprq debugger (with v2.1 or higher):
 
 ```bash
 jprq http 3000 --debug
 ```
 
-Serve static files using built-in HTTP Server (with v2.2 or higher)
+Serve static files using built-in HTTP Server (with v2.2 or higher):
 
 ```bash
 jprq serve .
 ```
 
-Serve on a different domain using CNAME (with v2.3 or higher)
+Serve on a different domain using CNAME (with v2.3 or higher):
 
 ```bash
 jprq http 3000 --cname example.com
