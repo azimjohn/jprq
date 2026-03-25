@@ -121,8 +121,6 @@ func (t *tunnel) privateConnectionHandler(privateCon net.Conn) error {
 }
 
 func Bind(src net.Conn, dst net.Conn, debug io.Writer) error {
-	defer src.Close()
-	defer dst.Close()
 	buf := make([]byte, 4096)
 	for {
 		_ = src.SetReadDeadline(time.Now().Add(time.Second))
