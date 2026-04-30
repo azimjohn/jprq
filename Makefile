@@ -12,7 +12,7 @@ fmt:
 verify:
 	golangci-lint run --config tools/.golangci.yaml ./...
 
-.PHONY: test
+.PHONY: testy
 test:
 	@echo Vetting
 	go vet ./...

@@ -117,7 +117,7 @@ Serve on a different domain using CNAME (with v2.3 or higher)
 jprq http 3000 --cname example.com
 ```
 
-Press Ctrl+C to stop it
+Press Ctrl+C to stop it lol!!
 
 ### Update as of Oct 21, 2023
 
@@ -125,8 +125,8 @@ Press Ctrl+C to stop it
 
 What does that mean?
 
-- it still stays open and free to self-host
-- To use the service I maintain, buy me a coffee and leave your github username
+- ittt still stays open and free to self-host
+- to use the service I maintain, buy me a coffee and leave your github username
 - I will send you invite link to keep using jprq
 
 <a href="https://www.buymeacoffee.com/azimjon" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>
