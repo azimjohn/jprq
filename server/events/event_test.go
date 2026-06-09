@@ -5,6 +5,27 @@ import (
 	"testing"
 )
 
+func TestWriteError_Args(t *testing.T) {
+	tests := []struct {
+		name    string
+		message string
+		args    []string
+		want    string
+	}{
+		{"no args", "subdomain is busy", nil, "subdomain is busy"},
+		{"single arg", "subdomain is busy: %s", []string{"foo"}, "subdomain is busy: foo"},
+		{"multi arg", "cname %s does not point to %s", []string{"a.com", "b.jprq.live"}, "cname a.com does not point to b.jprq.live"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := WriteError(io.Discard, tt.message, tt.args...)
+			if err.Error() != tt.want {
+				t.Errorf("expected %q, got %q", tt.want, err.Error())
+			}
+		})
+	}
+}
+
 func TestEvent_EncodeDecode(t *testing.T) {
 	event := Event[ConnectionReceived]{
 		Data: &ConnectionReceived{
