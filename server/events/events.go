@@ -46,9 +46,13 @@ type ConnectionReceived struct {
 }
 
 func WriteError(eventWriter io.Writer, message string, args ...string) error {
+	anyArgs := make([]any, len(args))
+	for i, arg := range args {
+		anyArgs[i] = arg
+	}
 	event := Event[TunnelOpened]{
 		Data: &TunnelOpened{
-			ErrorMessage: fmt.Sprintf(message, args),
+			ErrorMessage: fmt.Sprintf(message, anyArgs...),
 		},
 	}
 	event.Write(eventWriter)
