@@ -5,6 +5,25 @@ import (
 	"testing"
 )
 
+func TestWriteError_RoundTrip(t *testing.T) {
+	pr, pw := io.Pipe()
+
+	go func() {
+		WriteError(pw, "cname %s does not point to %s", "a.com", "b.jprq.live")
+		pw.Close()
+	}()
+
+	var result Event[TunnelOpened]
+	if err := result.Read(pr); err != nil {
+		t.Fatalf("error reading: %v", err)
+	}
+
+	want := "cname a.com does not point to b.jprq.live"
+	if result.Data.ErrorMessage != want {
+		t.Errorf("expected %q, got %q", want, result.Data.ErrorMessage)
+	}
+}
+
 func TestWriteError_Args(t *testing.T) {
 	tests := []struct {
 		name    string
