@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/azimjohn/jprq/cli/debugger"
+	qr_coder "github.com/azimjohn/jprq/cli/utils"
 	"github.com/azimjohn/jprq/server/events"
 	"github.com/azimjohn/jprq/server/tunnel"
 )
@@ -23,7 +24,7 @@ type jprqClient struct {
 	httpDebugger debugger.Debugger
 }
 
-func (j *jprqClient) Start(port int, debug bool) {
+func (j *jprqClient) Start(port int, debug bool, gen_qe bool) {
 	eventCon, err := net.Dial("tcp", j.config.Remote.Events)
 	if err != nil {
 		log.Fatalf("failed to connect to event server: %s\n", err)
@@ -62,6 +63,10 @@ func (j *jprqClient) Start(port int, debug bool) {
 	fmt.Printf("Status: \t Online \n")
 	fmt.Printf("Protocol: \t %s \n", strings.ToUpper(j.protocol))
 	fmt.Printf("Forwarded: \t %s -> %s \n", strings.TrimSuffix(j.publicServer, ":80"), j.localServer)
+	if gen_qe {
+		fmt.Println("Qr Code:")
+		qr_coder.GenerateQRStr(j.publicServer)
+	}
 
 	if j.protocol == "http" && debug {
 		j.httpDebugger = debugger.New()
