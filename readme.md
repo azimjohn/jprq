@@ -127,6 +127,6 @@ What does that mean?
 
 - it still stays open and free to self-host
 - to use the service I maintain, buy me a coffee and leave your github username
-- I will send you invite link to keep using jprq
+- i will send you invite link to keep using jprq
 
 <a href="https://www.buymeacoffee.com/azimjon" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>
