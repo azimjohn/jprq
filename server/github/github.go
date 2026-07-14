@@ -98,7 +98,7 @@ func (g github) ObtainToken(code string) (string, error) {
 	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
 		return "", fmt.Errorf("failed to decode github response: %v", err)
 	}
-	return strings.TrimLeft(response.AccessToken, tokenPrefix), nil
+	return strings.TrimPrefix(response.AccessToken, tokenPrefix), nil
 }
 
 func (g github) Authenticate(token string) (User, error) {
