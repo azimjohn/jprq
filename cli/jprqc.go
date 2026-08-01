@@ -10,6 +10,7 @@ import (
 	"github.com/azimjohn/jprq/cli/debugger"
 	"github.com/azimjohn/jprq/server/events"
 	"github.com/azimjohn/jprq/server/tunnel"
+	"github.com/azimjohn/jprq/cli/i18n"
 )
 
 type jprqClient struct {
@@ -26,7 +27,7 @@ type jprqClient struct {
 func (j *jprqClient) Start(port int, debug bool) {
 	eventCon, err := net.Dial("tcp", j.config.Remote.Events)
 	if err != nil {
-		log.Fatalf("failed to connect to event server: %s\n", err)
+		log.Fatalf("%s %s\n", i18n.T("failed_connect_event_server"), err)
 	}
 	defer eventCon.Close()
 
@@ -40,12 +41,12 @@ func (j *jprqClient) Start(port int, debug bool) {
 		},
 	}
 	if err := request.Write(eventCon); err != nil {
-		log.Fatalf("failed to send request: %s\n", err)
+		log.Fatalf("%s %s\n", i18n.T("failed_sent_request"), err)
 	}
 
 	var t events.Event[events.TunnelOpened]
 	if err := t.Read(eventCon); err != nil {
-		log.Fatalf("failed to receive tunnel info: %s\n", err)
+		log.Fatalf("%s %s\n", i18n.T("failed_receive_tunnel"), err)
 	}
 	if t.Data.ErrorMessage != "" {
 		log.Fatalf(t.Data.ErrorMessage)
@@ -59,21 +60,21 @@ func (j *jprqClient) Start(port int, debug bool) {
 		j.publicServer = fmt.Sprintf("https://%s", t.Data.Hostname)
 	}
 
-	fmt.Printf("Status: \t Online \n")
-	fmt.Printf("Protocol: \t %s \n", strings.ToUpper(j.protocol))
-	fmt.Printf("Forwarded: \t %s -> %s \n", strings.TrimSuffix(j.publicServer, ":80"), j.localServer)
+	fmt.Printf("%s \n", i18n.T("status_online"))
+	fmt.Printf("%s \t %s \n", i18n.T("protocol"), strings.ToUpper(j.protocol))
+	fmt.Printf("%s \t %s -> %s \n", i18n.T("forwarded"), strings.TrimSuffix(j.publicServer, ":80"), j.localServer)
 
 	if j.protocol == "http" && debug {
 		j.httpDebugger = debugger.New()
 		if port, err := j.httpDebugger.Run(0); err == nil {
-			fmt.Printf("Http Debugger: \t http://127.0.0.1:%d \n", port)
+			fmt.Printf("Http %s: \t http://127.0.0.1:%d \n", i18n.T("debugger"), port)
 		}
 	}
 
 	var event events.Event[events.ConnectionReceived]
 	for {
 		if err := event.Read(eventCon); err != nil {
-			log.Fatalf("failed to receive connection-received event: %s\n", err)
+			log.Fatalf("%s %s\n", i18n.T("failed_receive_event"), err)
 		}
 		go j.handleEvent(*event.Data)
 	}
@@ -82,14 +83,14 @@ func (j *jprqClient) Start(port int, debug bool) {
 func (j *jprqClient) handleEvent(event events.ConnectionReceived) {
 	localCon, err := net.Dial("tcp", j.localServer)
 	if err != nil {
-		log.Printf("failed to connect to local server: %s\n", err)
+		log.Printf("%s %s\n", i18n.T("failed_connect_local_server"), err)
 		return
 	}
 	defer localCon.Close()
 
 	remoteCon, err := net.Dial("tcp", j.remoteServer)
 	if err != nil {
-		log.Printf("failed to connect to remote server: %s\n", err)
+		log.Printf("%s %s\n", i18n.T("failed_connect_remote_server"), err)
 		return
 	}
 	defer remoteCon.Close()
