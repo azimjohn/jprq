@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"time"
+	"github.com/azimjohn/jprq/cli/i18n"
 )
 
 var version = "2.4"
@@ -26,23 +27,37 @@ func printVersion() {
 }
 
 func printHelp() {
-	fmt.Printf("Usage: jprq <command> [arguments]\n\n")
-	fmt.Println("Commands:")
-	fmt.Println("  auth  <token>               Set authentication token from jprq.io/auth")
-	fmt.Println("  tcp   <port>                Start a TCP tunnel on the specified port")
-	fmt.Println("  http  <port>                Start an HTTP tunnel on the specified port")
-	fmt.Println("  http  <port> -s <subdomain> Start an HTTP tunnel with a custom subdomain")
-	fmt.Println("  http  <port> --debug        Debug an HTTP tunnel with Jprq Debugger")
-	fmt.Println("  serve <dir>                 Serve files with built-in Http Server")
-	fmt.Println("  --help                      Show this help message")
-	fmt.Println("  --version                   Show the version number")
+	fmt.Println(i18n.T("usage"))
+	fmt.Printf("\n")
+	fmt.Println(i18n.T("commands"))
+	fmt.Println(i18n.T("command_lang"))
+	fmt.Println(i18n.T("command_auth"))
+	fmt.Println(i18n.T("command_tcp"))
+	fmt.Println(i18n.T("command_http"))
+	fmt.Println(i18n.T("command_http-1"))
+	fmt.Println(i18n.T("command_http-2"))
+	fmt.Println(i18n.T("command_serve"))
+	fmt.Println(i18n.T("command_help"))
+	fmt.Println(i18n.T("command_version"))
 	os.Exit(0)
 }
 
 func main() {
+
 	log.SetFlags(0)
+
+	var conf Config
+	// 1. Config'ni o'qiymiz. Agar fayl bo'lmasa, log.Fatal qilmaymiz!
+	_ = conf.Load()
+
+	// 2. Agar til hali tanlanmagan bo'lsa, default "en" qo'yamiz
+	if conf.Local.Language == "" {
+		conf.Local.Language = "en"
+	}
+	i18n.Init(conf.Local.Language)
+
 	if len(os.Args) < 2 {
-		log.Println("no command specified")
+		log.Println(i18n.T("no_command"))
 		printHelp()
 	}
 
@@ -54,7 +69,7 @@ func main() {
 	}
 
 	if len(os.Args) < 3 {
-		log.Println("no arg supplied")
+		log.Println(i18n.T("no_args"))
 		printHelp()
 	}
 
@@ -63,28 +78,25 @@ func main() {
 	flags := parseFlags(os.Args[3:])
 
 	switch command {
-	case "auth":
-		handleAuth(arg)
-	case "serve":
-		protocol, port = handleServe(arg)
-	case "tcp", "http":
-		protocol = command
-		port, _ = strconv.Atoi(arg)
-	default:
-		log.Fatalf("unknown command: %s, jprq --help", command)
+		case "lang":
+			handleLang(arg, &conf)
+		case "auth":
+			handleAuth(arg, &conf)
+		case "serve":
+			protocol, port = handleServe(arg)
+		case "tcp", "http":
+			protocol = command
+			port, _ = strconv.Atoi(arg)
+		default:
+			log.Fatalf("%s %s, jprq --help", i18n.T("unknown_command"), command)
 	}
 
 	if port <= 0 {
-		log.Fatalf("port number must be a positive integer")
+		log.Fatalln(i18n.T("port_number"))
 	}
 
-	var conf Config
-	if err := conf.Load(); err != nil {
-		log.Fatal(err)
-	}
-
-	fmt.Printf("jprq %s \t press Ctrl+C to quit\n\n", version)
-	defer log.Println("jprq tunnel closed")
+	fmt.Printf("jprq %s \t %s\n\n", version, i18n.T("press_quit"))
+	defer log.Println(i18n.T("tunnel_closed"))
 
 	client := jprqClient{
 		config:    conf,
@@ -108,12 +120,12 @@ func parseFlags(args []string) Flags {
 			flags.debug = true
 		case "-s", "-subdomain", "--subdomain":
 			if i+1 >= len(args) {
-				log.Fatal("missing value for subdomain flag, jprq --help")
+				log.Fatal(i18n.T("missing_subdomain"))
 			}
 			flags.subdomain = args[i+1]
 		case "-c", "-cname", "--cname":
 			if i+1 >= len(args) {
-				log.Fatal("missing value for cname flag, jprq --help")
+				log.Fatal(i18n.T("missing_cname"))
 			}
 			flags.cname = args[i+1]
 		}
@@ -121,40 +133,52 @@ func parseFlags(args []string) Flags {
 	return flags
 }
 
-func handleAuth(token string) {
-	config := Config{
-		Local: struct {
-			AuthToken string `json:"auth_token"`
-		}{token},
+func handleLang(lang string, conf *Config) {
+	if lang != "uz" && lang != "en" && lang != "ru" {
+		log.Fatalln(i18n.T("invalid_language"))
 	}
-	if err := config.Write(); err != nil {
-		log.Fatalf("error writing config: %s", err)
+	conf.Local.Language = lang
+	if err := conf.Write(); err != nil {
+		log.Fatalf("%s %s", i18n.T("error_writing_config"), err)
 	}
-	log.Println("auth token has been set")
+	i18n.Init(lang)
+	log.Printf("%s %s", i18n.T("lang_changed"), lang) // yoki o'zingizning i18n xabaringiz
+	os.Exit(0)
+}
+
+func handleAuth(token string, conf *Config) {
+	conf.Local.AuthToken = token
+	if conf.Local.Language == "" {
+		conf.Local.Language = "en"
+	}
+	if err := conf.Write(); err != nil {
+		log.Fatalf("%s %s", i18n.T("error_writing_config"), err)
+	}
+	log.Println(i18n.T("auth_token_set"))
 	os.Exit(0)
 }
 
 func handleServe(dir string) (string, int) {
 	dir, err := filepath.Abs(dir)
 	if err != nil {
-		log.Fatalf("no such dir %s", dir)
+		log.Fatalf("%s %s", i18n.T("no_such_dir"), dir)
 	}
 
 	handler := http.FileServer(http.Dir(dir))
 	listener, err := net.Listen("tcp", ":0")
 	if err != nil {
-		log.Fatalf("failed to start server: %s", err)
+		log.Fatalf("%s %s", i18n.T("failed_start_server"), err)
 	}
 
 	port := listener.Addr().(*net.TCPAddr).Port
 	go func() {
 		if err := http.Serve(listener, handler); err != nil {
-			log.Fatalf("cannot serve files on %s: %s", dir, err)
+			log.Fatalf("%s %s: %s", i18n.T("cannot_server_files"), dir, err)
 		}
 	}()
 
 	time.AfterFunc(600*time.Millisecond, func() {
-		log.Println("Serving: \t", dir)
+		log.Println(i18n.T("serving"), " \t",  dir)
 	})
 	return "http", port
 }
