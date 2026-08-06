@@ -130,3 +130,9 @@ What does that mean?
 - I will send you invite link to keep using jprq
 
 <a href="https://www.buymeacoffee.com/azimjon" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>
+
+# Hello,
+
+# I want to be your apprentice. Please give me a chance to prove myself to be worthy of your apprentice.
+
+# Looking forward for your answer.
