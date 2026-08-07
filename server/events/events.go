@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"time"
 )
 
 const (
@@ -79,7 +80,10 @@ func (e *Event[EventType]) Read(conn io.Reader) error {
 	}
 	length := binary.LittleEndian.Uint16(buffer)
 	buffer = make([]byte, length)
-	if _, err := conn.Read(buffer); err != nil {
+	if c, ok := conn.(net.Conn); ok {
+		c.SetReadDeadline(time.Now().Add(time.Second * 3))
+	}
+	if _, err := io.ReadFull(conn, buffer); err != nil {
 		return err
 	}
 	err := e.decode(buffer)
