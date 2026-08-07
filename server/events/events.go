@@ -14,6 +14,7 @@ import (
 const (
 	TCP  string = "tcp"
 	HTTP string = "http"
+	MAX_EVENT_SIZE = 1024 // 1 KB
 )
 
 type EventType interface {
@@ -79,6 +80,9 @@ func (e *Event[EventType]) Read(conn io.Reader) error {
 		return err
 	}
 	length := binary.LittleEndian.Uint16(buffer)
+	if length > MAX_EVENT_SIZE {
+		return fmt.Errorf("max event payload size exceeded")
+	}
 	buffer = make([]byte, length)
 	if c, ok := conn.(net.Conn); ok {
 		c.SetReadDeadline(time.Now().Add(time.Second * 3))
