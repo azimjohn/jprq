@@ -76,7 +76,7 @@ func (e *Event[EventType]) decode(data []byte) error {
 
 func (e *Event[EventType]) Read(conn io.Reader) error {
 	buffer := make([]byte, 2)
-	if _, err := conn.Read(buffer); err != nil {
+	if _, err := io.ReadFull(conn, buffer); err != nil {
 		return err
 	}
 	length := binary.LittleEndian.Uint16(buffer)
