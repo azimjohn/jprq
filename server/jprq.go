@@ -97,7 +97,7 @@ func (j *Jprq) servePublicConn(conn net.Conn) error {
 
 func (j *Jprq) serveEventConn(conn net.Conn) error {
 	defer conn.Close()
-
+	conn.SetReadDeadline(time.Now().Add(3 * time.Second))
 	var event events.Event[events.TunnelRequested]
 	if err := event.Read(conn); err != nil {
 		return err
