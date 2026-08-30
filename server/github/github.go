@@ -29,26 +29,28 @@ type Authenticator interface {
 }
 
 type github struct {
-	clientId     string
-	clientSecret string
-	defaultScope string
-	userEndpoint string
-	qir2Endpoint string
-	authURL      string
-	redirectUri  string
-	httpClient   *http.Client
+	clientId      string
+	clientSecret  string
+	defaultScope  string
+	userEndpoint  string
+	tokenEndpoint string
+	qir2Endpoint  string
+	authURL       string
+	redirectUri   string
+	httpClient    *http.Client
 }
 
 func New(clientId, clientSecret string) Authenticator {
 	return github{
-		clientId:     clientId,
-		clientSecret: clientSecret,
-		defaultScope: "user:email",
-		userEndpoint: "https://api.github.com/user",
-		redirectUri:  "https://jprq.io/oauth-callback",
-		qir2Endpoint: "https://api.42.uz/api/profile/jprq/",
-		authURL:      "https://web.jprq.io/api/auth/validate",
-		httpClient:   &http.Client{Timeout: 2 * time.Second},
+		clientId:      clientId,
+		clientSecret:  clientSecret,
+		defaultScope:  "user:email",
+		userEndpoint:  "https://api.github.com/user",
+		tokenEndpoint: "https://github.com/login/oauth/access_token",
+		redirectUri:   "https://jprq.io/oauth-callback",
+		qir2Endpoint:  "https://api.42.uz/api/profile/jprq/",
+		authURL:       "https://web.jprq.io/api/auth/validate",
+		httpClient:    &http.Client{Timeout: 2 * time.Second},
 	}
 }
 
@@ -74,7 +76,7 @@ func (g github) ObtainToken(code string) (string, error) {
 
 	req, err := http.NewRequest(
 		"POST",
-		"https://github.com/login/oauth/access_token",
+		g.tokenEndpoint,
 		strings.NewReader(payload.Encode()))
 	if err != nil {
 		return "", fmt.Errorf("failed to perform http request: %v", err)
@@ -98,7 +100,7 @@ func (g github) ObtainToken(code string) (string, error) {
 	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
 		return "", fmt.Errorf("failed to decode github response: %v", err)
 	}
-	return strings.TrimLeft(response.AccessToken, tokenPrefix), nil
+	return strings.TrimPrefix(response.AccessToken, tokenPrefix), nil
 }
 
 func (g github) Authenticate(token string) (User, error) {
